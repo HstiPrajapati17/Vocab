@@ -119,25 +119,25 @@ const LanguageSelect = ({ navigate, user, onDone }) => {
                     placeholder="Search language..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="h_form_input ps-5"
+                    className="h_form_input"
                   />
                 </div>
               </Col>
             </Row>
-            <Row className="g-3 justify-content-center">
+            <Row className="g-4 justify-content-center">
               {filtered.map((lang, i) => (
-                <Col xs={6} sm={4} md={3} lg={2} key={i}>
+                <Col xs={12} sm={6} md={4} lg={3} key={i}>
                   <Card
                     className={`h_lang_card text-center ${selectedLang?.name === lang.name ? 'h_lang_selected' : ''}`}
                     onClick={() => setSelectedLang(lang)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <Card.Body className="p-3">
+                    <Card.Body className="p-4">
                       <div className="h_lang_flag">{lang.flag}</div>
                       <div className="h_lang_name">{lang.name}</div>
                       <div className="h_lang_native text-muted small">{lang.native}</div>
                       {selectedLang?.name === lang.name && (
-                        <Check className="text-success mt-1" size={18} />
+                        <Check className="text-success mt-2" size={20} />
                       )}
                     </Card.Body>
                   </Card>
@@ -149,18 +149,18 @@ const LanguageSelect = ({ navigate, user, onDone }) => {
 
         {/* STEP 2 — Level */}
         {step === 2 && (
-          <Row className="justify-content-center g-3">
+          <Row className="justify-content-center g-4">
             {levels.map((lvl) => (
               <Col xs={12} sm={6} md={4} key={lvl.id}>
                 <Card
-                  className={`h_level_card text-center p-3 ${selectedLevel === lvl.id ? 'h_level_selected' : ''}`}
+                  className={`h_level_card text-center p-4 ${selectedLevel === lvl.id ? 'h_level_selected' : ''}`}
                   onClick={() => setSelectedLevel(lvl.id)}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className="h_level_emoji mb-2">{lvl.icon}</div>
                   <h5 className="fw-bold">{lvl.label}</h5>
                   <p className="text-muted small mb-0">{lvl.desc}</p>
-                  {selectedLevel === lvl.id && <Check className="text-success mt-2" size={18} />}
+                  {selectedLevel === lvl.id && <Check className="text-success mt-2" size={20} />}
                 </Card>
               </Col>
             ))}
@@ -169,17 +169,17 @@ const LanguageSelect = ({ navigate, user, onDone }) => {
 
         {/* STEP 3 — Daily Goal */}
         {step === 3 && (
-          <Row className="justify-content-center g-3">
+          <Row className="justify-content-center g-4">
             {goals.map((goal, i) => (
               <Col xs={6} sm={3} key={i}>
                 <div
-                  className={`h_goal_card text-center p-3 ${selectedGoal === goal.label ? 'h_goal_selected' : ''}`}
+                  className={`h_goal_card text-center p-4 ${selectedGoal === goal.label ? 'h_goal_selected' : ''}`}
                   onClick={() => { setSelectedGoal(goal.label); setError(''); }}
                 >
                   <div className="h_goal_emoji">{goal.icon}</div>
                   <div className="h_goal_name fw-bold">{goal.label}</div>
                   <div className="h_goal_xp text-muted small">{goal.xp} XP / day</div>
-                  {selectedGoal === goal.label && <Check className="text-success mt-1" size={18} />}
+                  {selectedGoal === goal.label && <Check className="text-success mt-2" size={20} />}
                 </div>
               </Col>
             ))}

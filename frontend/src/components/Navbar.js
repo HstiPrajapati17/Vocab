@@ -29,22 +29,9 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
           <span className="h_brand_text">LinguaLeap</span>
         </Navbar.Brand>
 
-        {/* Mobile stats strip */}
-        {isLoggedIn && (
-          <div className="d-flex d-lg-none align-items-center gap-2 h_mobile_stats">
-            <span className="h_stat_pill h_fire">
-              <Flame className="h_icon_fire" size={18} />
-              <span>{user?.streak || 7}</span>
-            </span>
-            <span className="h_stat_pill h_heart">
-              <Heart className="h_icon_heart" size={18} />
-              <span>{user?.hearts || 5}</span>
-            </span>
-          </div>
-        )}
 
         <Navbar.Toggle aria-controls="main-nav" className="h_navbar_toggle border-0">
-          <Menu className="text-white" size={20} />
+          <Menu size={20} />
         </Navbar.Toggle>
 
         <Navbar.Collapse id="main-nav">
