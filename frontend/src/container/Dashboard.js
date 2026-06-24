@@ -53,7 +53,7 @@ const Dashboard = ({ navigate, user, onLessonStats }) => {
   return (
     <div className="h_learn_page">
       {activeUnit && (
-        <div className="h_section_banner" style={{ background: activeUnit.color }}>
+        <div className="h_section_banner" style={{ background: 'var(--primary)' }}>
           <button type="button" className="h_section_back" aria-label="Back">
             <ChevronLeft size={18} />
           </button>
