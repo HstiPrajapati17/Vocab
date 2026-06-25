@@ -15,10 +15,6 @@ const navItems = [
 
 const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
   const handleNav = (page) => {
-    if (page === 'letters') {
-      navigate('/dashboard');
-      return;
-    }
     navigate(`/${page}`);
   };
 

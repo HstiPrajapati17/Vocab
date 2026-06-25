@@ -17,6 +17,10 @@ import Leaderboard from './container/Leaderboard';
 import Profile from './container/Profile';
 import LanguageSelect from './container/LanguageSelect';
 import SettingsPage from './container/SettingPage';
+import AboutUs from './container/AboutUs';
+import Terms from './container/Terms';
+import Privacy from './container/Privacy';
+import Letters from './container/Letters';
 
 const shellPages = ['dashboard', 'courses', 'leaderboard', 'quests', 'shop', 'profile', 'settings'];
 
@@ -155,6 +159,11 @@ function App() {
                 <ShellLayout><Courses /></ShellLayout>
               </ProtectedRoute>
             } />
+            <Route path="/letters" element={
+              <ProtectedRoute>
+                <ShellLayout><Letters /></ShellLayout>
+              </ProtectedRoute>
+            } />
             <Route path="/leaderboard" element={
               <ProtectedRoute>
                 <ShellLayout><Leaderboard /></ShellLayout>
@@ -180,6 +189,9 @@ function App() {
                 <ShellLayout><SettingsPage /></ShellLayout>
               </ProtectedRoute>
             } />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/lesson/:lessonId" element={
               <ProtectedRoute>
                 <LessonLayout><LessonPage /></LessonLayout>
