@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Row, Col, Spinner } from 'react-bootstrap';
 import { Check, Search } from 'lucide-react';
+import { useApp } from '../App';
 import { updateUser } from '../api';
 
 const allLanguages = [
@@ -18,7 +20,9 @@ const allLanguages = [
   { flag: '🇳🇱', name: 'Dutch', learners: '4M' },
 ];
 
-const Courses = ({ user, refreshUser, onPreviewLanguage, navigate }) => {
+const Courses = () => {
+  const navigate = useNavigate();
+  const { user, refreshUser, setPreviewLanguage } = useApp();
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(null);
 
@@ -27,7 +31,7 @@ const Courses = ({ user, refreshUser, onPreviewLanguage, navigate }) => {
   );
 
   const handleSelect = async (lang) => {
-    onPreviewLanguage(lang.name);
+    setPreviewLanguage(lang.name);
 
     if (!user?.id || lang.name === user.language) return;
 

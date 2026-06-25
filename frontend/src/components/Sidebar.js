@@ -16,10 +16,10 @@ const navItems = [
 const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
   const handleNav = (page) => {
     if (page === 'letters') {
-      navigate('dashboard');
+      navigate('/dashboard');
       return;
     }
-    navigate(page);
+    navigate(`/${page}`);
   };
 
   const isActive = (id) => {
@@ -29,7 +29,7 @@ const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
 
   return (
     <aside className="h_sidebar">
-      <div className="h_sidebar_logo" onClick={() => navigate('dashboard')}>
+      <div className="h_sidebar_logo" onClick={() => navigate('/dashboard')}>
         <span className="h_sidebar_logo_icon">V</span>
         <span className="h_sidebar_logo_text">vocablearn</span>
       </div>

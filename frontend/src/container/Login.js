@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useApp } from '../App';
 import { loginUser } from '../api';
 
-const Login = ({ navigate, onLogin }) => {
+const Login = () => {
+  const navigate = useNavigate();
+  const { handleLogin } = useApp();
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -23,7 +27,8 @@ const Login = ({ navigate, onLogin }) => {
     setLoading(true);
     try {
       const userData = await loginUser(form.email, form.password);
-      onLogin(userData);
+      handleLogin(userData);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Login failed. Check your credentials.');
     } finally {
@@ -36,7 +41,7 @@ const Login = ({ navigate, onLogin }) => {
       <Container>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={7} lg={5} xl={4}>
-            <div className="h_auth_back mb-3" onClick={() => navigate('home')} style={{ cursor: 'pointer' }}>
+            <div className="h_auth_back mb-3" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
               <ArrowLeft className="me-2" size={16} /> Back to Home
             </div>
             <Card className="h_auth_card shadow-lg border-0">
@@ -108,7 +113,7 @@ const Login = ({ navigate, onLogin }) => {
 
                 <p className="text-center text-muted small mb-0">
                   Don't have an account?{' '}
-                  <span className="h_auth_switch" onClick={() => navigate('signup')}>
+                  <span className="h_auth_switch" onClick={() => navigate('/signup')}>
                     Sign up for free
                   </span>
                 </p>

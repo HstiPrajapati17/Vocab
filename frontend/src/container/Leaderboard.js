@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Badge, Nav, Spinner } from 'react-bootstrap';
 import { Trophy, Medal, Flame, Star, ArrowUp, ArrowDown, Minus, Crown } from 'lucide-react';
+import { useApp } from '../App';
 import { getLeaderboard } from '../api';
 
 const leagues = ['Bronze', 'Silver', 'Gold', 'Diamond'];
 
-const Leaderboard = ({ user }) => {
+const Leaderboard = () => {
+  const { user } = useApp();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeLeague, setActiveLeague] = useState('Silver');

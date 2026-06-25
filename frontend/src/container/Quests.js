@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProgressBar } from 'react-bootstrap';
 import { Lock, Gift } from 'lucide-react';
+import { useApp } from '../App';
 
 const quests = [
   { id: 1, title: 'Earn 10 XP', icon: '⚡', target: 10, current: 0, reward: 'Chest', locked: false },
@@ -8,7 +10,9 @@ const quests = [
   { id: 3, title: 'Maintain streak', icon: '🔥', target: 1, current: 0, reward: 'XP Boost', locked: true },
 ];
 
-const Quests = ({ user, navigate }) => {
+const Quests = () => {
+  const navigate = useNavigate();
+  const { user } = useApp();
   const todayXP = user?.xp % 100 || 0;
 
   return (

@@ -22,7 +22,7 @@ const BottomNav = ({ currentPage, navigate }) => {
           key={id}
           type="button"
           className={`h_bottom_nav_item ${isActive(id) ? 'h_bottom_nav_active' : ''}`}
-          onClick={() => navigate(id)}
+          onClick={() => navigate(`/${id}`)}
         >
           <Icon size={22} strokeWidth={isActive(id) ? 2.5 : 2} />
           <span>{label}</span>

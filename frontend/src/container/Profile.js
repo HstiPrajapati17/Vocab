@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Row, Col, Card, Badge, Button, ProgressBar, Tab, Nav } from 'react-bootstrap';
 import {
   Flame, Star, Heart, Trophy, Medal,
   Edit, Check, Globe, Calendar,
   BarChart, BookOpen, CheckCircle
 } from 'lucide-react';
+import { useApp } from '../App';
 import { updateUser } from '../api';
 
 const allAchievements = [
@@ -20,7 +22,9 @@ const allAchievements = [
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const Profile = ({ navigate, user, refreshUser }) => {
+const Profile = () => {
+  const navigate = useNavigate();
+  const { user, refreshUser } = useApp();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || 'Learner');
   const [saving, setSaving] = useState(false);

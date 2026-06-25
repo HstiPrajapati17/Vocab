@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Alert } from 'react-bootstrap';
 import { Search, Check, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useApp } from '../App';
 import { registerUser } from '../api';
 
 const allLanguages = [
@@ -38,7 +40,9 @@ const goals = [
 // Step 1: Pick language
 // Step 2: Pick level
 // Step 3: Pick daily goal → register
-const LanguageSelect = ({ navigate, user, onDone }) => {
+const LanguageSelect = () => {
+  const navigate = useNavigate();
+  const { user, handleLanguageSelected } = useApp();
   const [search, setSearch] = useState('');
   const [selectedLang, setSelectedLang] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
@@ -65,7 +69,8 @@ const LanguageSelect = ({ navigate, user, onDone }) => {
         selectedLevel,
         selectedGoal
       );
-      onDone(newUser);
+      handleLanguageSelected(newUser);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Registration failed. Try a different email.');
       setLoading(false);

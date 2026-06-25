@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ProgressBar, Badge, Spinner } from 'react-bootstrap';
 import { Heart, CheckCircle, XCircle, X, Star } from 'lucide-react';
+import { useApp } from '../App';
 import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
 
-const LessonPage = ({ navigate, user, lessonId, refreshUser }) => {
+const LessonPage = () => {
+  const navigate = useNavigate();
+  const { lessonId } = useParams();
+  const { user, refreshUser } = useApp();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);

@@ -38,7 +38,7 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
     <aside className="h_right_panel">
       {/* Stats bar */}
       <div className="h_rp_stats">
-        <button type="button" className="h_rp_stat h_rp_lang_btn" onClick={() => navigate('courses')} title="Change language">
+        <button type="button" className="h_rp_stat h_rp_lang_btn" onClick={() => navigate('/courses')} title="Change language">
           <span className="h_rp_flag">{flag}</span>
         </button>
         <div className="h_rp_stat">
@@ -79,7 +79,7 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
           </div>
         </div>
       ) : (
-        <div className="h_rp_card h_rp_card_clickable" onClick={() => navigate('leaderboard')}>
+        <div className="h_rp_card h_rp_card_clickable" onClick={() => navigate('/leaderboard')}>
           <div className="d-flex align-items-start gap-3">
             <div className="h_rp_card_icon"><Trophy size={28} style={{ color: 'var(--warning)' }} /></div>
             <div>
@@ -94,7 +94,7 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
       <div className="h_rp_card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h6 className="fw-bold mb-0">Daily Quests</h6>
-          <button type="button" className="h_rp_link_btn" onClick={() => navigate('quests')}>VIEW ALL</button>
+          <button type="button" className="h_rp_link_btn" onClick={() => navigate('/quests')}>VIEW ALL</button>
         </div>
         <div className="h_rp_quest">
           <div className="d-flex align-items-center gap-2 mb-2">

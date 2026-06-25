@@ -6,7 +6,7 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleNav = (page) => {
-    navigate(page);
+    navigate(`/${page}`);
     setExpanded(false);
   };
 
@@ -20,7 +20,7 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
     >
       <Container fluid="xl">
         <Navbar.Brand
-          onClick={() => handleNav(isLoggedIn ? 'dashboard' : 'home')}
+          onClick={() => handleNav(isLoggedIn ? 'dashboard' : '')}
           className="h_navbar_brand d-flex align-items-center"
           style={{ cursor: 'pointer' }}
         >

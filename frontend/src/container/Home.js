@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { Globe, Star, Flame, Trophy, ArrowRight, BookOpen, Users, Zap } from 'lucide-react';
 
@@ -44,7 +45,8 @@ const steps = [
   'Track your progress and earn rewards',
 ];
 
-const Home = ({ navigate }) => {
+const Home = () => {
+  const navigate = useNavigate();
   return (
     <div className="h_home_page">
       {/* Hero */}
@@ -65,7 +67,7 @@ const Home = ({ navigate }) => {
                 <Button
                   size="lg"
                   className="h_btn_get_started"
-                  onClick={() => navigate('signup')}
+                  onClick={() => navigate('/signup')}
                 >
                   Get Started — It's Free
                 </Button>
@@ -73,7 +75,7 @@ const Home = ({ navigate }) => {
                   size="lg"
                   variant="outline-secondary"
                   className="h_btn_login_hero"
-                  onClick={() => navigate('login')}
+                  onClick={() => navigate('/login')}
                 >
                   I Have an Account
                 </Button>
@@ -142,7 +144,7 @@ const Home = ({ navigate }) => {
           <Row className="g-3 g-md-4 justify-content-center">
             {languages.map((lang, i) => (
               <Col xs={6} sm={4} md={3} lg={3} xl={2} key={i}>
-                <Card className="h_lang_card" onClick={() => navigate('signup')}>
+                <Card className="h_lang_card" onClick={() => navigate('/signup')}>
                   <div className="h_lang_card_top">
                     <span className="h_lang_flag">{lang.flag}</span>
                     <div className="h_lang_name">{lang.name}</div>
@@ -160,7 +162,7 @@ const Home = ({ navigate }) => {
             ))}
           </Row>
           <div className="text-center mt-5">
-            <Button variant="outline-secondary" className="h_btn_more_langs px-4 py-2" onClick={() => navigate('signup')}>
+            <Button variant="outline-secondary" className="h_btn_more_langs px-4 py-2" onClick={() => navigate('/signup')}>
               View All Languages <ArrowRight className="ms-1" size={16} />
             </Button>
           </div>
@@ -202,7 +204,7 @@ const Home = ({ navigate }) => {
                   </div>
                 ))}
               </div>
-              <Button className="h_btn_get_started mt-4 px-4 py-2" size="lg" onClick={() => navigate('signup')}>
+              <Button className="h_btn_get_started mt-4 px-4 py-2" size="lg" onClick={() => navigate('/signup')}>
                 Start Learning Now <ArrowRight className="ms-1" size={16} />
               </Button>
             </Col>
@@ -241,7 +243,7 @@ const Home = ({ navigate }) => {
         <Container style={{ maxWidth: 'var(--container-wide)' }}>
           <h2 className="h_cta_title">Start your journey today</h2>
           <p className="h_cta_sub">Free forever. No credit card required.</p>
-          <Button size="lg" className="h_btn_get_started px-5 py-2" onClick={() => navigate('signup')}>
+          <Button size="lg" className="h_btn_get_started px-5 py-2" onClick={() => navigate('/signup')}>
             Get Started for Free
           </Button>
         </Container>

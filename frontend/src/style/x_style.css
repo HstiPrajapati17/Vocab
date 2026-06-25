@@ -1,0 +1,177 @@
+/* External CSS with x_ prefix */
+
+.x_container {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.5s ease;
+}
+
+.x_dark {
+  background: linear-gradient(135deg, #222 0%, #555 100%);
+  color: #fff;
+}
+
+.x_background-shapes {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+  animation: x_backgroundAnim 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes x_backgroundAnim {
+  0% {background-position: 0 0;}
+  100% {background-position: 1000px 1000px;}
+}
+
+.x_content {
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2rem;
+  border-radius: 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+  animation: x_fadeIn 1s ease-in-out;
+}
+
+.x_title {
+  font-family: 'Pacifico', cursive;
+  font-size: 2.5rem;
+  color: #ff6f61;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.x_card {
+  background: transparent;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.x_subtitle {
+  font-family: 'Arial Rounded MT Bold', sans-serif;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+/* Select dropdown styling */
+.x_select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 15px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  transition: background 0.3s, transform 0.2s;
+}
+.x_select:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.02);
+}
+
+/* Toggle switch styling */
+.x_toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: space-between;
+}
+.x_toggle-switch {
+  width: 50px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 25px;
+  position: relative;
+  transition: background-color 0.4s;
+}
+.x_toggle-switch.x_on {
+  background-color: #4CAF50;
+}
+.x_toggle-switch.x_off {
+  background-color: #ccc;
+}
+.x_toggle-knob {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: all 0.4s;
+}
+.x_toggle-switch.x_on .x_toggle-knob {
+  transform: translateX(20px);
+}
+
+/* Label text */
+.x_toggle-label {
+  margin-left: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  user-select: none;
+  transition: color 0.3s;
+}
+.x_dark .x_toggle-label {
+  color: #ddd;
+}
+
+/* Animations for bouncing ball or mascot */
+.x_animation {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.x_bouncingBall {
+  width: 40px;
+  height: 40px;
+  background-color: #ff6f61;
+  border-radius: 50%;
+  animation: x_bounce 2s infinite ease-in-out;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+@keyframes x_bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* FadeIn animation for container */
+@keyframes x_fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media(max-width: 768px) {
+  .x_content {
+    padding: 1.5rem;
+  }
+  .x_title {
+    font-size: 2rem;
+  }
+}

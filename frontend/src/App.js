@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './style/H_style.css';
@@ -15,14 +16,14 @@ import LessonPage from './container/LessonPage';
 import Leaderboard from './container/Leaderboard';
 import Profile from './container/Profile';
 import LanguageSelect from './container/LanguageSelect';
+import SettingsPage from './container/SettingPage';
 
-const shellPages = ['dashboard', 'courses', 'leaderboard', 'quests', 'shop', 'profile'];
+const shellPages = ['dashboard', 'courses', 'leaderboard', 'quests', 'shop', 'profile', 'settings'];
 
-function App() {
-  const [currentPage, setCurrentPage] = useState("home");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const AppContext = createContext();
+
+const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [currentLessonId, setCurrentLessonId] = useState(null);
   const [previewLanguage, setPreviewLanguage] = useState(null);
   const [lessonStats, setLessonStats] = useState({ total: 0, completed: 0 });
 
@@ -32,50 +33,30 @@ function App() {
       try {
         const parsed = JSON.parse(saved);
         setUser(parsed);
-        setIsLoggedIn(true);
-        setCurrentPage("dashboard");
       } catch {
         localStorage.removeItem("linguaUser");
       }
     }
   }, []);
 
-  const navigate = (page, extra) => {
-    if (page === "lesson" && extra?.lessonId) {
-      setCurrentLessonId(extra.lessonId);
-    }
-    if (page !== 'courses') {
-      setPreviewLanguage(null);
-    }
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const handleLogin = (userData) => {
     setUser(userData);
-    setIsLoggedIn(true);
     localStorage.setItem("linguaUser", JSON.stringify(userData));
-    setCurrentPage("dashboard");
   };
 
   const handleSignupComplete = (partialUser) => {
     setUser(partialUser);
-    setCurrentPage("language-select");
   };
 
   const handleLanguageSelected = (updatedUser) => {
     setUser(updatedUser);
-    setIsLoggedIn(true);
     localStorage.setItem("linguaUser", JSON.stringify(updatedUser));
-    setCurrentPage("dashboard");
   };
 
   const handleLogout = () => {
     setUser(null);
-    setIsLoggedIn(false);
     setPreviewLanguage(null);
     localStorage.removeItem('linguaUser');
-    setCurrentPage('home');
   };
 
   const refreshUser = (updatedUser) => {
@@ -88,84 +69,144 @@ function App() {
     setLessonStats(stats);
   }, []);
 
-  const renderLoggedInPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard navigate={navigate} user={user} onLessonStats={handleLessonStats} />;
-      case 'courses':
-        return (
-          <Courses
-            user={user}
-            refreshUser={refreshUser}
-            onPreviewLanguage={setPreviewLanguage}
-            navigate={navigate}
-          />
-        );
-      case 'quests':
-        return <Quests user={user} navigate={navigate} />;
-      case 'shop':
-        return <Shop user={user} />;
-      case 'leaderboard':
-        return <Leaderboard user={user} />;
-      case 'profile':
-        return <Profile navigate={navigate} user={user} refreshUser={refreshUser} />;
-      case 'lesson':
-        return (
-          <LessonPage
-            navigate={navigate}
-            user={user}
-            lessonId={currentLessonId}
-            refreshUser={refreshUser}
-          />
-        );
-      default:
-        return <Dashboard navigate={navigate} user={user} onLessonStats={handleLessonStats} />;
-    }
-  };
+  return (
+    <AppContext.Provider value={{
+      user,
+      setUser,
+      previewLanguage,
+      setPreviewLanguage,
+      lessonStats,
+      handleLessonStats,
+      handleLogin,
+      handleSignupComplete,
+      handleLanguageSelected,
+      handleLogout,
+      refreshUser,
+    }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
 
-  const renderPublicPage = () => {
-    switch (currentPage) {
-      case "home":
-        return <Home navigate={navigate} />;
-      case "login":
-        return <Login navigate={navigate} onLogin={handleLogin} />;
-      case 'signup':
-        return <Signup navigate={navigate} onSignupDone={handleSignupComplete} />;
-      case 'language-select':
-        return <LanguageSelect navigate={navigate} user={user} onDone={handleLanguageSelected} />;
-      default:
-        return <Home navigate={navigate} />;
-    }
-  };
+const useApp = () => useContext(AppContext);
 
-  const useShell = isLoggedIn && shellPages.includes(currentPage);
-  const isLesson = isLoggedIn && currentPage === 'lesson';
+const ProtectedRoute = ({ children }) => {
+  const { user } = useApp();
+  const location = useLocation();
+  
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  return children;
+};
+
+const PublicRoute = ({ children }) => {
+  const { user } = useApp();
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+};
+
+const ShellLayout = ({ children }) => {
+  const { user, previewLanguage, lessonStats, handleLogout } = useApp();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isLesson = location.pathname.startsWith('/lesson');
+
+  if (isLesson) {
+    return children;
+  }
 
   return (
-    <div className={`h_app_wrapper ${useShell ? 'h_app_logged_in' : ''} ${isLesson ? 'h_app_lesson' : ''}`}>
-      {!isLoggedIn && (
-        <Navbar navigate={navigate} isLoggedIn={false} currentPage={currentPage} />
-      )}
+    <AppShell>
+      {children}
+    </AppShell>
+  );
+};
 
-      {useShell ? (
-        <AppShell
-          currentPage={currentPage}
-          navigate={navigate}
-          user={user}
-          onLogout={handleLogout}
-          previewLanguage={previewLanguage}
-          lessonCount={lessonStats.total}
-          completedCount={lessonStats.completed}
-        >
-          {renderLoggedInPage()}
-        </AppShell>
-      ) : (
-        <main className="h_main_content">
-          {isLoggedIn ? renderLoggedInPage() : renderPublicPage()}
-        </main>
-      )}
-    </div>
+const LessonLayout = ({ children }) => {
+  return <main className="h_main_content">{children}</main>;
+};
+
+function App() {
+  return (
+    <Router>
+      <AppProvider>
+        <div className="h_app_wrapper">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<PublicRoute><PublicLayout /></PublicRoute>} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+            <Route path="/language-select" element={<LanguageSelect />} />
+
+            {/* Protected Routes with Shell */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <ShellLayout><Dashboard /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/courses" element={
+              <ProtectedRoute>
+                <ShellLayout><Courses /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/leaderboard" element={
+              <ProtectedRoute>
+                <ShellLayout><Leaderboard /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/quests" element={
+              <ProtectedRoute>
+                <ShellLayout><Quests /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/shop" element={
+              <ProtectedRoute>
+                <ShellLayout><Shop /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ShellLayout><Profile /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <ShellLayout><SettingsPage /></ShellLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/lesson/:lessonId" element={
+              <ProtectedRoute>
+                <LessonLayout><LessonPage /></LessonLayout>
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </AppProvider>
+    </Router>
   );
 }
 
+const PublicLayout = () => {
+  const navigate = useNavigate();
+  const { user } = useApp();
+  const location = useLocation();
+  const currentPage = location.pathname.replace('/', '') || 'home';
+  
+  return (
+    <>
+      <Navbar navigate={navigate} isLoggedIn={false} currentPage={currentPage} />
+      <main className="h_main_content">
+        <Home navigate={navigate} />
+      </main>
+    </>
+  );
+};
+
+export { useApp };
 export default App;

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Spinner } from 'react-bootstrap';
 import {
   Lock, CheckCircle, Star, Dumbbell, Trophy, BookOpen, ChevronLeft
 } from 'lucide-react';
+import { useApp } from '../App';
 import { getLessons } from '../api';
 
 const unitMeta = [
@@ -13,7 +15,9 @@ const unitMeta = [
 
 const pathIcons = [Star, Dumbbell, Trophy, Star, Lock];
 
-const Dashboard = ({ navigate, user, onLessonStats }) => {
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, handleLessonStats } = useApp();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +33,8 @@ const Dashboard = ({ navigate, user, onLessonStats }) => {
 
   useEffect(() => {
     const completed = user?.completedLessons?.length || 0;
-    onLessonStats?.({ total: lessons.length, completed });
-  }, [lessons.length, user?.completedLessons, onLessonStats]);
+    handleLessonStats?.({ total: lessons.length, completed });
+  }, [lessons.length, user?.completedLessons, handleLessonStats]);
 
   const completedLessons = user?.completedLessons || [];
   const activeLesson = user?.activeLesson || 1;
@@ -40,7 +44,7 @@ const Dashboard = ({ navigate, user, onLessonStats }) => {
     const isActive = lesson.id === activeLesson;
     const isLocked = !isCompleted && !isActive;
     if (isLocked) return;
-    navigate('lesson', { lessonId: lesson.id });
+    navigate(`/lesson/${lesson.id}`);
   };
 
   const unitGroups = unitMeta.map(unit => ({

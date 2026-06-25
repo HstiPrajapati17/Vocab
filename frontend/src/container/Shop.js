@@ -1,4 +1,5 @@
 import React from 'react';
+import { useApp } from '../App';
 
 const items = [
   { icon: '❄️', title: 'Streak Freeze', desc: 'Protect your streak if you miss a day', price: 10, type: 'gem' },
@@ -6,7 +7,8 @@ const items = [
   { icon: '❤️', title: 'Refill Hearts', desc: 'Restore all hearts instantly', price: 15, type: 'gem' },
 ];
 
-const Shop = ({ user }) => {
+const Shop = () => {
+  const { user } = useApp();
   const gems = Math.floor((user?.xp || 0) / 10);
 
   return (

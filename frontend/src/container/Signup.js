@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useApp } from '../App';
 
-const Signup = ({ navigate, onSignupDone }) => {
+const Signup = () => {
+  const navigate = useNavigate();
+  const { handleSignupComplete } = useApp();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -24,12 +28,12 @@ const Signup = ({ navigate, onSignupDone }) => {
       return;
     }
     setLoading(true);
-    // Pass partial user to language select — registration happens after language is picked
     try {
-      setLoading(false);
-      onSignupDone({ name: form.name, email: form.email, password: form.password });
+      handleSignupComplete({ name: form.name, email: form.email, password: form.password });
+      navigate('/language-select');
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -39,7 +43,7 @@ const Signup = ({ navigate, onSignupDone }) => {
       <Container>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={7} lg={5} xl={4}>
-            <div className="h_auth_back mb-3" onClick={() => navigate('home')} style={{ cursor: 'pointer' }}>
+            <div className="h_auth_back mb-3" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
               <ArrowLeft className="me-2" size={16} /> Back to Home
             </div>
 
@@ -114,7 +118,7 @@ const Signup = ({ navigate, onSignupDone }) => {
                 <hr className="my-4" />
                 <p className="text-center text-muted small mb-0">
                   Already have an account?{' '}
-                  <span className="h_auth_switch" onClick={() => navigate('login')}>
+                  <span className="h_auth_switch" onClick={() => navigate('/login')}>
                     Log in
                   </span>
                 </p>
