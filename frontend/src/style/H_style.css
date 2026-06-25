@@ -1036,6 +1036,90 @@ body {
 .h_xp_locked { background: var(--bg-muted) !important; color: var(--text-muted) !important; }
 .h_xp_pending { background: var(--primary-soft) !important; color: var(--primary-dark) !important; border: 1px solid var(--primary-border); }
 
+/* ===== ALPHABET PANEL ===== */
+.h_alphabet_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.h_alphabet_btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--bg-white);
+  border: 2px solid var(--primary-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  min-height: 70px;
+}
+
+.h_alphabet_btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  transform: translateY(-2px);
+}
+
+.h_alphabet_selected {
+  border-color: var(--primary) !important;
+  background: var(--primary-soft) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.h_alphabet_letter {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.h_alphabet_pronunciation {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.h_alphabet_detail {
+  background: var(--primary-soft);
+  border: 2px solid var(--primary-border);
+  border-radius: var(--radius-md);
+  animation: h_fadeIn 0.3s ease-out;
+}
+
+@keyframes h_fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.h_alphabet_detail_letter {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.h_alphabet_detail_pronunciation {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.h_alphabet_detail_example {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 /* Widgets */
 .h_mobile_stat_card {
   background: var(--bg-white);
@@ -1871,7 +1955,7 @@ body {
 
 .h_unit_divider span {
   position: relative;
-  background: var(--bg);
+  background: #fff;
   padding: 4px 16px;
   font-weight: 700;
   font-size: 0.85rem;
