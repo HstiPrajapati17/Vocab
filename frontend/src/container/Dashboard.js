@@ -2,16 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import {
-  Lock,
-  CheckCircle,
-  Star,
-  Dumbbell,
-  Trophy,
-  BookOpen,
-  ChevronLeft,
-} from "lucide-react";
-import { useApp } from "../App";
-import { getLessons } from "../api";
+  Lock, CheckCircle, Star, Dumbbell, Trophy, BookOpen, ChevronLeft
+} from 'lucide-react';
+import { useApp } from '../App';
+import { getLessons, updateUser } from '../api';
+import InstructionsModal from '../components/InstructionsModal';
+import { FaAnglesLeft } from "react-icons/fa6";
 
 const unitMeta = [
   {
@@ -38,15 +34,26 @@ const pathIcons = [Star, Dumbbell, Trophy, Star, Lock];
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, handleLessonStats } = useApp();
+  const { user, handleLessonStats, refreshUser } = useApp();
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [localActiveLesson, setLocalActiveLesson] = useState(null);
 
   useEffect(() => {
     setLoading(true);
-    getLessons(user?.language || "Spanish")
-      .then((data) => {
+    getLessons(user?.language || 'English')
+      .then(data => {
         setLessons(data);
+        // Set activeLesson to first lesson ID if not set or if language changed
+        if (data.length > 0) {
+          const firstLessonId = data[0].id;
+          setLocalActiveLesson(firstLessonId);
+          if (!user?.activeLesson || user?.language !== data[0].language) {
+            // The first lesson should be active by default
+            updateUser(user.id, { activeLesson: firstLessonId }).then(refreshUser);
+          }
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -58,7 +65,7 @@ const Dashboard = () => {
   }, [lessons.length, user?.completedLessons, handleLessonStats]);
 
   const completedLessons = user?.completedLessons || [];
-  const activeLesson = user?.activeLesson || 1;
+  const activeLesson = localActiveLesson || user?.activeLesson || 1;
 
   const handleLessonClick = (lesson) => {
     const isCompleted = completedLessons.includes(lesson.id);
@@ -91,7 +98,7 @@ const Dashboard = () => {
             <div className="h_section_sub_label">{activeUnit.section}</div>
             <div className="h_section_main_label">{activeUnit.title}</div>
           </div>
-          <button type="button" className="h_guidebook_btn">
+          <button type="button" className="h_guidebook_btn" onClick={() => setShowInstructions(true)}>
             <BookOpen size={16} /> GUIDEBOOK
           </button>
         </div>
@@ -166,11 +173,16 @@ const Dashboard = () => {
             <span>Jump ahead?</span>
           </div>
           <button type="button" className="h_jump_btn" disabled>
-            <span className="h_jump_icon">⏩</span>
+            <span className="h_jump_icon"><FaAnglesLeft /></span>
           </button>
           <p className="h_jump_label">JUMP HERE?</p>
         </div>
       )}
+
+      <InstructionsModal
+        show={showInstructions}
+        onHide={() => setShowInstructions(false)}
+      />
     </div>
   );
 };

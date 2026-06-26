@@ -58,6 +58,14 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
                 >
                   <BookOpen className="me-1" size={16} /> Learn
                 </Nav.Link>
+                {user?.language === 'English' && (
+                  <Nav.Link
+                    onClick={() => handleNav('letters')}
+                    className={`h_nav_link ${currentPage === 'letters' ? 'h_nav_active' : ''}`}
+                  >
+                    <Star className="me-1" size={16} /> Letters
+                  </Nav.Link>
+                )}
                 <Nav.Link
                   onClick={() => handleNav('leaderboard')}
                   className={`h_nav_link ${currentPage === 'leaderboard' ? 'h_nav_active' : ''}`}

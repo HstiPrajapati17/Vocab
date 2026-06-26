@@ -31,14 +31,16 @@
       "email": "demo@demo.com",
       "password": "demo123",
       "avatar": "🧑",
-      "xp": 390,
+      "xp": 450,
       "streak": 7,
       "hearts": 4,
-      "language": "Spanish",
+      "language": "English",
       "level": "Beginner",
       "dailyGoal": "Regular",
-      "completedLessons": [],
-      "activeLesson": 1,
+      "completedLessons": [
+        "13"
+      ],
+      "activeLesson": "131",
       "joinedDate": "2025-06-01"
     },
     {
@@ -166,6 +168,330 @@
       "icon": "💼",
       "xp": 20,
       "language": "Spanish"
+    },
+    {
+      "id": 13,
+      "unitId": 1,
+      "title": "Greetings",
+      "type": "vocabulary",
+      "icon": "👋",
+      "xp": 10,
+      "language": "English"
+    },
+    {
+      "id": 14,
+      "unitId": 1,
+      "title": "Numbers",
+      "type": "vocabulary",
+      "icon": "🔢",
+      "xp": 10,
+      "language": "English"
+    },
+    {
+      "id": 15,
+      "unitId": 1,
+      "title": "Colors",
+      "type": "vocabulary",
+      "icon": "🎨",
+      "xp": 10,
+      "language": "English"
+    },
+    {
+      "id": 16,
+      "unitId": 1,
+      "title": "Animals",
+      "type": "vocabulary",
+      "icon": "🐾",
+      "xp": 10,
+      "language": "English"
+    },
+    {
+      "id": 17,
+      "unitId": 1,
+      "title": "Quiz 1",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 20,
+      "language": "English"
+    },
+    {
+      "id": 18,
+      "unitId": 2,
+      "title": "Food & Drink",
+      "type": "translation",
+      "icon": "🍎",
+      "xp": 15,
+      "language": "English"
+    },
+    {
+      "id": 19,
+      "unitId": 2,
+      "title": "Travel",
+      "type": "listening",
+      "icon": "✈️",
+      "xp": 15,
+      "language": "English"
+    },
+    {
+      "id": 20,
+      "unitId": 2,
+      "title": "Directions",
+      "type": "speaking",
+      "icon": "🗺️",
+      "xp": 15,
+      "language": "English"
+    },
+    {
+      "id": 21,
+      "unitId": 2,
+      "title": "Quiz 2",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 25,
+      "language": "English"
+    },
+    {
+      "id": 22,
+      "unitId": 1,
+      "title": "Begrüßung",
+      "type": "vocabulary",
+      "icon": "👋",
+      "xp": 10,
+      "language": "German"
+    },
+    {
+      "id": 23,
+      "unitId": 1,
+      "title": "Farben",
+      "type": "vocabulary",
+      "icon": "🎨",
+      "xp": 10,
+      "language": "German"
+    },
+    {
+      "id": 24,
+      "unitId": 1,
+      "title": "Zahlen",
+      "type": "vocabulary",
+      "icon": "🔢",
+      "xp": 10,
+      "language": "German"
+    },
+    {
+      "id": 25,
+      "unitId": 1,
+      "title": "Tiere",
+      "type": "vocabulary",
+      "icon": "🐾",
+      "xp": 10,
+      "language": "German"
+    },
+    {
+      "id": 26,
+      "unitId": 1,
+      "title": "Quiz 1",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 20,
+      "language": "German"
+    },
+    {
+      "id": 27,
+      "unitId": 2,
+      "title": "Essen & Trinken",
+      "type": "translation",
+      "icon": "🍎",
+      "xp": 15,
+      "language": "German"
+    },
+    {
+      "id": 28,
+      "unitId": 2,
+      "title": "Reisen",
+      "type": "listening",
+      "icon": "✈️",
+      "xp": 15,
+      "language": "German"
+    },
+    {
+      "id": 29,
+      "unitId": 2,
+      "title": "Richtungen",
+      "type": "speaking",
+      "icon": "🗺️",
+      "xp": 15,
+      "language": "German"
+    },
+    {
+      "id": 30,
+      "unitId": 2,
+      "title": "Quiz 2",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 25,
+      "language": "German"
+    },
+    {
+      "id": 31,
+      "unitId": 1,
+      "title": "Salutations",
+      "type": "vocabulary",
+      "icon": "👋",
+      "xp": 10,
+      "language": "French"
+    },
+    {
+      "id": 32,
+      "unitId": 1,
+      "title": "Couleurs",
+      "type": "vocabulary",
+      "icon": "🎨",
+      "xp": 10,
+      "language": "French"
+    },
+    {
+      "id": 33,
+      "unitId": 1,
+      "title": "Nombres",
+      "type": "vocabulary",
+      "icon": "🔢",
+      "xp": 10,
+      "language": "French"
+    },
+    {
+      "id": 34,
+      "unitId": 1,
+      "title": "Animaux",
+      "type": "vocabulary",
+      "icon": "🐾",
+      "xp": 10,
+      "language": "French"
+    },
+    {
+      "id": 35,
+      "unitId": 1,
+      "title": "Quiz 1",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 20,
+      "language": "French"
+    },
+    {
+      "id": 36,
+      "unitId": 2,
+      "title": "Nourriture",
+      "type": "translation",
+      "icon": "🍎",
+      "xp": 15,
+      "language": "French"
+    },
+    {
+      "id": 37,
+      "unitId": 2,
+      "title": "Voyage",
+      "type": "listening",
+      "icon": "✈️",
+      "xp": 15,
+      "language": "French"
+    },
+    {
+      "id": 38,
+      "unitId": 2,
+      "title": "Directions",
+      "type": "speaking",
+      "icon": "🗺️",
+      "xp": 15,
+      "language": "French"
+    },
+    {
+      "id": 39,
+      "unitId": 2,
+      "title": "Quiz 2",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 25,
+      "language": "French"
+    },
+    {
+      "id": 40,
+      "unitId": 1,
+      "title": "Powitania",
+      "type": "vocabulary",
+      "icon": "👋",
+      "xp": 10,
+      "language": "Polish"
+    },
+    {
+      "id": 41,
+      "unitId": 1,
+      "title": "Kolory",
+      "type": "vocabulary",
+      "icon": "🎨",
+      "xp": 10,
+      "language": "Polish"
+    },
+    {
+      "id": 42,
+      "unitId": 1,
+      "title": "Liczby",
+      "type": "vocabulary",
+      "icon": "🔢",
+      "xp": 10,
+      "language": "Polish"
+    },
+    {
+      "id": 43,
+      "unitId": 1,
+      "title": "Zwierzęta",
+      "type": "vocabulary",
+      "icon": "🐾",
+      "xp": 10,
+      "language": "Polish"
+    },
+    {
+      "id": 44,
+      "unitId": 1,
+      "title": "Quiz 1",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 20,
+      "language": "Polish"
+    },
+    {
+      "id": 45,
+      "unitId": 2,
+      "title": "Jedzenie",
+      "type": "translation",
+      "icon": "🍎",
+      "xp": 15,
+      "language": "Polish"
+    },
+    {
+      "id": 46,
+      "unitId": 2,
+      "title": "Podróż",
+      "type": "listening",
+      "icon": "✈️",
+      "xp": 15,
+      "language": "Polish"
+    },
+    {
+      "id": 47,
+      "unitId": 2,
+      "title": "Kierunki",
+      "type": "speaking",
+      "icon": "🗺️",
+      "xp": 15,
+      "language": "Polish"
+    },
+    {
+      "id": 48,
+      "unitId": 2,
+      "title": "Quiz 2",
+      "type": "quiz",
+      "icon": "🏆",
+      "xp": 25,
+      "language": "Polish"
     }
   ],
   "questions": [
@@ -588,6 +914,1446 @@
       ],
       "correct": 2,
       "explanation": "\"Pollo\" means \"Chicken\" in Spanish."
+    },
+    {
+      "id": 31,
+      "lessonId": 13,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "What does \"Hello\" mean?",
+      "options": [
+        "Goodbye",
+        "Hello",
+        "Thank you",
+        "Please"
+      ],
+      "correct": 1,
+      "explanation": "\"Hello\" is a common greeting in English.",
+      "language": "English"
+    },
+    {
+      "id": 32,
+      "lessonId": 13,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Which means \"Thank you\"?",
+      "options": [
+        "Please",
+        "Sorry",
+        "Thank you",
+        "Goodbye"
+      ],
+      "correct": 2,
+      "explanation": "\"Thank you\" is used to express gratitude.",
+      "language": "English"
+    },
+    {
+      "id": 33,
+      "lessonId": 13,
+      "level": 1,
+      "type": "translate",
+      "question": "Translate: \"Good morning\"",
+      "options": [
+        "Good night",
+        "Good morning",
+        "Good afternoon",
+        "Good evening"
+      ],
+      "correct": 1,
+      "explanation": "\"Good morning\" is used to greet someone in the morning.",
+      "language": "English"
+    },
+    {
+      "id": 34,
+      "lessonId": 13,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "What does \"Please\" mean?",
+      "options": [
+        "Excuse me",
+        "Sorry",
+        "Please",
+        "You're welcome"
+      ],
+      "correct": 2,
+      "explanation": "\"Please\" is used to make polite requests.",
+      "language": "English"
+    },
+    {
+      "id": 35,
+      "lessonId": 13,
+      "level": 1,
+      "type": "translate",
+      "question": "Translate: \"How are you?\"",
+      "options": [
+        "Where are you?",
+        "What's your name?",
+        "How old are you?",
+        "How are you?"
+      ],
+      "correct": 3,
+      "explanation": "\"How are you?\" is used to ask about someone's well-being.",
+      "language": "English"
+    },
+    {
+      "id": 36,
+      "lessonId": 14,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"1\"?",
+      "options": [
+        "Two",
+        "Three",
+        "One",
+        "Four"
+      ],
+      "correct": 2,
+      "explanation": "\"One\" is the number 1.",
+      "language": "English"
+    },
+    {
+      "id": 37,
+      "lessonId": 14,
+      "level": 1,
+      "type": "translate",
+      "question": "What is \"Five\"?",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "correct": 2,
+      "explanation": "\"Five\" is the number 5.",
+      "language": "English"
+    },
+    {
+      "id": 38,
+      "lessonId": 14,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"10\"?",
+      "options": [
+        "Nine",
+        "Ten",
+        "Eight",
+        "Seven"
+      ],
+      "correct": 1,
+      "explanation": "\"Ten\" is the number 10.",
+      "language": "English"
+    },
+    {
+      "id": 39,
+      "lessonId": 14,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "What does \"Two\" mean?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "correct": 1,
+      "explanation": "\"Two\" is the number 2.",
+      "language": "English"
+    },
+    {
+      "id": 40,
+      "lessonId": 14,
+      "level": 1,
+      "type": "translate",
+      "question": "Translate: \"Seven\"",
+      "options": [
+        "Six",
+        "Eight",
+        "Seven",
+        "Nine"
+      ],
+      "correct": 2,
+      "explanation": "\"Seven\" is the number 7.",
+      "language": "English"
+    },
+    {
+      "id": 41,
+      "lessonId": 15,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"Red\"?",
+      "options": [
+        "Blue",
+        "Green",
+        "Red",
+        "Yellow"
+      ],
+      "correct": 2,
+      "explanation": "\"Red\" is a primary color.",
+      "language": "English"
+    },
+    {
+      "id": 42,
+      "lessonId": 15,
+      "level": 1,
+      "type": "translate",
+      "question": "What color is \"Blue\"?",
+      "options": [
+        "Green",
+        "Yellow",
+        "Blue",
+        "Purple"
+      ],
+      "correct": 2,
+      "explanation": "\"Blue\" is the color of the sky.",
+      "language": "English"
+    },
+    {
+      "id": 43,
+      "lessonId": 15,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"Yellow\"?",
+      "options": [
+        "Orange",
+        "Yellow",
+        "Purple",
+        "Pink"
+      ],
+      "correct": 1,
+      "explanation": "\"Yellow\" is the color of the sun.",
+      "language": "English"
+    },
+    {
+      "id": 44,
+      "lessonId": 15,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "What does \"Green\" mean?",
+      "options": [
+        "Orange",
+        "White",
+        "Black",
+        "Green"
+      ],
+      "correct": 3,
+      "explanation": "\"Green\" is the color of grass.",
+      "language": "English"
+    },
+    {
+      "id": 45,
+      "lessonId": 15,
+      "level": 1,
+      "type": "translate",
+      "question": "Translate: \"White\"",
+      "options": [
+        "Black",
+        "White",
+        "Gray",
+        "Brown"
+      ],
+      "correct": 1,
+      "explanation": "\"White\" is the color of snow.",
+      "language": "English"
+    },
+    {
+      "id": 46,
+      "lessonId": 16,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"Dog\"?",
+      "options": [
+        "Cat",
+        "Dog",
+        "Bird",
+        "Fish"
+      ],
+      "correct": 1,
+      "explanation": "\"Dog\" is a common pet.",
+      "language": "English"
+    },
+    {
+      "id": 47,
+      "lessonId": 16,
+      "level": 1,
+      "type": "translate",
+      "question": "What animal is \"Cat\"?",
+      "options": [
+        "Dog",
+        "Bird",
+        "Cat",
+        "Fish"
+      ],
+      "correct": 2,
+      "explanation": "\"Cat\" is a small domesticated animal.",
+      "language": "English"
+    },
+    {
+      "id": 48,
+      "lessonId": 16,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "How do you say \"Horse\"?",
+      "options": [
+        "Cow",
+        "Horse",
+        "Pig",
+        "Sheep"
+      ],
+      "correct": 1,
+      "explanation": "\"Horse\" is a large animal used for riding.",
+      "language": "English"
+    },
+    {
+      "id": 49,
+      "lessonId": 16,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "What does \"Bird\" mean?",
+      "options": [
+        "Fish",
+        "Bird",
+        "Lion",
+        "Bear"
+      ],
+      "correct": 1,
+      "explanation": "\"Bird\" is an animal that can fly.",
+      "language": "English"
+    },
+    {
+      "id": 50,
+      "lessonId": 16,
+      "level": 1,
+      "type": "translate",
+      "question": "Translate: \"Fish\"",
+      "options": [
+        "Frog",
+        "Snake",
+        "Fish",
+        "Turtle"
+      ],
+      "correct": 2,
+      "explanation": "\"Fish\" lives in water.",
+      "language": "English"
+    },
+    {
+      "id": 51,
+      "lessonId": 18,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "What does \"Delicious\" mean?",
+      "options": [
+        "Tasty",
+        "Terrible",
+        "Boring",
+        "Strange"
+      ],
+      "correct": 0,
+      "explanation": "\"Delicious\" means very tasty or good to eat.",
+      "language": "English"
+    },
+    {
+      "id": 52,
+      "lessonId": 18,
+      "level": 2,
+      "type": "translate",
+      "question": "What does \"Beverage\" mean?",
+      "options": [
+        "Food",
+        "Drink",
+        "Dessert",
+        "Snack"
+      ],
+      "correct": 1,
+      "explanation": "\"Beverage\" is another word for drink.",
+      "language": "English"
+    },
+    {
+      "id": 53,
+      "lessonId": 18,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "How do you say \"Restaurant\"?",
+      "options": [
+        "Kitchen",
+        "Restaurant",
+        "Cafeteria",
+        "Diner"
+      ],
+      "correct": 1,
+      "explanation": "\"Restaurant\" is a place where meals are served.",
+      "language": "English"
+    },
+    {
+      "id": 54,
+      "lessonId": 18,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "What does \"Ingredients\" mean?",
+      "options": [
+        "People",
+        "Food components",
+        "Places",
+        "Actions"
+      ],
+      "correct": 1,
+      "explanation": "\"Ingredients\" are the things that make up a recipe.",
+      "language": "English"
+    },
+    {
+      "id": 55,
+      "lessonId": 18,
+      "level": 2,
+      "type": "translate",
+      "question": "Translate: \"Appetite\"",
+      "options": [
+        "Desire to eat",
+        "Desire to sleep",
+        "Desire to run",
+        "Desire to work"
+      ],
+      "correct": 0,
+      "explanation": "\"Appetite\" means the desire to eat food.",
+      "language": "English"
+    },
+    {
+      "id": 56,
+      "lessonId": 19,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "What does \"Destination\" mean?",
+      "options": [
+        "Starting point",
+        "Ending point",
+        "Middle point",
+        "Random point"
+      ],
+      "correct": 1,
+      "explanation": "\"Destination\" is the place where someone is going.",
+      "language": "English"
+    },
+    {
+      "id": 57,
+      "lessonId": 19,
+      "level": 2,
+      "type": "translate",
+      "question": "What does \"Itinerary\" mean?",
+      "options": [
+        "Plan of journey",
+        "Type of vehicle",
+        "Travel cost",
+        "Travel time"
+      ],
+      "correct": 0,
+      "explanation": "\"Itinerary\" is a planned route or journey.",
+      "language": "English"
+    },
+    {
+      "id": 58,
+      "lessonId": 19,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "How do you say \"Accommodation\"?",
+      "options": [
+        "Transportation",
+        "Accommodation",
+        "Entertainment",
+        "Activities"
+      ],
+      "correct": 1,
+      "explanation": "\"Accommodation\" refers to lodging or housing.",
+      "language": "English"
+    },
+    {
+      "id": 59,
+      "lessonId": 19,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "What does \"Reservation\" mean?",
+      "options": [
+        "Cancellation",
+        "Booking in advance",
+        "Walking in",
+        "Leaving early"
+      ],
+      "correct": 1,
+      "explanation": "\"Reservation\" means booking something in advance.",
+      "language": "English"
+    },
+    {
+      "id": 60,
+      "lessonId": 19,
+      "level": 2,
+      "type": "translate",
+      "question": "Translate: \"Souvenir\"",
+      "options": [
+        "Memory",
+        "Keepsake",
+        "Photo",
+        "Story"
+      ],
+      "correct": 1,
+      "explanation": "\"Souvenir\" is a thing kept as a reminder of a place.",
+      "language": "English"
+    },
+    {
+      "id": 61,
+      "lessonId": 22,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Hallo\"?",
+      "options": [
+        "Auf Wiedersehen",
+        "Hallo",
+        "Danke",
+        "Bitte"
+      ],
+      "correct": 1,
+      "explanation": "\"Hallo\" ist eine deutsche Begrüßung.",
+      "language": "German"
+    },
+    {
+      "id": 62,
+      "lessonId": 22,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Danke\"?",
+      "options": [
+        "Bitte",
+        "Entschuldigung",
+        "Danke",
+        "Auf Wiedersehen"
+      ],
+      "correct": 2,
+      "explanation": "\"Danke\" bedeutet \"Thank you\" auf Deutsch.",
+      "language": "German"
+    },
+    {
+      "id": 63,
+      "lessonId": 22,
+      "level": 1,
+      "type": "translate",
+      "question": "Übersetzen: \"Guten Morgen\"",
+      "options": [
+        "Gute Nacht",
+        "Guten Morgen",
+        "Guten Tag",
+        "Guten Abend"
+      ],
+      "correct": 1,
+      "explanation": "\"Guten Morgen\" wird am Morgen verwendet.",
+      "language": "German"
+    },
+    {
+      "id": 64,
+      "lessonId": 22,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Bitte\"?",
+      "options": [
+        "Entschuldigung",
+        "Sorry",
+        "Bitte",
+        "Bitteschön"
+      ],
+      "correct": 2,
+      "explanation": "\"Bitte\" wird für höfliche Anfragen verwendet.",
+      "language": "German"
+    },
+    {
+      "id": 65,
+      "lessonId": 22,
+      "level": 1,
+      "type": "translate",
+      "question": "Übersetzen: \"Wie geht es Ihnen?\"",
+      "options": [
+        "Wo sind Sie?",
+        "Wie heißen Sie?",
+        "Wie alt sind Sie?",
+        "Wie geht es Ihnen?"
+      ],
+      "correct": 3,
+      "explanation": "\"Wie geht es Ihnen?\" fragt nach dem Befinden.",
+      "language": "German"
+    },
+    {
+      "id": 66,
+      "lessonId": 24,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Wie sagt man \"1\"?",
+      "options": [
+        "Zwei",
+        "Drei",
+        "Eins",
+        "Vier"
+      ],
+      "correct": 2,
+      "explanation": "\"Eins\" ist die Zahl 1.",
+      "language": "German"
+    },
+    {
+      "id": 67,
+      "lessonId": 24,
+      "level": 1,
+      "type": "translate",
+      "question": "Was ist \"Fünf\"?",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "correct": 2,
+      "explanation": "\"Fünf\" ist die Zahl 5.",
+      "language": "German"
+    },
+    {
+      "id": 68,
+      "lessonId": 24,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Wie sagt man \"10\"?",
+      "options": [
+        "Neun",
+        "Zehn",
+        "Acht",
+        "Sieben"
+      ],
+      "correct": 1,
+      "explanation": "\"Zehn\" ist die Zahl 10.",
+      "language": "German"
+    },
+    {
+      "id": 69,
+      "lessonId": 24,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Zwei\"?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "correct": 1,
+      "explanation": "\"Zwei\" ist die Zahl 2.",
+      "language": "German"
+    },
+    {
+      "id": 70,
+      "lessonId": 24,
+      "level": 1,
+      "type": "translate",
+      "question": "Übersetzen: \"Sieben\"",
+      "options": [
+        "Sechs",
+        "Acht",
+        "Sieben",
+        "Neun"
+      ],
+      "correct": 2,
+      "explanation": "\"Sieben\" ist die Zahl 7.",
+      "language": "German"
+    },
+    {
+      "id": 71,
+      "lessonId": 27,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Lecker\"?",
+      "options": [
+        "Köstlich",
+        "Schrecklich",
+        "Langweilig",
+        "Seltsam"
+      ],
+      "correct": 0,
+      "explanation": "\"Lecker\" bedeutet sehr schmackhaft.",
+      "language": "German"
+    },
+    {
+      "id": 72,
+      "lessonId": 27,
+      "level": 2,
+      "type": "translate",
+      "question": "Was bedeutet \"Getränk\"?",
+      "options": [
+        "Essen",
+        "Getränk",
+        "Dessert",
+        "Snack"
+      ],
+      "correct": 1,
+      "explanation": "\"Getränk\" ist ein anderes Wort für Drink.",
+      "language": "German"
+    },
+    {
+      "id": 73,
+      "lessonId": 27,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Wie sagt man \"Restaurant\"?",
+      "options": [
+        "Küche",
+        "Restaurant",
+        "Kantine",
+        "Bistro"
+      ],
+      "correct": 1,
+      "explanation": "\"Restaurant\" ist ein Ort, wo Mahlzeiten serviert werden.",
+      "language": "German"
+    },
+    {
+      "id": 74,
+      "lessonId": 27,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Zutaten\"?",
+      "options": [
+        "Menschen",
+        "Lebensmittelkomponenten",
+        "Orte",
+        "Aktionen"
+      ],
+      "correct": 1,
+      "explanation": "\"Zutaten\" sind die Dinge, die ein Rezept ausmachen.",
+      "language": "German"
+    },
+    {
+      "id": 75,
+      "lessonId": 27,
+      "level": 2,
+      "type": "translate",
+      "question": "Übersetzen: \"Appetit\"",
+      "options": [
+        "Verlangen zu essen",
+        "Verlangen zu schlafen",
+        "Verlangen zu rennen",
+        "Verlangen zu arbeiten"
+      ],
+      "correct": 0,
+      "explanation": "\"Appetit\" bedeutet den Wunsch zu essen.",
+      "language": "German"
+    },
+    {
+      "id": 76,
+      "lessonId": 28,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Ziel\"?",
+      "options": [
+        "Startpunkt",
+        "Endpunkt",
+        "Mittelpunkt",
+        "Zufälliger Punkt"
+      ],
+      "correct": 1,
+      "explanation": "\"Ziel\" ist der Ort, wo jemand hingeht.",
+      "language": "German"
+    },
+    {
+      "id": 77,
+      "lessonId": 28,
+      "level": 2,
+      "type": "translate",
+      "question": "Was bedeutet \"Reiseplan\"?",
+      "options": [
+        "Plan der Reise",
+        "Art des Fahrzeugs",
+        "Reisekosten",
+        "Reisezeit"
+      ],
+      "correct": 0,
+      "explanation": "\"Reiseplan\" ist eine geplante Route.",
+      "language": "German"
+    },
+    {
+      "id": 78,
+      "lessonId": 28,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Wie sagt man \"Unterkunft\"?",
+      "options": [
+        "Transport",
+        "Unterkunft",
+        "Unterhaltung",
+        "Aktivitäten"
+      ],
+      "correct": 1,
+      "explanation": "\"Unterkunft\" bezieht sich auf Wohnen.",
+      "language": "German"
+    },
+    {
+      "id": 79,
+      "lessonId": 28,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Was bedeutet \"Reservierung\"?",
+      "options": [
+        "Stornierung",
+        "Vorab-Buchung",
+        "Spontankommen",
+        "Früh gehen"
+      ],
+      "correct": 1,
+      "explanation": "\"Reservierung\" bedeutet etwas im Voraus zu buchen.",
+      "language": "German"
+    },
+    {
+      "id": 80,
+      "lessonId": 28,
+      "level": 2,
+      "type": "translate",
+      "question": "Übersetzen: \"Souvenir\"",
+      "options": [
+        "Erinnerung",
+        "Andenken",
+        "Foto",
+        "Geschichte"
+      ],
+      "correct": 1,
+      "explanation": "\"Souvenir\" ist ein Gegenstand als Erinnerung an einen Ort.",
+      "language": "German"
+    },
+    {
+      "id": 81,
+      "lessonId": 31,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Bonjour\"?",
+      "options": [
+        "Au revoir",
+        "Bonjour",
+        "Merci",
+        "S'il vous plaît"
+      ],
+      "correct": 1,
+      "explanation": "\"Bonjour\" est une salutation française.",
+      "language": "French"
+    },
+    {
+      "id": 82,
+      "lessonId": 31,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Merci\"?",
+      "options": [
+        "S'il vous plaît",
+        "Désolé",
+        "Merci",
+        "Au revoir"
+      ],
+      "correct": 2,
+      "explanation": "\"Merci\" signifie \"Thank you\" en français.",
+      "language": "French"
+    },
+    {
+      "id": 83,
+      "lessonId": 31,
+      "level": 1,
+      "type": "translate",
+      "question": "Traduire: \"Bon matin\"",
+      "options": [
+        "Bonne nuit",
+        "Bon matin",
+        "Bonne après-midi",
+        "Bonne soirée"
+      ],
+      "correct": 1,
+      "explanation": "\"Bon matin\" est utilisé le matin.",
+      "language": "French"
+    },
+    {
+      "id": 84,
+      "lessonId": 31,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Que signifie \"S'il vous plaît\"?",
+      "options": [
+        "Excusez-moi",
+        "Désolé",
+        "S'il vous plaît",
+        "Je vous en prie"
+      ],
+      "correct": 2,
+      "explanation": "\"S'il vous plaît\" est utilisé pour les demandes polies.",
+      "language": "French"
+    },
+    {
+      "id": 85,
+      "lessonId": 31,
+      "level": 1,
+      "type": "translate",
+      "question": "Traduire: \"Comment allez-vous?\"",
+      "options": [
+        "Où êtes-vous?",
+        "Comment vous appelez-vous?",
+        "Quel âge avez-vous?",
+        "Comment allez-vous?"
+      ],
+      "correct": 3,
+      "explanation": "\"Comment allez-vous?\" demande comment quelqu'un va.",
+      "language": "French"
+    },
+    {
+      "id": 86,
+      "lessonId": 33,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Comment dire \"1\"?",
+      "options": [
+        "Deux",
+        "Trois",
+        "Un",
+        "Quatre"
+      ],
+      "correct": 2,
+      "explanation": "\"Un\" est le chiffre 1.",
+      "language": "French"
+    },
+    {
+      "id": 87,
+      "lessonId": 33,
+      "level": 1,
+      "type": "translate",
+      "question": "Qu'est-ce que \"Cinq\"?",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "correct": 2,
+      "explanation": "\"Cinq\" est le chiffre 5.",
+      "language": "French"
+    },
+    {
+      "id": 88,
+      "lessonId": 33,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Comment dire \"10\"?",
+      "options": [
+        "Neuf",
+        "Dix",
+        "Huit",
+        "Sept"
+      ],
+      "correct": 1,
+      "explanation": "\"Dix\" est le chiffre 10.",
+      "language": "French"
+    },
+    {
+      "id": 89,
+      "lessonId": 33,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Deux\"?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "correct": 1,
+      "explanation": "\"Deux\" est le chiffre 2.",
+      "language": "French"
+    },
+    {
+      "id": 90,
+      "lessonId": 33,
+      "level": 1,
+      "type": "translate",
+      "question": "Traduire: \"Sept\"",
+      "options": [
+        "Six",
+        "Huit",
+        "Sept",
+        "Neuf"
+      ],
+      "correct": 2,
+      "explanation": "\"Sept\" est le chiffre 7.",
+      "language": "French"
+    },
+    {
+      "id": 91,
+      "lessonId": 36,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Délicieux\"?",
+      "options": [
+        "Délicieux",
+        "Terrible",
+        "Ennuyeux",
+        "Étrange"
+      ],
+      "correct": 0,
+      "explanation": "\"Délicieux\" signifie très savoureux.",
+      "language": "French"
+    },
+    {
+      "id": 92,
+      "lessonId": 36,
+      "level": 2,
+      "type": "translate",
+      "question": "Que signifie \"Boisson\"?",
+      "options": [
+        "Nourriture",
+        "Boisson",
+        "Dessert",
+        "Collation"
+      ],
+      "correct": 1,
+      "explanation": "\"Boisson\" est un autre mot pour drink.",
+      "language": "French"
+    },
+    {
+      "id": 93,
+      "lessonId": 36,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Comment dire \"Restaurant\"?",
+      "options": [
+        "Cuisine",
+        "Restaurant",
+        "Cafétéria",
+        "Bistro"
+      ],
+      "correct": 1,
+      "explanation": "\"Restaurant\" est un endroit où les repas sont servis.",
+      "language": "French"
+    },
+    {
+      "id": 94,
+      "lessonId": 36,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Ingrédients\"?",
+      "options": [
+        "Personnes",
+        "Composants alimentaires",
+        "Lieux",
+        "Actions"
+      ],
+      "correct": 1,
+      "explanation": "\"Ingrédients\" sont les choses qui composent une recette.",
+      "language": "French"
+    },
+    {
+      "id": 95,
+      "lessonId": 36,
+      "level": 2,
+      "type": "translate",
+      "question": "Traduire: \"Appétit\"",
+      "options": [
+        "Désir de manger",
+        "Désir de dormir",
+        "Désir de courir",
+        "Désir de travailler"
+      ],
+      "correct": 0,
+      "explanation": "\"Appétit\" signifie le désir de manger.",
+      "language": "French"
+    },
+    {
+      "id": 96,
+      "lessonId": 37,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Destination\"?",
+      "options": [
+        "Point de départ",
+        "Point d'arrivée",
+        "Point milieu",
+        "Point aléatoire"
+      ],
+      "correct": 1,
+      "explanation": "\"Destination\" est l'endroit où quelqu'un va.",
+      "language": "French"
+    },
+    {
+      "id": 97,
+      "lessonId": 37,
+      "level": 2,
+      "type": "translate",
+      "question": "Que signifie \"Itinéraire\"?",
+      "options": [
+        "Plan de voyage",
+        "Type de véhicule",
+        "Coût du voyage",
+        "Temps de voyage"
+      ],
+      "correct": 0,
+      "explanation": "\"Itinéraire\" est une route planifiée.",
+      "language": "French"
+    },
+    {
+      "id": 98,
+      "lessonId": 37,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Comment dire \"Hébergement\"?",
+      "options": [
+        "Transport",
+        "Hébergement",
+        "Divertissement",
+        "Activités"
+      ],
+      "correct": 1,
+      "explanation": "\"Hébergement\" fait référence au logement.",
+      "language": "French"
+    },
+    {
+      "id": 99,
+      "lessonId": 37,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Que signifie \"Réservation\"?",
+      "options": [
+        "Annulation",
+        "Réservation à l'avance",
+        "Arrivée spontanée",
+        "Départ anticipé"
+      ],
+      "correct": 1,
+      "explanation": "\"Réservation\" signifie réserver à l'avance.",
+      "language": "French"
+    },
+    {
+      "id": 100,
+      "lessonId": 37,
+      "level": 2,
+      "type": "translate",
+      "question": "Traduire: \"Souvenir\"",
+      "options": [
+        "Mémoire",
+        "Souvenir",
+        "Photo",
+        "Histoire"
+      ],
+      "correct": 1,
+      "explanation": "\"Souvenir\" est un objet gardé en souvenir d'un lieu.",
+      "language": "French"
+    },
+    {
+      "id": 101,
+      "lessonId": 40,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Cześć\"?",
+      "options": [
+        "Do widzenia",
+        "Cześć",
+        "Dziękuję",
+        "Proszę"
+      ],
+      "correct": 1,
+      "explanation": "\"Cześć\" jest polskim powitaniem.",
+      "language": "Polish"
+    },
+    {
+      "id": 102,
+      "lessonId": 40,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Dziękuję\"?",
+      "options": [
+        "Proszę",
+        "Przepraszam",
+        "Dziękuję",
+        "Do widzenia"
+      ],
+      "correct": 2,
+      "explanation": "\"Dziękuję\" oznacza \"Thank you\" po polsku.",
+      "language": "Polish"
+    },
+    {
+      "id": 103,
+      "lessonId": 40,
+      "level": 1,
+      "type": "translate",
+      "question": "Przetłumacz: \"Dzień dobry\"",
+      "options": [
+        "Dobaranoc",
+        "Dzień dobry",
+        "Dzień dobry",
+        "Dobry wieczór"
+      ],
+      "correct": 1,
+      "explanation": "\"Dzień dobry\" jest używane rano.",
+      "language": "Polish"
+    },
+    {
+      "id": 104,
+      "lessonId": 40,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Proszę\"?",
+      "options": [
+        "Przepraszam",
+        "Sory",
+        "Proszę",
+        "Nie ma za co"
+      ],
+      "correct": 2,
+      "explanation": "\"Proszę\" jest używane dla uprzejmych próśb.",
+      "language": "Polish"
+    },
+    {
+      "id": 105,
+      "lessonId": 40,
+      "level": 1,
+      "type": "translate",
+      "question": "Przetłumacz: \"Jak się masz?\"",
+      "options": [
+        "Gdzie jesteś?",
+        "Jak masz na imię?",
+        "Ile masz lat?",
+        "Jak się masz?"
+      ],
+      "correct": 3,
+      "explanation": "\"Jak się masz?\" pyta o samopoczucie.",
+      "language": "Polish"
+    },
+    {
+      "id": 106,
+      "lessonId": 42,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Jak powiedzieć \"1\"?",
+      "options": [
+        "Dwa",
+        "Trzy",
+        "Jeden",
+        "Cztery"
+      ],
+      "correct": 2,
+      "explanation": "\"Jeden\" jest liczbą 1.",
+      "language": "Polish"
+    },
+    {
+      "id": 107,
+      "lessonId": 42,
+      "level": 1,
+      "type": "translate",
+      "question": "Co to jest \"Pięć\"?",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "correct": 2,
+      "explanation": "\"Pięć\" jest liczbą 5.",
+      "language": "Polish"
+    },
+    {
+      "id": 108,
+      "lessonId": 42,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Jak powiedzieć \"10\"?",
+      "options": [
+        "Dziewięć",
+        "Dziesięć",
+        "Osiem",
+        "Siedem"
+      ],
+      "correct": 1,
+      "explanation": "\"Dziesięć\" jest liczbą 10.",
+      "language": "Polish"
+    },
+    {
+      "id": 109,
+      "lessonId": 42,
+      "level": 1,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Dwa\"?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "correct": 1,
+      "explanation": "\"Dwa\" jest liczbą 2.",
+      "language": "Polish"
+    },
+    {
+      "id": 110,
+      "lessonId": 42,
+      "level": 1,
+      "type": "translate",
+      "question": "Przetłumacz: \"Siedem\"",
+      "options": [
+        "Sześć",
+        "Osiem",
+        "Siedem",
+        "Dziewięć"
+      ],
+      "correct": 2,
+      "explanation": "\"Siedem\" jest liczbą 7.",
+      "language": "Polish"
+    },
+    {
+      "id": 111,
+      "lessonId": 45,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Pyszny\"?",
+      "options": [
+        "Smaczny",
+        "Okropny",
+        "Nudny",
+        "Dziwny"
+      ],
+      "correct": 0,
+      "explanation": "\"Pyszny\" oznacza bardzo smaczny.",
+      "language": "Polish"
+    },
+    {
+      "id": 112,
+      "lessonId": 45,
+      "level": 2,
+      "type": "translate",
+      "question": "Co oznacza \"Napój\"?",
+      "options": [
+        "Jedzenie",
+        "Napój",
+        "Deser",
+        "Przekąska"
+      ],
+      "correct": 1,
+      "explanation": "\"Napój\" jest innym słowem dla drink.",
+      "language": "Polish"
+    },
+    {
+      "id": 113,
+      "lessonId": 45,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Jak powiedzieć \"Restauracja\"?",
+      "options": [
+        "Kuchnia",
+        "Restauracja",
+        "Jadłodajnia",
+        "Bistro"
+      ],
+      "correct": 1,
+      "explanation": "\"Restauracja\" jest miejscem, gdzie serwuje posiłki.",
+      "language": "Polish"
+    },
+    {
+      "id": 114,
+      "lessonId": 45,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Składniki\"?",
+      "options": [
+        "Ludzie",
+        "Składniki żywności",
+        "Miejsca",
+        "Akcje"
+      ],
+      "correct": 1,
+      "explanation": "\"Składniki\" są rzeczy, które tworzą przepis.",
+      "language": "Polish"
+    },
+    {
+      "id": 115,
+      "lessonId": 45,
+      "level": 2,
+      "type": "translate",
+      "question": "Przetłumacz: \"Apetyt\"",
+      "options": [
+        "Chęć jedzenia",
+        "Chęć spania",
+        "Chęć biegania",
+        "Chęć pracy"
+      ],
+      "correct": 0,
+      "explanation": "\"Apetyt\" oznacza chęć jedzenia.",
+      "language": "Polish"
+    },
+    {
+      "id": 116,
+      "lessonId": 46,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Cel\"?",
+      "options": [
+        "Punkt startowy",
+        "Punkt końcowy",
+        "Punkt środkowy",
+        "Punkt losowy"
+      ],
+      "correct": 1,
+      "explanation": "\"Cel\" jest miejscem, gdzie ktoś idzie.",
+      "language": "Polish"
+    },
+    {
+      "id": 117,
+      "lessonId": 46,
+      "level": 2,
+      "type": "translate",
+      "question": "Co oznacza \"Plan podróży\"?",
+      "options": [
+        "Plan podróży",
+        "Typ pojazdu",
+        "Koszt podróży",
+        "Czas podróży"
+      ],
+      "correct": 0,
+      "explanation": "\"Plan podróży\" jest zaplanowana trasa.",
+      "language": "Polish"
+    },
+    {
+      "id": 118,
+      "lessonId": 46,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Jak powiedzieć \"Zakwaterowanie\"?",
+      "options": [
+        "Transport",
+        "Zakwaterowanie",
+        "Rozrywka",
+        "Aktywności"
+      ],
+      "correct": 1,
+      "explanation": "\"Zakwaterowanie\" odnosi się do mieszkania.",
+      "language": "Polish"
+    },
+    {
+      "id": 119,
+      "lessonId": 46,
+      "level": 2,
+      "type": "multiple-choice",
+      "question": "Co oznacza \"Rezerwacja\"?",
+      "options": [
+        "Anulacja",
+        "Rezerwacja z wyprzedzeniem",
+        "Przyjście bez rezerwacji",
+        "Wczesne wyjście"
+      ],
+      "correct": 1,
+      "explanation": "\"Rezerwacja\" oznacza rezerwowanie z wyprzedzeniem.",
+      "language": "Polish"
+    },
+    {
+      "id": 120,
+      "lessonId": 46,
+      "level": 2,
+      "type": "translate",
+      "question": "Przetłumacz: \"Pamiątka\"",
+      "options": [
+        "Pamięć",
+        "Pamiątka",
+        "Zdjęcie",
+        "Historia"
+      ],
+      "correct": 1,
+      "explanation": "\"Pamiątka\" jest przedmiotem pamiątkowym z miejsca.",
+      "language": "Polish"
     }
   ],
   "leaderboard": [
@@ -607,7 +2373,7 @@
       "userId": 2,
       "name": "Demo User",
       "avatar": "🧑",
-      "xp": 390,
+      "xp": 450,
       "streak": 7,
       "language": "🇪🇸",
       "change": "same",

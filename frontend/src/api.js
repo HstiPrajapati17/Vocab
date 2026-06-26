@@ -51,7 +51,7 @@ export const updateUser = async (userId, updates) => {
 
 // ===== LESSONS =====
 
-export const getLessons = async (language = 'Spanish') => {
+export const getLessons = async (language = 'English') => {
   const res = await fetch(`${BASE_URL}/lessons?language=${encodeURIComponent(language)}`);
   return res.json();
 };

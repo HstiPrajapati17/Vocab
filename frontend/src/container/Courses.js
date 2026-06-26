@@ -6,18 +6,10 @@ import { useApp } from '../App';
 import { updateUser } from '../api';
 
 const allLanguages = [
-  { flag: '🇪🇸', name: 'Spanish', learners: '42M' },
-  { flag: '🇫🇷', name: 'French', learners: '18M' },
+  { flag: '🇪🇸', name: 'English', learners: '50M' },
   { flag: '🇩🇪', name: 'German', learners: '12M' },
-  { flag: '🇯🇵', name: 'Japanese', learners: '15M' },
-  { flag: '🇮🇳', name: 'Hindi', learners: '9M' },
-  { flag: '🇵🇹', name: 'Portuguese', learners: '11M' },
-  { flag: '🇮🇹', name: 'Italian', learners: '8M' },
-  { flag: '🇰🇷', name: 'Korean', learners: '10M' },
-  { flag: '🇷🇺', name: 'Russian', learners: '7M' },
-  { flag: '🇨🇳', name: 'Chinese', learners: '14M' },
-  { flag: '🇸🇦', name: 'Arabic', learners: '6M' },
-  { flag: '🇳🇱', name: 'Dutch', learners: '4M' },
+  { flag: '🇫🇷', name: 'French', learners: '18M' },
+  { flag: '🇵🇱', name: 'Polish', learners: '8M' },
 ];
 
 const Courses = () => {
@@ -43,7 +35,7 @@ const Courses = () => {
         completedLessons: [],
       });
       refreshUser(updated);
-      setTimeout(() => navigate('dashboard'), 400);
+      setTimeout(() => navigate('/dashboard'), 400);
     } catch (err) {
       console.error(err);
     } finally {
