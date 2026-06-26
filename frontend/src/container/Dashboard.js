@@ -1,16 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Spinner } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap";
 import {
-  Lock, CheckCircle, Star, Dumbbell, Trophy, BookOpen, ChevronLeft
-} from 'lucide-react';
-import { useApp } from '../App';
-import { getLessons } from '../api';
+  Lock,
+  CheckCircle,
+  Star,
+  Dumbbell,
+  Trophy,
+  BookOpen,
+  ChevronLeft,
+} from "lucide-react";
+import { useApp } from "../App";
+import { getLessons } from "../api";
 
 const unitMeta = [
-  { id: 1, section: 'Section 1, Unit 1', title: 'Basics: Greetings & Introductions', color: '#7c87a3' },
-  { id: 2, section: 'Section 1, Unit 2', title: 'Phrases: Daily Conversations', color: '#9aa3bb' },
-  { id: 3, section: 'Section 2, Unit 1', title: 'Travel: Compare Experiences', color: '#5f6982' },
+  {
+    id: 1,
+    section: "Section 1, Unit 1",
+    title: "Basics: Greetings & Introductions",
+    color: "#7c87a3",
+  },
+  {
+    id: 2,
+    section: "Section 1, Unit 2",
+    title: "Phrases: Daily Conversations",
+    color: "#9aa3bb",
+  },
+  {
+    id: 3,
+    section: "Section 2, Unit 1",
+    title: "Travel: Compare Experiences",
+    color: "#5f6982",
+  },
 ];
 
 const pathIcons = [Star, Dumbbell, Trophy, Star, Lock];
@@ -23,8 +44,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    getLessons(user?.language || 'Spanish')
-      .then(data => {
+    getLessons(user?.language || "Spanish")
+      .then((data) => {
         setLessons(data);
         setLoading(false);
       })
@@ -47,17 +68,22 @@ const Dashboard = () => {
     navigate(`/lesson/${lesson.id}`);
   };
 
-  const unitGroups = unitMeta.map(unit => ({
+  const unitGroups = unitMeta.map((unit) => ({
     ...unit,
-    lessons: lessons.filter(l => l.unitId === unit.id),
+    lessons: lessons.filter((l) => l.unitId === unit.id),
   }));
 
-  const activeUnit = unitGroups.find(u => u.lessons.some(l => l.id === activeLesson)) || unitGroups[0];
+  const activeUnit =
+    unitGroups.find((u) => u.lessons.some((l) => l.id === activeLesson)) ||
+    unitGroups[0];
 
   return (
     <div className="h_learn_page">
       {activeUnit && (
-        <div className="h_section_banner" style={{ background: 'var(--primary)' }}>
+        <div
+          className="h_section_banner"
+          style={{ background: "var(--primary)" }}
+        >
           <button type="button" className="h_section_back" aria-label="Back">
             <ChevronLeft size={18} />
           </button>
@@ -74,7 +100,9 @@ const Dashboard = () => {
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" variant="success" />
-          <p className="text-muted mt-2 small">Loading {user?.language || 'Spanish'} lessons...</p>
+          <p className="text-muted mt-2 small">
+            Loading {user?.language || "Spanish"} lessons...
+          </p>
         </div>
       ) : (
         unitGroups.map((unit) => (
@@ -90,11 +118,18 @@ const Dashboard = () => {
                 const isCompleted = completedLessons.includes(lesson.id);
                 const isActive = lesson.id === activeLesson;
                 const isLocked = !isCompleted && !isActive;
-                const offset = idx % 2 === 0 ? 'left' : 'right';
-                const IconComp = isLocked ? Lock : isCompleted ? CheckCircle : pathIcons[idx % pathIcons.length];
+                const offset = idx % 2 === 0 ? "left" : "right";
+                const IconComp = isLocked
+                  ? Lock
+                  : isCompleted
+                    ? CheckCircle
+                    : pathIcons[idx % pathIcons.length];
 
                 return (
-                  <div key={lesson.id} className={`h_learn_node_wrap h_learn_node_${offset}`}>
+                  <div
+                    key={lesson.id}
+                    className={`h_learn_node_wrap h_learn_node_${offset}`}
+                  >
                     <div className="h_learn_node_area">
                       {isActive && !isCompleted && (
                         <span className="h_start_label">START</span>
@@ -102,9 +137,9 @@ const Dashboard = () => {
                       <button
                         type="button"
                         className={`h_learn_node
-                          ${isCompleted ? 'h_learn_node_done' : ''}
-                          ${isActive ? 'h_learn_node_active' : ''}
-                          ${isLocked ? 'h_learn_node_locked' : ''}`}
+                          ${isCompleted ? "h_learn_node_done" : ""}
+                          ${isActive ? "h_learn_node_active" : ""}
+                          ${isLocked ? "h_learn_node_locked" : ""}`}
                         onClick={() => handleLessonClick(lesson)}
                         disabled={isLocked}
                         aria-label={lesson.title}
@@ -113,7 +148,9 @@ const Dashboard = () => {
                       </button>
                     </div>
                     {idx < unit.lessons.length - 1 && (
-                      <div className={`h_learn_connector ${isCompleted ? 'h_learn_connector_done' : ''}`} />
+                      <div
+                        className={`h_learn_connector ${isCompleted ? "h_learn_connector_done" : ""}`}
+                      />
                     )}
                   </div>
                 );
@@ -125,7 +162,9 @@ const Dashboard = () => {
 
       {!loading && lessons.length > 0 && (
         <div className="h_jump_section">
-          <div className="h_unit_divider"><span>Jump ahead?</span></div>
+          <div className="h_unit_divider">
+            <span>Jump ahead?</span>
+          </div>
           <button type="button" className="h_jump_btn" disabled>
             <span className="h_jump_icon">⏩</span>
           </button>

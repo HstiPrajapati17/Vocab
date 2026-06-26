@@ -30,8 +30,11 @@ const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
   return (
     <aside className="h_sidebar">
       <div className="h_sidebar_logo" onClick={() => navigate('/dashboard')}>
-        <span className="h_sidebar_logo_icon">V</span>
-        <span className="h_sidebar_logo_text">vocablearn</span>
+        <div className="h_brand_logo_img">
+            <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" />
+          </div>
+        {/* <span className="h_sidebar_logo_icon">V</span> */}
+        <span className="h_sidebar_logo_text">Vocablearn</span>
       </div>
 
       <nav className="h_sidebar_nav">

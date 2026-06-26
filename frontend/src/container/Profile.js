@@ -7,6 +7,7 @@ import {
   FaChartBar, FaBook, FaCheckCircle, FaVolumeUp
 } from 'react-icons/fa';
 import { updateUser } from '../api';
+import { useApp } from '../App';
 
 const allAchievements = [
   { icon: '🔥', label: '7-Day Streak', desc: 'Practice 7 days in a row', check: (u) => (u.streak || 0) >= 7 },

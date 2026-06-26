@@ -24,7 +24,10 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
           className="h_navbar_brand d-flex align-items-center"
           style={{ cursor: 'pointer' }}
         >
-          <span className="h_brand_icon">V</span>
+          <div className="h_brand_logo_img">
+            <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" />
+          </div>
+          {/* <span className="h_brand_icon">V</span> */}
           <span className="h_brand_text">VocabLearn</span>
         </Navbar.Brand>
 
