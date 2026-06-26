@@ -21,6 +21,7 @@ import AboutUs from './container/AboutUs';
 import Terms from './container/Terms';
 import Privacy from './container/Privacy';
 import Letters from './container/Letters';
+import Onboarding from './container/Onboarding';
 
 const shellPages = ['dashboard', 'courses', 'leaderboard', 'quests', 'shop', 'profile', 'settings'];
 
@@ -190,6 +191,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/about" element={<AboutUs />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/lesson/:lessonId" element={
