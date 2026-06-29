@@ -6,7 +6,7 @@
   padding: 2rem;
   background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
   overflow: hidden;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Fredoka", sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +46,7 @@
 }
 
 .x_title {
-  font-family: 'Pacifico', cursive;
+  font-family: "Fredoka", sans-serif;
   font-size: 2.5rem;
   color: #ff6f61;
   text-align: center;
@@ -64,7 +64,7 @@
 }
 
 .x_subtitle {
-  font-family: 'Arial Rounded MT Bold', sans-serif;
+  font-family: "Fredoka", sans-serif;
   font-size: 1.2rem;
   color: #fff;
   margin-bottom: 0.75rem;
@@ -79,7 +79,7 @@
   border: none;
   outline: none;
   font-size: 1rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Fredoka", sans-serif;
   background: rgba(255,255,255,0.2);
   color: #fff;
   transition: background 0.3s, transform 0.2s;
@@ -237,7 +237,7 @@
 .h_about_page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Fredoka", sans-serif;
 }
 
 .h_about_hero {
@@ -778,7 +778,7 @@
 .h_terms_page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Fredoka", sans-serif;
 }
 
 .h_terms_hero {
@@ -1247,7 +1247,7 @@
 .h_privacy_page {
   min-height: 100vh;
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Fredoka", sans-serif;
 }
 
 .h_privacy_hero {
