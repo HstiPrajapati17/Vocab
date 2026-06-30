@@ -39,37 +39,6 @@
   position: relative;
 }
 
-/* Decorative elements for premium feel */
-.h_onboarding_main_page::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -20%;
-  width: 80%;
-  height: 120%;
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(47, 133, 90, 0.03) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-.h_onboarding_main_page::after {
-  content: "";
-  position: absolute;
-  bottom: -30%;
-  right: -10%;
-  width: 70%;
-  height: 100%;
-  background: radial-gradient(
-    circle at 70% 70%,
-    rgba(47, 133, 90, 0.02) 0%,
-    transparent 60%
-  );
-  pointer-events: none;
-}
-
 /* ========== MAIN CONTAINER ========== */
 .h_onboarding_container {
   overflow: hidden;
@@ -124,7 +93,7 @@
 
 /* ========== HEADER & BACK BUTTON ========== */
 .h_onboarding_header {
-  /* margin-bottom: 40px; */
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
 }
@@ -265,7 +234,7 @@
 .h_onboarding_stat {
   background: var(--h-gray-50);
   border: 1px solid var(--h-gray-100);
-  padding: 28px 20px;
+  padding: 16px;
   border-radius: var(--h-radius-lg);
   display: flex;
   align-items: center;
@@ -311,7 +280,7 @@
   background: var(--h-white);
   width: 52px;
   height: 52px;
-  padding: 10px;
+  padding: 8px;
   border-radius: 14px;
   box-shadow: var(--h-shadow-xs);
   border: 1px solid var(--h-gray-100);
@@ -350,13 +319,11 @@
   border: 1.5px solid var(--h-gray-200);
   border-radius: 100px;
   padding: 18px 22px;
-  text-align: center;
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   box-shadow: var(--h-shadow-xs);
   display: flex;
-  /* flex-direction: column; */
   align-items: center;
   gap: 22px;
 }
@@ -416,6 +383,16 @@
   justify-content: center;
   font-size: 13px;
   box-shadow: 0 3px 10px rgba(47, 133, 90, 0.25);
+}
+.h_onboarding_interest_grid {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.h_onboarding_interest_grid .h_onboarding_option_card {
+  padding: 12px 22px;
 }
 
 /* ========== GOALS & TIME OPTIONS ========== */
@@ -485,7 +462,7 @@
 .h_onboarding_option_list_item {
   background: var(--h-white);
   border: 1.5px solid var(--h-gray-200);
-  border-radius: var(--h-radius-lg);
+  border-radius: 50px;
   padding: 22px 24px;
   display: flex;
   align-items: center;
@@ -576,6 +553,126 @@
   font-weight: 600;
 }
 
+/* ========== LOADING SCREEN ========== */
+.h_onboarding_loading {
+  text-align: center;
+  padding: 60px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.h_onboarding_loading_spinner {
+  color: var(--h-primary);
+  margin-bottom: 32px;
+  filter: drop-shadow(0 8px 24px rgba(47, 133, 90, 0.25));
+}
+
+.h_onboarding_loading_text {
+  font-size: 18px;
+  color: var(--h-gray-600);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ========== SUBSCRIPTION SCREEN ========== */
+.h_onboarding_subscription {
+  text-align: center;
+  padding: 20px 0 32px;
+}
+
+.h_onboarding_subscription_header {
+  margin-bottom: 40px;
+}
+
+.h_onboarding_subscription_icon {
+  color: var(--h-primary);
+  margin-bottom: 24px;
+  display: inline-flex;
+  filter: drop-shadow(0 8px 24px rgba(47, 133, 90, 0.25));
+}
+
+.h_onboarding_subscription_title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--h-gray-900);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.h_onboarding_subscription_subtitle {
+  font-size: 16px;
+  color: var(--h-primary);
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.h_onboarding_subscription_features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.h_onboarding_subscription_feature {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--h-gray-50);
+  border: 1.5px solid var(--h-gray-200);
+  border-radius: var(--h-radius-md);
+  transition: all 0.3s ease;
+}
+
+.h_onboarding_subscription_feature:hover {
+  border-color: var(--h-primary);
+  background: var(--h-primary-lighter);
+  transform: translateX(4px);
+}
+
+.h_onboarding_subscription_feature_icon {
+  color: var(--h-primary);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--h-white);
+  border-radius: 50%;
+  box-shadow: var(--h-shadow-xs);
+}
+
+.h_onboarding_subscription_feature_text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--h-gray-700);
+  flex: 1;
+  text-align: left;
+}
+
+.h_onboarding_subscription_cta {
+  padding: 24px;
+  background: linear-gradient(135deg, var(--h-primary-lighter) 0%, var(--h-white) 100%);
+  border-radius: var(--h-radius-lg);
+  border: 2px solid var(--h-primary-light);
+}
+
+.h_onboarding_subscription_cta_text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--h-primary);
+  margin: 0;
+}
+
 /* ========== FOOTER & BUTTONS ========== */
 .h_onboarding_footer {
   display: flex;
@@ -643,8 +740,8 @@
   }
 
   .h_onboarding_title_image {
-    width: 64px;
-    height: 42px;
+    width: 50px;
+    height: 30px;
   }
 
   .h_onboarding_subtitle {
@@ -670,7 +767,6 @@
     width: 100%;
     justify-content: center;
     padding: 14px 32px;
-    font-size: 14px;
   }
 }
 
@@ -680,7 +776,7 @@
   }
 
   .h_onboarding_content {
-    padding: 36px 24px;
+    padding: 26px 16px;
   }
 
   .h_onboarding_title {
@@ -693,11 +789,8 @@
   }
 
   .h_onboarding_option_card {
-    padding: 26px 16px;
-  }
-
-  .h_onboarding_option_flag {
-    font-size: 38px;
+    padding: 16px;
+    gap: 12px;
   }
 
   .h_onboarding_option_list_item {
@@ -712,7 +805,15 @@
     font-size: 16px;
   }
   .h_onboarding_welcome_text_prefix, .h_onboarding_welcome_title {
-    font-size: 28px;
+    font-size: 24px;
+  }
+  .h_onboarding_option_icon {
+    font-size: 24px;
+    width: 46px;
+    height: 46px;
+  }
+  .h_onboarding_interest_grid .h_onboarding_option_card {
+    padding: 7px 12px;
   }
 }
 
