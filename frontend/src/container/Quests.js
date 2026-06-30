@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProgressBar } from 'react-bootstrap';
 import { Lock, Gift } from 'lucide-react';
 import { useApp } from '../App';
+import gold from '../assets/gold.png';
 
 const quests = [
   { id: 1, title: 'Earn 10 XP', icon: '⚡', target: 10, current: 0, reward: 'Chest', locked: false },
@@ -22,7 +23,9 @@ const Quests = () => {
           <h1 className="h_quests_title">Welcome!</h1>
           <p className="mb-0">Complete quests to earn rewards! Quests refresh every day.</p>
         </div>
-        <span className="h_quests_mascot">🎁</span>
+        <span className="h_quests_mascot">
+          <img className='gold_img' src={gold} alt="Gold" />
+        </span>
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3 mt-4">

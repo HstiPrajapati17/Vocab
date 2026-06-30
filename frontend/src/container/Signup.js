@@ -111,6 +111,7 @@ const Signup = () => {
                     className="h_btn_auth w-100 fw-bold py-2"
                     disabled={loading}
                   >
+                    
                     {loading ? 'Please wait...' : 'Continue'}
                   </Button>
                 </Form>
@@ -118,7 +119,7 @@ const Signup = () => {
                 <hr className="my-4" />
                 <p className="text-center text-muted small mb-0">
                   Already have an account?{' '}
-                  <span className="h_auth_switch" onClick={() => navigate('/login')}>
+                  <span className="h_auth_switch" onClick={() => navigate('/log')}>
                     Log in
                   </span>
                 </p>

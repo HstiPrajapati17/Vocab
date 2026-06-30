@@ -107,10 +107,11 @@ body {
 }
 
 .h_brand_logo_img {
-    width: 66px;
+  width: 66px;
   height: 40px;
 }
-.h_brand_logo_img img{
+
+.h_brand_logo_img img {
   height: 100%;
   width: 100%;
 }
@@ -1884,7 +1885,7 @@ body {
 
 .h_pod_1st {
   background: linear-gradient(180deg, rgba(212, 168, 67, 0.12), var(--bg-white));
-  border: 2px solid var(--gold);
+  border: 2px solid #d4a8439c;
 }
 
 .h_pod_2nd {
@@ -1893,8 +1894,8 @@ body {
 }
 
 .h_pod_3rd {
-  background: linear-gradient(180deg, rgba(184, 134, 11, 0.1), var(--bg-white));
-  border: 2px solid var(--bronze);
+  background: linear-gradient(180deg, #2f855a1f, var(--bg-white));
+  border: 2px solid #2f855a9e;
 }
 
 .h_podium_you {
@@ -2459,9 +2460,11 @@ body {
 .h_rp_footer_link {
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #63615a;
   letter-spacing: 0.04em;
   cursor: pointer;
+  border: none;
+  background-color: transparent;
 }
 
 .h_rp_footer_link:hover {
@@ -3176,6 +3179,14 @@ body {
   color: var(--success);
 }
 
+.gold_img {
+  width: 138px;
+}
+
+.h_quests_banner {
+  padding-right: 0px;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width: 1920px) {
 
@@ -3288,6 +3299,14 @@ body {
   .h_lesson_check_btn,
   .h_lesson_continue_btn {
     width: 100%;
+  }
+
+  .gold_img {
+    width: 138px;
+  }
+
+  .h_quests_banner {
+    padding-right: 0px;
   }
 }
 
@@ -3687,7 +3706,7 @@ body {
 .terms-stats,
 .blog-stats {
   padding: 60px 0;
-  background: #f8f9fa;
+  /* background: #f8f9fa; */
 }
 
 .stat-card,
@@ -3946,7 +3965,7 @@ body {
   color: #343533;
 }
 
-.contact-card > p {
+.contact-card>p {
   color: #63615a;
   margin-bottom: 30px;
 }
@@ -4668,7 +4687,7 @@ body {
   }
 
   .blog-post-footer {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 15px;
   }
 
@@ -4683,6 +4702,7 @@ body {
 }
 
 @media (max-width: 767.98px) {
+
   .info-hero,
   .info-stats,
   .info-features,
@@ -4818,7 +4838,7 @@ body {
   }
 
   .blog-post-meta {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 10px;
   }
 

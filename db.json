@@ -48,16 +48,21 @@
       "email": "yatri@gmail.com",
       "password": "123456",
       "avatar": "🧑",
-      "xp": 180,
+      "xp": 580,
       "streak": 1,
-      "hearts": 5,
+      "hearts": 4,
       "language": "English",
       "level": "Intermediate",
       "dailyGoal": "Casual",
       "completedLessons": [
-        13
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
       ],
-      "activeLesson": 14,
+      "activeLesson": 19,
       "joinedDate": "2026-06-23",
       "id": 3
     }

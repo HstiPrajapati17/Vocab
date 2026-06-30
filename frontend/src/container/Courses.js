@@ -72,7 +72,7 @@ const Courses = () => {
           const isActive = user?.language === lang.name;
           const isSaving = saving === lang.name;
           return (
-            <Col xs={6} sm={4} md={3} lg={3} key={lang.name}>
+            <Col xs={6} sm={4} md={3} lg={6} xl={3} key={lang.name}>
               <button
                 type="button"
                 className={`h_course_card ${isActive ? 'h_course_card_active' : ''}`}
