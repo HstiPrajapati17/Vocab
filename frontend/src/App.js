@@ -217,11 +217,12 @@ const PublicLayout = ({ children }) => {
   const location = useLocation();
   const currentPage = location.pathname.replace('/home', '') || 'home';
  
+  
   return (
     <>
       <Navbar navigate={navigate} isLoggedIn={false} currentPage={currentPage} />
       <main className="h_main_content">
-        {children}
+        <Home />
       </main>
     </>
   );

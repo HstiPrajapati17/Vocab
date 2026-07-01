@@ -540,7 +540,7 @@ body {
   border: 1px solid var(--primary-border);
 }
 
-/* Language Cards — Duolingo courses style */
+/* Language Cards — VocabLearn courses style */
 .h_lang_card {
   cursor: pointer;
   border: 2px solid var(--primary-border) !important;
@@ -1096,7 +1096,7 @@ body {
   font-size: 1.05rem;
 }
 
-/* Learning Path — Duolingo style */
+/* Learning Path — VocabLearn style */
 .h_learning_path {
   display: flex;
   flex-direction: column;
@@ -2223,7 +2223,7 @@ body {
   border-color: var(--primary) transparent transparent transparent !important;
 }
 
-/* ===== APP SHELL (Logged-in Duolingo layout) ===== */
+/* ===== APP SHELL (Logged-in VocabLearn layout) ===== */
 .h_app_logged_in .h_main_content {
   padding-bottom: 0;
 }
@@ -2930,8 +2930,10 @@ body {
 }
 
 .h_shop_title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800;
-  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
 }
 
 .h_shop_gems {
@@ -3177,6 +3179,12 @@ body {
 
 .h_lesson_footer_correct .h_lesson_feedback_text {
   color: var(--success);
+}
+
+.h_question_image {
+  max-width: 150px;
+  height: auto;
+  object-fit: contain;
 }
 
 .gold_img {

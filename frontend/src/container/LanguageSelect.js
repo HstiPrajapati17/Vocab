@@ -6,22 +6,10 @@ import { useApp } from '../App';
 import { registerUser } from '../api';
 
 const allLanguages = [
-  { flag: '🇪🇸', name: 'Spanish', native: 'Español' },
+  { flag: '�🇸', name: 'English', native: 'English' },
   { flag: '🇫🇷', name: 'French', native: 'Français' },
   { flag: '🇩🇪', name: 'German', native: 'Deutsch' },
-  { flag: '🇯🇵', name: 'Japanese', native: '日本語' },
-  { flag: '🇮🇳', name: 'Hindi', native: 'हिन्दी' },
-  { flag: '🇵🇹', name: 'Portuguese', native: 'Português' },
-  { flag: '🇮🇹', name: 'Italian', native: 'Italiano' },
-  { flag: '🇰🇷', name: 'Korean', native: '한국어' },
-  { flag: '🇷🇺', name: 'Russian', native: 'Русский' },
-  { flag: '🇨🇳', name: 'Chinese', native: '中文' },
-  { flag: '🇸🇦', name: 'Arabic', native: 'العربية' },
-  { flag: '🇳🇱', name: 'Dutch', native: 'Nederlands' },
-  { flag: '🇸🇪', name: 'Swedish', native: 'Svenska' },
   { flag: '🇵🇱', name: 'Polish', native: 'Polski' },
-  { flag: '🇹🇷', name: 'Turkish', native: 'Türkçe' },
-  { flag: '🇬🇷', name: 'Greek', native: 'Ελληνικά' },
 ];
 
 const levels = [

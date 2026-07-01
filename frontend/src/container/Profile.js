@@ -20,6 +20,8 @@ const allAchievements = [
   { icon: '🎯', label: 'Goal Setter', desc: 'Set a daily goal', check: (u) => !!u.dailyGoal },
 ];
 
+const avatarOptions = ['🧑', '👨', '👩', '🧑‍💼', '👨‍💼', '👩‍💼', '🧑‍🎓', '👨‍🎓', '👩‍🎓', '🧑‍🏫', '👨‍🏫', '👩‍🏫', '🧑‍💻', '👨‍💻', '👩‍💻', '🧑‍🎨', '👨‍🎨', '👩‍🎨', '🧑‍🚀', '👨‍🚀', '👩‍🚀', '🧑‍⚕️', '👨‍⚕️', '👩‍⚕️', '🧑‍🌾', '👨‍🌾', '👩‍🌾', '🧑‍🍳', '👨‍🍳', '👩‍🍳', '🧑‍🔧', '👨‍🔧', '👩‍🔧', '🧑‍🔬', '👨‍🔬', '👩‍🔬', '🧑‍🎤', '👨‍🎤', '👩‍🎤', '🧑‍🏋️', '👨‍🏋️', '👩‍🏋️', '🧑‍🎮', '👨‍🎮', '👩‍🎮'];
+
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const Profile = () => {
@@ -27,7 +29,34 @@ const Profile = () => {
   const { user, refreshUser } = useApp();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || 'Learner');
+  const [displayAvatar, setDisplayAvatar] = useState(user?.avatar || '🧑');
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Sync with user data when it changes
+  React.useEffect(() => {
+    setDisplayName(user?.name || 'Learner');
+    setDisplayAvatar(user?.avatar || '🧑');
+  }, [user]);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setDisplayAvatar(base64String);
+        setUploadingImage(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      setUploadingImage(false);
+    }
+  };
 
   const completedLessons = user?.completedLessons || [];
   const maxXP = 500;
@@ -46,7 +75,7 @@ const Profile = () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
     setSaving(true);
     try {
-      const updated = await updateUser(user.id, { name: displayName.trim() });
+      const updated = await updateUser(user.id, { name: displayName.trim(), avatar: displayAvatar });
       refreshUser(updated);
     } catch (err) {
       console.error(err);
@@ -64,18 +93,74 @@ const Profile = () => {
             <Card className="h_profile_card text-center border-0 shadow-sm mb-4">
               <Card.Body className="p-4">
                 <div className="h_profile_avatar_wrap mb-3">
-                  <div className="h_profile_avatar">{user?.avatar || '🧑'}</div>
+                  <div className="h_profile_avatar">
+                    {displayAvatar && displayAvatar.startsWith('data:') ? (
+                      <img 
+                        src={displayAvatar} 
+                        alt="Avatar" 
+                        style={{ 
+                          width: '80px', 
+                          height: '80px', 
+                          borderRadius: '50%', 
+                          objectFit: 'cover' 
+                        }} 
+                      />
+                    ) : (
+                      user?.avatar || '🧑'
+                    )}
+                  </div>
                 </div>
 
                 {editing ? (
-                  <div className="mb-3 d-flex gap-2 justify-content-center">
-                    <input
-                      className="h_edit_name_input text-center"
-                      value={displayName}
-                      onChange={e => setDisplayName(e.target.value)}
-                      autoFocus
-                    />
-                    <Button size="sm" variant="success" onClick={handleSaveName} disabled={saving}>
+                  <div className="mb-3">
+                    <div className="mb-3 d-flex gap-2 justify-content-center">
+                      <input
+                        className="h_edit_name_input text-center"
+                        value={displayName}
+                        onChange={e => setDisplayName(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <div className="text-muted small mb-2">Choose Avatar:</div>
+                      <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        {avatarOptions.map((avatar) => (
+                          <div
+                            key={avatar}
+                            className={`h_avatar_option ${displayAvatar === avatar ? 'h_avatar_selected' : ''}`}
+                            onClick={() => setDisplayAvatar(avatar)}
+                            style={{ 
+                              fontSize: '28px', 
+                              cursor: 'pointer', 
+                              padding: '8px',
+                              borderRadius: '8px',
+                              border: displayAvatar === avatar ? '2px solid #4CAF50' : '2px solid #ddd',
+                              backgroundColor: displayAvatar === avatar ? '#e8f5e9' : '#fff'
+                            }}
+                          >
+                            {avatar}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-muted small mb-2">Or upload your own image:</div>
+                      <div className="d-flex justify-content-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          style={{ display: 'none' }}
+                          id="avatar-upload"
+                        />
+                        <label
+                          htmlFor="avatar-upload"
+                          className="btn btn-outline-primary btn-sm"
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                        </label>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="success" onClick={handleSaveName} disabled={saving} className="w-100">
                       {saving ? '...' : 'Save'}
                     </Button>
                   </div>

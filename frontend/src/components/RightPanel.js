@@ -3,26 +3,19 @@ import { ProgressBar } from 'react-bootstrap';
 import { Flame, Heart, Star, Trophy, Zap, Shield, BookOpen } from 'lucide-react';
 
 const langFlags = {
-  Spanish: '🇪🇸', French: '🇫🇷', German: '🇩🇪', Japanese: '🇯🇵',
-  Hindi: '🇮🇳', Portuguese: '🇵🇹', Italian: '🇮🇹', Korean: '🇰🇷',
-  Russian: '🇷🇺', Chinese: '🇨🇳', Arabic: '🇸🇦', Dutch: '🇳🇱',
-  English: '🇺🇸',
+  English: 'E🇸', French: '🇫🇷', German: '🇩🇪', Polish: '�',
 };
 
 const langMeta = {
-  Spanish: { learners: '42M', level: 'Beginner friendly' },
+  English: { learners: '1.5B', level: 'Global language' },
   French: { learners: '18M', level: 'Popular choice' },
   German: { learners: '12M', level: 'Structured path' },
-  Japanese: { learners: '15M', level: 'Character focus' },
-  Hindi: { learners: '9M', level: 'Growing fast' },
-  Portuguese: { learners: '11M', level: 'Brazil & Portugal' },
-  Italian: { learners: '8M', level: 'Romance language' },
-  Korean: { learners: '10M', level: 'K-pop culture' },
+  Polish: { learners: '8M', level: 'Slavic language' },
   default: { learners: '5M+', level: 'Start learning today' },
 };
 
 const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount = 0, completedCount = 0 }) => {
-  const activeLang = previewLanguage || user?.language || 'Spanish';
+  const activeLang = previewLanguage || user?.language || 'English';
   const flag = langFlags[activeLang] || '🌍';
   const meta = langMeta[activeLang] || langMeta.default;
 

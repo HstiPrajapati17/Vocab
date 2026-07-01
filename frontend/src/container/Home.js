@@ -4,14 +4,10 @@ import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { Globe, Star, Flame, Trophy, ArrowRight, BookOpen, Users, Zap } from 'lucide-react';
 
 const languages = [
-  { flag: '🇪🇸', name: 'Spanish', learners: '32M', native: 'Español' },
+  { flag: '�🇸', name: 'English', learners: '1.5B', native: 'English' },
   { flag: '🇫🇷', name: 'French', learners: '18M', native: 'Français' },
   { flag: '🇩🇪', name: 'German', learners: '12M', native: 'Deutsch' },
-  { flag: '🇯🇵', name: 'Japanese', learners: '15M', native: '日本語' },
-  { flag: '🇮🇳', name: 'Hindi', learners: '9M', native: 'हिन्दी' },
-  { flag: '🇵🇹', name: 'Portuguese', learners: '11M', native: 'Português' },
-  { flag: '🇮🇹', name: 'Italian', learners: '8M', native: 'Italiano' },
-  { flag: '🇰🇷', name: 'Korean', learners: '10M', native: '한국어' },
+  { flag: '�', name: 'Polish', learners: '8M', native: 'Polski' },
 ];
 
 const features = [
@@ -131,7 +127,7 @@ const Home = () => {
         </Container>
       </section>
 
-      {/* Courses Grid — Duolingo-style */}
+      {/* Courses Grid — VocabLearn-style */}
       <section className="h_section_alt" id="courses">
         <Container style={{ maxWidth: 'var(--container-wide)' }}>
           <div className="text-center mb-5">

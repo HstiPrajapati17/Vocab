@@ -6,6 +6,7 @@ import { Heart, CheckCircle, XCircle, X, Star, Trophy, RefreshCw } from 'lucide-
 
 import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
 import { useApp } from '../App';
+// import '../style/lesson_image_styles.css';
 
 
 
@@ -210,7 +211,20 @@ const LessonPage = () => {
       <div className="h_lesson_body">
         <div className="h_lesson_content">
           <p className="h_lesson_type_label text-capitalize">{q.type.replace('-', ' ')}</p>
+          <div className='d-flex align-items-center'>
+          {/* SVG Image Display */}
+          {q.image && (
+            <div className="h_question_image_container">
+              <img 
+                src={`${process.env.PUBLIC_URL}/assets/${q.image}`} 
+                alt="Question illustration" 
+                className="h_question_image"
+              />
+            </div>
+          )}
+          
           <h2 className="h_question_text">{q.question}</h2>
+          </div>
           <div className="h_options_grid mt-4">
             {q.options.map((opt, i) => (
               <button

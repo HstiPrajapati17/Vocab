@@ -30,18 +30,15 @@
       "name": "Demo User",
       "email": "demo@demo.com",
       "password": "demo123",
-      "avatar": "🧑",
-      "xp": 510,
+      "avatar": "👩‍🍳",
+      "xp": 450,
       "streak": 7,
       "hearts": 5,
       "language": "English",
       "level": "Beginner",
       "dailyGoal": "Regular",
-      "completedLessons": [
-        13,
-        14
-      ],
-      "activeLesson": 15,
+      "completedLessons": [],
+      "activeLesson": 1,
       "joinedDate": "2025-06-01"
     },
     {
@@ -515,7 +512,9 @@
         "Please"
       ],
       "correct": 1,
-      "explanation": "\"Hola\" is the Spanish word for \"Hello\" — the most common greeting."
+      "explanation": "\"Hola\" is the Spanish word for \"Hello\" — the most common greeting.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 2,
@@ -529,7 +528,9 @@
         "Buenas noches"
       ],
       "correct": 2,
-      "explanation": "\"Gracias\" means \"Thank you\". \"Por favor\" means \"Please\"."
+      "explanation": "\"Gracias\" means \"Thank you\". \"Por favor\" means \"Please\".",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 3,
@@ -543,7 +544,9 @@
         "Buen provecho"
       ],
       "correct": 1,
-      "explanation": "\"Buenos días\" literally means \"Good days\" and is used as \"Good morning\"."
+      "explanation": "\"Buenos días\" literally means \"Good days\" and is used as \"Good morning\".",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 4,
@@ -557,7 +560,9 @@
         "You're welcome"
       ],
       "correct": 2,
-      "explanation": "\"Por favor\" means \"Please\" in Spanish."
+      "explanation": "\"Por favor\" means \"Please\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 5,
@@ -571,7 +576,9 @@
         "¿Cómo estás?"
       ],
       "correct": 3,
-      "explanation": "\"¿Cómo estás?\" means \"How are you?\" in Spanish."
+      "explanation": "\"¿Cómo estás?\" means \"How are you?\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 6,
@@ -585,7 +592,9 @@
         "Cuatro"
       ],
       "correct": 2,
-      "explanation": "\"Uno\" means \"1\" in Spanish."
+      "explanation": "\"Uno\" means \"1\" in Spanish.",
+      "image": "Group 144.png",
+      "language": "Spanish"
     },
     {
       "id": 7,
@@ -599,7 +608,9 @@
         "6"
       ],
       "correct": 2,
-      "explanation": "\"Cinco\" means \"5\" in Spanish."
+      "explanation": "\"Cinco\" means \"5\" in Spanish.",
+      "image": "Group 144.png",
+      "language": "Spanish"
     },
     {
       "id": 8,
@@ -613,7 +624,9 @@
         "Siete"
       ],
       "correct": 1,
-      "explanation": "\"Diez\" means \"10\" in Spanish."
+      "explanation": "\"Diez\" means \"10\" in Spanish.",
+      "image": "Group 144.png",
+      "language": "Spanish"
     },
     {
       "id": 9,
@@ -627,7 +640,9 @@
         "4"
       ],
       "correct": 1,
-      "explanation": "\"Dos\" means \"2\" in Spanish."
+      "explanation": "\"Dos\" means \"2\" in Spanish.",
+      "image": "Group 144.png",
+      "language": "Spanish"
     },
     {
       "id": 10,
@@ -641,7 +656,9 @@
         "Nueve"
       ],
       "correct": 2,
-      "explanation": "\"Siete\" means \"Seven\" in Spanish."
+      "explanation": "\"Siete\" means \"Seven\" in Spanish.",
+      "image": "Group 144.png",
+      "language": "Spanish"
     },
     {
       "id": 11,
@@ -655,7 +672,9 @@
         "Amarillo"
       ],
       "correct": 2,
-      "explanation": "\"Rojo\" means \"Red\" in Spanish."
+      "explanation": "\"Rojo\" means \"Red\" in Spanish.",
+      "image": "Group 145.png",
+      "language": "Spanish"
     },
     {
       "id": 12,
@@ -669,7 +688,9 @@
         "Purple"
       ],
       "correct": 2,
-      "explanation": "\"Azul\" means \"Blue\" in Spanish."
+      "explanation": "\"Azul\" means \"Blue\" in Spanish.",
+      "image": "Group 145.png",
+      "language": "Spanish"
     },
     {
       "id": 13,
@@ -683,7 +704,9 @@
         "Rosa"
       ],
       "correct": 1,
-      "explanation": "\"Amarillo\" means \"Yellow\" in Spanish."
+      "explanation": "\"Amarillo\" means \"Yellow\" in Spanish.",
+      "image": "Group 145.png",
+      "language": "Spanish"
     },
     {
       "id": 14,
@@ -697,7 +720,9 @@
         "Green"
       ],
       "correct": 3,
-      "explanation": "\"Verde\" means \"Green\" in Spanish."
+      "explanation": "\"Verde\" means \"Green\" in Spanish.",
+      "image": "Group 145.png",
+      "language": "Spanish"
     },
     {
       "id": 15,
@@ -711,7 +736,9 @@
         "Marrón"
       ],
       "correct": 1,
-      "explanation": "\"Blanco\" means \"White\" in Spanish."
+      "explanation": "\"Blanco\" means \"White\" in Spanish.",
+      "image": "Group 145.png",
+      "language": "Spanish"
     },
     {
       "id": 16,
@@ -725,7 +752,9 @@
         "Pez"
       ],
       "correct": 1,
-      "explanation": "\"Perro\" means \"Dog\" in Spanish."
+      "explanation": "\"Perro\" means \"Dog\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 17,
@@ -739,7 +768,9 @@
         "Fish"
       ],
       "correct": 2,
-      "explanation": "\"Gato\" means \"Cat\" in Spanish."
+      "explanation": "\"Gato\" means \"Cat\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 18,
@@ -753,7 +784,9 @@
         "Oveja"
       ],
       "correct": 1,
-      "explanation": "\"Caballo\" means \"Horse\" in Spanish."
+      "explanation": "\"Caballo\" means \"Horse\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 19,
@@ -767,7 +800,9 @@
         "Bear"
       ],
       "correct": 1,
-      "explanation": "\"Pájaro\" means \"Bird\" in Spanish."
+      "explanation": "\"Pájaro\" means \"Bird\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 20,
@@ -781,7 +816,9 @@
         "Tortuga"
       ],
       "correct": 2,
-      "explanation": "\"Pez\" means \"Fish\" in Spanish."
+      "explanation": "\"Pez\" means \"Fish\" in Spanish.",
+      "image": "Group 129.png",
+      "language": "Spanish"
     },
     {
       "id": 21,
@@ -937,7 +974,8 @@
       ],
       "correct": 1,
       "explanation": "\"Hello\" is a common greeting in English.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 32,
@@ -953,7 +991,8 @@
       ],
       "correct": 2,
       "explanation": "\"Thank you\" is used to express gratitude.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 33,
@@ -969,7 +1008,8 @@
       ],
       "correct": 1,
       "explanation": "\"Good morning\" is used to greet someone in the morning.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 34,
@@ -985,7 +1025,8 @@
       ],
       "correct": 2,
       "explanation": "\"Please\" is used to make polite requests.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 35,
@@ -1001,7 +1042,8 @@
       ],
       "correct": 3,
       "explanation": "\"How are you?\" is used to ask about someone's well-being.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 36,
@@ -1017,7 +1059,8 @@
       ],
       "correct": 2,
       "explanation": "\"One\" is the number 1.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 144.png"
     },
     {
       "id": 37,
@@ -1033,7 +1076,8 @@
       ],
       "correct": 2,
       "explanation": "\"Five\" is the number 5.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 144.png"
     },
     {
       "id": 38,
@@ -1049,7 +1093,8 @@
       ],
       "correct": 1,
       "explanation": "\"Ten\" is the number 10.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 144.png"
     },
     {
       "id": 39,
@@ -1065,7 +1110,8 @@
       ],
       "correct": 1,
       "explanation": "\"Two\" is the number 2.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 144.png"
     },
     {
       "id": 40,
@@ -1081,7 +1127,8 @@
       ],
       "correct": 2,
       "explanation": "\"Seven\" is the number 7.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 144.png"
     },
     {
       "id": 41,
@@ -1097,7 +1144,8 @@
       ],
       "correct": 2,
       "explanation": "\"Red\" is a primary color.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 145.png"
     },
     {
       "id": 42,
@@ -1113,7 +1161,8 @@
       ],
       "correct": 2,
       "explanation": "\"Blue\" is the color of the sky.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 145.png"
     },
     {
       "id": 43,
@@ -1129,7 +1178,8 @@
       ],
       "correct": 1,
       "explanation": "\"Yellow\" is the color of the sun.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 145.png"
     },
     {
       "id": 44,
@@ -1145,7 +1195,8 @@
       ],
       "correct": 3,
       "explanation": "\"Green\" is the color of grass.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 145.png"
     },
     {
       "id": 45,
@@ -1161,7 +1212,8 @@
       ],
       "correct": 1,
       "explanation": "\"White\" is the color of snow.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 145.png"
     },
     {
       "id": 46,
@@ -1177,7 +1229,8 @@
       ],
       "correct": 1,
       "explanation": "\"Dog\" is a common pet.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 47,
@@ -1193,7 +1246,8 @@
       ],
       "correct": 2,
       "explanation": "\"Cat\" is a small domesticated animal.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 48,
@@ -1209,7 +1263,8 @@
       ],
       "correct": 1,
       "explanation": "\"Horse\" is a large animal used for riding.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 49,
@@ -1225,7 +1280,8 @@
       ],
       "correct": 1,
       "explanation": "\"Bird\" is an animal that can fly.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 50,
@@ -1241,7 +1297,8 @@
       ],
       "correct": 2,
       "explanation": "\"Fish\" lives in water.",
-      "language": "English"
+      "language": "English",
+      "image": "Group 129.png"
     },
     {
       "id": 51,
