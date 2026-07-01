@@ -148,7 +148,7 @@
 }
 
 .section-title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: clamp(1.5rem, 3vw, 1.5rem);
   font-weight: 800;
   margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
   color: var(--text);
