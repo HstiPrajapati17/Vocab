@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ProgressBar, Badge, Spinner } from 'react-bootstrap';
 
-import { Heart, CheckCircle, XCircle, X, Star, Trophy, RefreshCw } from 'lucide-react';
+import { Heart, CheckCircle, XCircle, X, Star, RefreshCw } from 'lucide-react';
 
 import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
 import { useApp } from '../App';
@@ -168,7 +168,14 @@ const LessonPage = () => {
         <div className="h_result_card text-center mx-3 p-4 p-md-5" style={{ maxWidth: 480, width: '100%' }}>
           <div className="h_result_icon mb-3">
             {passed ? (
-              <Trophy size={64} style={{ color: 'var(--success)' }} />
+              <video
+                src={`${process.env.PUBLIC_URL}/assets/WinnerBird.mp4`}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ height: 120, objectFit: 'contain' }}
+              />
             ) : (
               <RefreshCw size={64} style={{ color: 'var(--warning)' }} />
             )}

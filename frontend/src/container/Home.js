@@ -2,12 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { Globe, Star, Flame, Trophy, ArrowRight, BookOpen, Users, Zap } from 'lucide-react';
+import flag_1 from '../assets/USFlag.webp';
+import flag_2 from '../assets/FranceFlag.png';
+import flag_3 from '../assets/GermanyFlag.jpg';
+import flag_4 from '../assets/PolandFlag.png';
 
 const languages = [
-  { flag: '�🇸', name: 'English', learners: '1.5B', native: 'English' },
-  { flag: '🇫🇷', name: 'French', learners: '18M', native: 'Français' },
-  { flag: '🇩🇪', name: 'German', learners: '12M', native: 'Deutsch' },
-  { flag: '�', name: 'Polish', learners: '8M', native: 'Polski' },
+  { flag: flag_1, name: 'English', learners: '1.5B', native: 'English' },
+  { flag: flag_2, name: 'French', learners: '18M', native: 'Français' },
+  { flag: flag_3, name: 'German', learners: '12M', native: 'Deutsch' },
+  { flag: flag_4, name: 'Polish', learners: '8M', native: 'Polski' },
 ];
 
 const features = [
@@ -82,15 +86,17 @@ const Home = () => {
                 <div className="h_hero_preview_card">
                   <div className="h_preview_header">
                     <span className="fw-bold" style={{ color: 'var(--text)' }}>My Courses</span>
-                    <span className="h_preview_badge">3 active</span>
+                    <span className="h_preview_badge">4 active</span>
                   </div>
                   <div className="h_preview_progress">
                     <div className="h_preview_progress_fill" style={{ width: '68%' }} />
                   </div>
                   <small className="text-muted d-block mb-3">Daily goal: 68 / 100 XP</small>
-                  {languages.slice(0, 3).map((lang) => (
+                  {languages.slice(0, 4).map((lang) => (
                     <div className="h_preview_lang_row" key={lang.name}>
-                      <span className="h_preview_flag">{lang.flag}</span>
+                      <div className="h_preview_flag_main">
+                        <img src={lang.flag} alt={lang.name} className="h_preview_flag" />
+                      </div>
                       <div>
                         <div className="h_preview_lang_name">{lang.name}</div>
                         <div className="h_preview_lang_meta">{lang.learners} learners</div>
@@ -142,7 +148,9 @@ const Home = () => {
               <Col xs={6} sm={4} md={3} lg={3} xl={2} key={i}>
                 <Card className="h_lang_card" onClick={() => navigate('/signup')}>
                   <div className="h_lang_card_top">
-                    <span className="h_lang_flag">{lang.flag}</span>
+                    <div className="h_lang_flag ">
+                      <img src={lang.flag} alt={lang.name} className="h_preview_flag" />
+                    </div>
                     <div className="h_lang_name">{lang.name}</div>
                     <div className="h_lang_native">{lang.native}</div>
                   </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Navbar } from 'react-bootstrap';
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useApp } from '../App';
 
@@ -50,7 +50,14 @@ const Signup = () => {
             <Card className="h_auth_card shadow-lg border-0">
               <Card.Body className="p-4 p-md-5">
                 <div className="text-center mb-4">
-                  <div className="h_auth_logo">V</div>
+                  <Navbar.Brand
+                    className="h_navbar_brand d-flex align-items-center justify-content-center"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="h_brand_logo_img">
+                      <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" />
+                    </div>
+                  </Navbar.Brand>
                   <h2 className="h_auth_title">Create Account</h2>
                   <p className="text-muted small">Join millions of learners worldwide</p>
                 </div>
@@ -119,7 +126,7 @@ const Signup = () => {
                 <hr className="my-4" />
                 <p className="text-center text-muted small mb-0">
                   Already have an account?{' '}
-                  <span className="h_auth_switch" onClick={() => navigate('/log')}>
+                  <span className="h_auth_switch" onClick={() => navigate('/login')}>
                     Log in
                   </span>
                 </p>
