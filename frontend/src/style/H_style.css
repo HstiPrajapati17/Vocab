@@ -2989,7 +2989,7 @@ body {
   background: rgba(61, 68, 84, 0.4);
   z-index: 300;
   display: flex;
-  align-items: center;
+  align-items: center; 
   justify-content: center;
 }
 
