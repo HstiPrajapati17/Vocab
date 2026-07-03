@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import './style/h_style.css';
+import './style/H_style.css';
 
 import Navbar    from './components/Navbar';
 import AppShell  from './components/AppShell';
