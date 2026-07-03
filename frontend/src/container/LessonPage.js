@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, ProgressBar, Badge, Spinner } from 'react-bootstrap';
-
-import { Heart, CheckCircle, XCircle, X, Star, RefreshCw } from 'lucide-react';
+import { Button, ProgressBar, Spinner } from 'react-bootstrap';
+import { Heart, CheckCircle, XCircle, X, RefreshCw } from 'lucide-react';
 
 import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
 import { useApp } from '../App';
@@ -123,7 +122,6 @@ const LessonPage = () => {
       </div>
     );
   }
- 
 
   if (questions.length === 0) {
     return (
@@ -163,10 +161,18 @@ const LessonPage = () => {
 
   if (showResult) {
     const passed = score >= Math.ceil(questions.length * 0.6);
+    const accuracy = Math.round((score / questions.length) * 100);
+
     return (
-      <div className="h_lesson_fullscreen d-flex align-items-center justify-content-center">
-        <div className="h_result_card text-center mx-3 p-4 p-md-5" style={{ maxWidth: 480, width: '100%' }}>
-          <div className="h_result_icon mb-3">
+      <div className="lp_result_overlay">
+        {/* top close */}
+        {/* <button className="lp_result_close" onClick={() => navigate('/dashboard')} aria-label="Close">
+          <X size={22} />
+        </button> */}
+
+        <div className="lp_result_body">
+          {/* mascot / animation */}
+          <div className="lp_result_mascot">
             {passed ? (
               <video
                 src={`${process.env.PUBLIC_URL}/assets/WinnerBird.mp4`}
@@ -174,26 +180,54 @@ const LessonPage = () => {
                 loop
                 muted
                 playsInline
-                style={{ height: 120, objectFit: 'contain' }}
+                className="lp_result_video"
               />
             ) : (
-              <RefreshCw size={64} style={{ color: 'var(--warning)' }} />
+              <div className="lp_result_fail_icon">
+                <RefreshCw size={64} />
+              </div>
             )}
           </div>
-          <h2 className="fw-bold mb-1">{passed ? 'Lesson Complete!' : 'Keep Practicing!'}</h2>
-          <p className="text-muted mb-4">
-            {passed ? "Great job! You've passed this lesson." : 'You need 60% to pass. Try again!'}
+
+          {/* headline */}
+          <h1 className="lp_result_title">
+            {passed ? 'Lesson Complete!' : 'Keep Practicing!'}
+          </h1>
+          <p className="lp_result_sub">
+            {passed
+              ? `You completed ${questions.length} questions in this lesson`
+              : 'You need 60% to pass. Give it another try!'}
           </p>
-          <div className="d-flex justify-content-center gap-4 mb-4">
-            <div><Star className="h_icon_xp" size={22} /><div className="h_result_value">+{earnedXP}</div><div className="h_result_label">XP</div></div>
-            <div><CheckCircle style={{ color: 'var(--success)' }} size={22} /><div className="h_result_value">{score}/{questions.length}</div><div className="h_result_label">Correct</div></div>
-            <div><Heart className="h_icon_heart" size={22} /><div className="h_result_value">{hearts}</div><div className="h_result_label">Hearts</div></div>
+
+          {/* stat pills */}
+          <div className="lp_result_stats">
+            <div className="lp_stat_pill lp_stat_xp">
+              <span className="lp_stat_pill_label">TOTAL XP</span>
+              <span className="lp_stat_pill_val">⚡ {earnedXP}</span>
+            </div>
+            <div className={`lp_stat_pill ${accuracy >= 60 ? 'lp_stat_great' : 'lp_stat_ok'}`}>
+              <span className="lp_stat_pill_label">{accuracy >= 80 ? 'GREAT!' : accuracy >= 60 ? 'GOOD' : 'KEEP TRYING'}</span>
+              <span className="lp_stat_pill_val">
+                <CheckCircle size={15} /> {accuracy}%
+              </span>
+            </div>
+            <div className="lp_stat_pill lp_stat_hearts">
+              <span className="lp_stat_pill_label">HEARTS</span>
+              <span className="lp_stat_pill_val">
+                <Heart size={15} /> {hearts}
+              </span>
+            </div>
           </div>
-          {passed && <Badge className="h_xp_reward_badge mb-4">+{earnedXP} XP earned</Badge>}
-          <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
-            <Button className="h_btn_get_started" onClick={() => navigate('/dashboard')}>Continue</Button>
-            {!passed && <Button variant="outline-secondary" className="h_btn_outline" onClick={resetLesson}>Try Again</Button>}
-          </div>
+        </div>
+
+        {/* bottom action bar */}
+        <div className="lp_result_footer">
+          <button className="lp_result_btn_review" onClick={resetLesson}>
+            {passed ? 'Review Lesson' : 'Try Again'}
+          </button>
+          <button className="lp_result_btn_continue" onClick={() => navigate('/dashboard')}>
+            Continue
+          </button>
         </div>
       </div>
     );
@@ -203,7 +237,7 @@ const LessonPage = () => {
     <div className="h_lesson_fullscreen">
       {/* Top bar */}
       <div className="h_lesson_topbar">
-        <button type="button" className="h_lesson_close" onClick={() => navigate('dashboard')} aria-label="Close">
+        <button type="button" className="h_lesson_close" onClick={() => navigate('/dashboard')} aria-label="Close">
           <X size={24} />
         </button>
         <ProgressBar now={progress} className="h_lesson_progress flex-grow-1" />

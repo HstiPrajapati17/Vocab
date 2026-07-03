@@ -116,7 +116,7 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
               </Button>
               <Button
                 size="sm"
-                onClick={() => handleNav('signup')}
+                onClick={() => handleNav('onboarding')}
                 className="h_btn_signup"
               >
                 Get Started

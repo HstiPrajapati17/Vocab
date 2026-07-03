@@ -360,7 +360,7 @@ const Onboarding = () => {
             </div>
             <div className="h_onboarding_stats">
               {[
-                { label: "Languages", value: "35+" },
+                { label: "Languages", value: "4" },
                 { label: "Lessons", value: "10K+" },
                 { label: "Learners", value: "50M+" },
               ].map((stat, idx) => (
