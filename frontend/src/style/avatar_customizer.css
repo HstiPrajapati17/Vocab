@@ -1,0 +1,19 @@
+/* Avatar Customizer */
+.h_avatar_customizer {
+  background: var(--bg-card);
+  border: 2px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.h_avatar_customizer label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.h_avatar_customizer .btn-sm {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+}

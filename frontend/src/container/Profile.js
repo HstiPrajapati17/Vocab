@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Card, Badge, Button, ProgressBar, Tab, Nav } from 'react-bootstrap';
-import { 
+import {
   FaFire, FaStar, FaHeart, FaTrophy, FaMedal,
   FaEdit, FaCheck, FaGlobe, FaCalendar,
   FaChartBar, FaBook, FaCheckCircle, FaVolumeUp
 } from 'react-icons/fa';
 import { updateUser } from '../api';
 import { useApp } from '../App';
-
+import AvatarPreview from "./AvatarPreview";
+import '../style/avatar_customizer.css';
 const allAchievements = [
   { icon: '🔥', label: '7-Day Streak', desc: 'Practice 7 days in a row', check: (u) => (u.streak || 0) >= 7 },
   { icon: '⭐', label: 'First Lesson', desc: 'Complete your first lesson', check: (u) => (u.completedLessons || []).length >= 1 },
@@ -20,43 +21,47 @@ const allAchievements = [
   { icon: '🎯', label: 'Goal Setter', desc: 'Set a daily goal', check: (u) => !!u.dailyGoal },
 ];
 
-const avatarOptions = ['🧑', '👨', '👩', '🧑‍💼', '👨‍💼', '👩‍💼', '🧑‍🎓', '👨‍🎓', '👩‍🎓', '🧑‍🏫', '👨‍🏫', '👩‍🏫', '🧑‍💻', '👨‍💻', '👩‍💻', '🧑‍🎨', '👨‍🎨', '👩‍🎨', '🧑‍🚀', '👨‍🚀', '👩‍🚀', '🧑‍⚕️', '👨‍⚕️', '👩‍⚕️', '🧑‍🌾', '👨‍🌾', '👩‍🌾', '🧑‍🍳', '👨‍🍳', '👩‍🍳', '🧑‍🔧', '👨‍🔧', '👩‍🔧', '🧑‍🔬', '👨‍🔬', '👩‍🔬', '🧑‍🎤', '👨‍🎤', '👩‍🎤', '🧑‍🏋️', '👨‍🏋️', '👩‍🏋️', '🧑‍🎮', '👨‍🎮', '👩‍🎮'];
-
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const skinTones = ['#F2C7A5', '#E8B88A', '#D4A574', '#C68642', '#8D5524', '#5C3317'];
+const hairColors = ['#222222', '#8B4513', '#FFD700', '#FF6347', '#4A4A4A', '#1a1a1a'];
+const clothColors = ['#4F46E5', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
+const headWearColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refreshUser } = useApp();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || 'Learner');
-  const [displayAvatar, setDisplayAvatar] = useState(user?.avatar || '🧑');
   const [saving, setSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-
+  const [avatar, setAvatar] = useState({
+    skin: "#F2C7A5",
+    emotion: "happy",
+    hairStyle: "short",
+    hairColor: "#222222",
+    clothColor: "#4F46E5",
+    headWear: "none",
+    headWearColor: "#ff0000",
+  });
+  
   // Sync with user data when it changes
   React.useEffect(() => {
     setDisplayName(user?.name || 'Learner');
-    setDisplayAvatar(user?.avatar || '🧑');
-  }, [user]);
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setDisplayAvatar(base64String);
-        setUploadingImage(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      console.error(err);
-      setUploadingImage(false);
+    if (user?.avatar && typeof user.avatar === 'object') {
+      setAvatar(user.avatar);
+    } else if (user?.avatar && typeof user.avatar === 'string') {
+      // If avatar is a string (old emoji or base64), convert to default avatar object
+      setAvatar({
+        skin: "#F2C7A5",
+        emotion: "happy",
+        hairStyle: "short",
+        hairColor: "#222222",
+        clothColor: "#4F46E5",
+        headWear: "none",
+        headWearColor: "#ff0000",
+      });
     }
-  };
+  }, [user]);
 
   const completedLessons = user?.completedLessons || [];
   const maxXP = 500;
@@ -75,7 +80,10 @@ const Profile = () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
     setSaving(true);
     try {
-      const updated = await updateUser(user.id, { name: displayName.trim(), avatar: displayAvatar });
+      const updated = await updateUser(user.id, {
+        name: displayName.trim(),
+        avatar: avatar
+      });
       refreshUser(updated);
     } catch (err) {
       console.error(err);
@@ -87,279 +95,373 @@ const Profile = () => {
 
   return (
     <div className="h_profile_inner">
-        <Row className="g-4">
-          {/* Profile Card */}
-          <Col xl={12}>
-            <Card className="h_profile_card text-center border-0 shadow-sm mb-4">
-              <Card.Body className="p-4">
-                <div className="h_profile_avatar_wrap mb-3">
-                  <div className="h_profile_avatar">
-                    {displayAvatar && displayAvatar.startsWith('data:') ? (
-                      <img 
-                        src={displayAvatar} 
-                        alt="Avatar" 
-                        style={{ 
-                          width: '80px', 
-                          height: '80px', 
-                          borderRadius: '50%', 
-                          objectFit: 'cover' 
-                        }} 
-                      />
-                    ) : (
-                      user?.avatar || '🧑'
-                    )}
-                  </div>
+      <Row className="g-4">
+        {/* Profile Card */}
+        <Col xl={12}>
+          <Card className="h_profile_card text-center border-0 shadow-sm mb-4">
+            <Card.Body className="p-4">
+              <div className="h_profile_avatar_wrap mb-3">
+                <div className="h_profile_avatar">
+                  <AvatarPreview avatar={avatar} />
                 </div>
+              </div>
 
-                {editing ? (
-                  <div className="mb-3">
-                    <div className="mb-3 d-flex gap-2 justify-content-center">
-                      <input
-                        className="h_edit_name_input text-center"
-                        value={displayName}
-                        onChange={e => setDisplayName(e.target.value)}
-                        autoFocus
-                      />
-                    </div>
+              {editing ? (
+                <div className="mb-3">
+                  <div className="mb-3 d-flex gap-2 justify-content-center">
+                    <input
+                      className="h_edit_name_input text-center"
+                      value={displayName}
+                      onChange={e => setDisplayName(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  
+                  <div className="h_avatar_customizer mb-3">
+                    <div className="text-muted small mb-2 fw-bold">Customize Your Avatar</div>
+                    
+                    {/* Skin Tone */}
                     <div className="mb-3">
-                      <div className="text-muted small mb-2">Choose Avatar:</div>
-                      <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
-                        {avatarOptions.map((avatar) => (
+                      <label className="small text-muted mb-1 d-block">Skin Tone</label>
+                      <div className="d-flex gap-2 flex-wrap">
+                        {skinTones.map((color) => (
                           <div
-                            key={avatar}
-                            className={`h_avatar_option ${displayAvatar === avatar ? 'h_avatar_selected' : ''}`}
-                            onClick={() => setDisplayAvatar(avatar)}
-                            style={{ 
-                              fontSize: '28px', 
-                              cursor: 'pointer', 
-                              padding: '8px',
-                              borderRadius: '8px',
-                              border: displayAvatar === avatar ? '2px solid #4CAF50' : '2px solid #ddd',
-                              backgroundColor: displayAvatar === avatar ? '#e8f5e9' : '#fff'
+                            key={color}
+                            onClick={() => setAvatar({ ...avatar, skin: color })}
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: color,
+                              cursor: 'pointer',
+                              border: avatar.skin === color ? '3px solid #4CAF50' : '2px solid #ddd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                             }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Hair Style */}
+                    <div className="mb-3">
+                      <label className="small text-muted mb-1 d-block">Hair Style</label>
+                      <div className="d-flex gap-2">
+                        {['short', 'long', 'curly', 'bald'].map((style) => (
+                          <button
+                            key={style}
+                            onClick={() => setAvatar({ ...avatar, hairStyle: style })}
+                            className={`btn btn-sm ${avatar.hairStyle === style ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            style={{ textTransform: 'capitalize' }}
                           >
-                            {avatar}
-                          </div>
+                            {style}
+                          </button>
                         ))}
                       </div>
-                      <div className="text-muted small mb-2">Or upload your own image:</div>
-                      <div className="d-flex justify-content-center gap-2">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          style={{ display: 'none' }}
-                          id="avatar-upload"
-                        />
-                        <label
-                          htmlFor="avatar-upload"
-                          className="btn btn-outline-primary btn-sm"
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {uploadingImage ? 'Uploading...' : 'Upload Image'}
-                        </label>
-                      </div>
                     </div>
-                    <Button size="sm" variant="success" onClick={handleSaveName} disabled={saving} className="w-100">
-                      {saving ? '...' : 'Save'}
-                    </Button>
-                  </div>
-                ) : (
-                  <h4 className="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
-                    {displayName}
-                    <FaEdit className="text-muted h_edit_name_icon" onClick={() => setEditing(true)} style={{ cursor: 'pointer' }} />
-                  </h4>
-                )}
 
-                <div className="text-muted small mb-3">{user?.email || ''}</div>
-
-                <Badge className="h_lang_badge mb-4">
-                  <FaGlobe className="me-1" /> Learning {user?.language || 'Spanish'}
-                </Badge>
-
-                <div className="h_level_section mb-4">
-                  <div className="d-flex justify-content-between small mb-1">
-                    <span className="fw-semibold">Level: {user?.level || 'Beginner'}</span>
-                    <span className="text-muted">{user?.xp || 0}/{maxXP} XP</span>
-                  </div>
-                  <ProgressBar now={levelProgress} className="h_level_bar" />
-                </div>
-
-                <Row className="g-2 text-center">
-                  <Col xs={4}>
-                    <div className="h_pstat">
-                      <FaFire className="h_icon_fire" />
-                      <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
-                      <div className="h_pstat_lbl small text-muted">Streak</div>
-                    </div>
-                  </Col>
-                  <Col xs={4}>
-                    <div className="h_pstat">
-                      <FaStar className="h_icon_xp" />
-                      <div className="h_pstat_val fw-bold">{user?.xp || 0}</div>
-                      <div className="h_pstat_lbl small text-muted">Total XP</div>
-                    </div>
-                  </Col>
-                  <Col xs={4}>
-                    <div className="h_pstat">
-                      <FaTrophy className="text-warning" />
-                      <div className="h_pstat_val fw-bold">#{user?.xp >= 300 ? 2 : user?.xp >= 100 ? 5 : 10}</div>
-                      <div className="h_pstat_lbl small text-muted">Rank</div>
-                    </div>
-                  </Col>
-                </Row>
-
-                <hr className="my-3" />
-
-                <Row className="g-2 text-center">
-                  <Col xs={6}>
-                    <div className="h_pstat">
-                      <FaBook className="text-primary" />
-                      <div className="h_pstat_val fw-bold">{completedLessons.length}</div>
-                      <div className="h_pstat_lbl small text-muted">Lessons Done</div>
-                    </div>
-                  </Col>
-                  <Col xs={6}>
-                    <div className="h_pstat">
-                      <FaCalendar className="text-info" />
-                      <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
-                      <div className="h_pstat_lbl small text-muted">Active Days</div>
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-
-            <Card className="border-0 shadow-sm h_profile_card">
-              <Card.Body className="p-3 text-center">
-                <h6 className="fw-bold mb-2">Hearts</h6>
-                <div className="h_hearts_row d-flex justify-content-center gap-2 mb-2">
-                  {Array(5).fill(0).map((_, i) => (
-                    <FaHeart key={i} className={i < (user?.hearts ?? 5) ? 'h_icon_heart' : 'h_icon_heart_empty'} />
-                  ))}
-                </div>
-                <p className="text-muted small mb-2">
-                  {(user?.hearts ?? 5) === 5 ? 'Fully charged' : `${user?.hearts ?? 0} hearts remaining`}
-                </p>
-                <Button size="sm" variant="outline-danger" className="w-100" onClick={() => navigate('dashboard')}>
-                  Practice to Restore
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          {/* Right Content */}
-          <Col xl={12}>
-            <Tab.Container defaultActiveKey="activity">
-              <Nav variant="tabs" className="h_profile_tabs mb-4">
-                <Nav.Item>
-                  <Nav.Link eventKey="activity" className="h_profile_tab">
-                    <FaChartBar className="me-1" /> Activity
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="achievements" className="h_profile_tab">
-                    <FaMedal className="me-1" /> Achievements
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="history" className="h_profile_tab">
-                    <FaBook className="me-1" /> History
-                  </Nav.Link>
-                </Nav.Item>
-              </Nav>
-
-              <Tab.Content>
-                {/* Activity */}
-                <Tab.Pane eventKey="activity">
-                  <Card className="border-0 shadow-sm mb-4">
-                    <Card.Body className="p-4">
-                      <h6 className="fw-bold mb-4">Weekly XP Activity</h6>
-                      <div className="h_activity_chart">
-                        {activityData.map((d, i) => (
-                          <div key={i} className="h_activity_bar_col text-center">
-                            <div className="h_bar_wrap">
-                              <div className="h_bar_fill" style={{ height: `${(d.xp / 100) * 100}%` }}></div>
-                            </div>
-                            <div className="h_bar_label small text-muted mt-1">{d.day}</div>
-                            <div className="h_bar_xp small fw-semibold">{d.xp}</div>
-                          </div>
+                    {/* Hair Color */}
+                    <div className="mb-3">
+                      <label className="small text-muted mb-1 d-block">Hair Color</label>
+                      <div className="d-flex gap-2 flex-wrap">
+                        {hairColors.map((color) => (
+                          <div
+                            key={color}
+                            onClick={() => setAvatar({ ...avatar, hairColor: color })}
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: color,
+                              cursor: 'pointer',
+                              border: avatar.hairColor === color ? '3px solid #4CAF50' : '2px solid #ddd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}
+                          />
                         ))}
                       </div>
-                    </Card.Body>
-                  </Card>
+                    </div>
 
-                  <Row className="g-3">
-                    {[
-                      { label: 'Total XP', value: user?.xp || 0, icon: <FaStar className="h_icon_xp" />, change: 'Earned' },
-                      { label: 'Best Streak', value: `${user?.streak || 0} days`, icon: <FaFire className="h_icon_fire" />, change: user?.streak > 0 ? 'Active' : 'Start!' },
-                      { label: 'Lessons Done', value: completedLessons.length, icon: <FaCheckCircle style={{ color: 'var(--success)' }} />, change: `${completedLessons.length} total` },
-                    ].map((s, i) => (
-                      <Col xs={12} sm={4} key={i}>
-                        <Card className="h_summary_card border-0 shadow-sm text-center">
-                          <Card.Body className="p-3">
-                            <div className="mb-1">{s.icon}</div>
-                            <div className="fw-bold fs-5">{s.value}</div>
-                            <div className="text-muted small">{s.label}</div>
-                            <Badge bg="light" text="success" className="mt-1 small">{s.change}</Badge>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Tab.Pane>
+                    {/* Cloth Color */}
+                    <div className="mb-3">
+                      <label className="small text-muted mb-1 d-block">Cloth Color</label>
+                      <div className="d-flex gap-2 flex-wrap">
+                        {clothColors.map((color) => (
+                          <div
+                            key={color}
+                            onClick={() => setAvatar({ ...avatar, clothColor: color })}
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: color,
+                              cursor: 'pointer',
+                              border: avatar.clothColor === color ? '3px solid #4CAF50' : '2px solid #ddd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
 
-                {/* Achievements */}
-                <Tab.Pane eventKey="achievements">
-                  <Row className="g-3">
-                    {achievements.map((a, i) => (
-                      <Col xs={6} md={3} key={i}>
-                        <Card className={`h_achievement_card text-center border-0 shadow-sm ${!a.earned ? 'h_achievement_locked' : ''}`}>
-                          <Card.Body className="p-3">
-                            <div className="h_achievement_big_icon mb-2">{a.icon}</div>
-                            <div className="fw-bold small">{a.label}</div>
-                            <div className="text-muted" style={{ fontSize: '0.7rem' }}>{a.desc}</div>
-                            {a.earned && <FaCheck className="text-success mt-1" />}
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Tab.Pane>
+                    {/* Headwear */}
+                    <div className="mb-3">
+                      <label className="small text-muted mb-1 d-block">Headwear</label>
+                      <div className="d-flex gap-2">
+                        {['none', 'cap', 'pagdi'].map((wear) => (
+                          <button
+                            key={wear}
+                            onClick={() => setAvatar({ ...avatar, headWear: wear })}
+                            className={`btn btn-sm ${avatar.headWear === wear ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            style={{ textTransform: 'capitalize' }}
+                          >
+                            {wear}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                {/* History */}
-                <Tab.Pane eventKey="history">
-                  <Card className="border-0 shadow-sm">
-                    <Card.Body className="p-0">
-                      {completedLessons.length === 0 ? (
-                        <div className="text-center py-5 text-muted">
-                          <FaBook size={32} className="mb-2" />
-                          <p>No lessons completed yet. Start learning!</p>
-                          <Button size="sm" className="h_btn_get_started" onClick={() => navigate('dashboard')}>
-                            Go to Dashboard
-                          </Button>
+                    {/* Headwear Color */}
+                    {avatar.headWear !== 'none' && (
+                      <div className="mb-3">
+                        <label className="small text-muted mb-1 d-block">Headwear Color</label>
+                        <div className="d-flex gap-2 flex-wrap">
+                          {headWearColors.map((color) => (
+                            <div
+                              key={color}
+                              onClick={() => setAvatar({ ...avatar, headWearColor: color })}
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: color,
+                                cursor: 'pointer',
+                                border: avatar.headWearColor === color ? '3px solid #4CAF50' : '2px solid #ddd',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                              }}
+                            />
+                          ))}
                         </div>
-                      ) : (
-                        completedLessons.map((lessonId, i) => (
-                          <div key={i} className="h_history_row d-flex align-items-center gap-3 p-3">
-                            <div className="h_history_icon">
-                              <FaBook className="text-primary" />
-                            </div>
-                            <div className="flex-grow-1">
-                              <div className="fw-semibold">Lesson {lessonId}</div>
-                              <div className="text-muted small">Completed</div>
-                            </div>
-                            <Badge className="h_xp_earned">+10 XP</Badge>
+                      </div>
+                    )}
+
+                    {/* Emotion */}
+                    <div className="mb-3">
+                      <label className="small text-muted mb-1 d-block">Expression</label>
+                      <div className="d-flex gap-2">
+                        {['happy', 'sad', 'surprised', 'neutral'].map((emotion) => (
+                          <button
+                            key={emotion}
+                            onClick={() => setAvatar({ ...avatar, emotion })}
+                            className={`btn btn-sm ${avatar.emotion === emotion ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            style={{ textTransform: 'capitalize' }}
+                          >
+                            {emotion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button size="sm" variant="success" onClick={handleSaveName} disabled={saving} className="w-100">
+                    {saving ? '...' : 'Save'}
+                  </Button>
+                </div>
+              ) : (
+                <h4 className="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
+                  {displayName}
+                  <FaEdit className="text-muted h_edit_name_icon" onClick={() => setEditing(true)} style={{ cursor: 'pointer' }} />
+                </h4>
+              )}
+
+              <div className="text-muted small mb-3">{user?.email || ''}</div>
+
+              <Badge className="h_lang_badge mb-4">
+                <FaGlobe className="me-1" /> Learning {user?.language || 'Spanish'}
+              </Badge>
+
+              <div className="h_level_section mb-4">
+                <div className="d-flex justify-content-between small mb-1">
+                  <span className="fw-semibold">Level: {user?.level || 'Beginner'}</span>
+                  <span className="text-muted">{user?.xp || 0}/{maxXP} XP</span>
+                </div>
+                <ProgressBar now={levelProgress} className="h_level_bar" />
+              </div>
+
+              <Row className="g-2 text-center">
+                <Col xs={4}>
+                  <div className="h_pstat">
+                    <FaFire className="h_icon_fire" />
+                    <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
+                    <div className="h_pstat_lbl small text-muted">Streak</div>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="h_pstat">
+                    <FaStar className="h_icon_xp" />
+                    <div className="h_pstat_val fw-bold">{user?.xp || 0}</div>
+                    <div className="h_pstat_lbl small text-muted">Total XP</div>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="h_pstat">
+                    <FaTrophy className="text-warning" />
+                    <div className="h_pstat_val fw-bold">#{user?.xp >= 300 ? 2 : user?.xp >= 100 ? 5 : 10}</div>
+                    <div className="h_pstat_lbl small text-muted">Rank</div>
+                  </div>
+                </Col>
+              </Row>
+
+              <hr className="my-3" />
+
+              <Row className="g-2 text-center">
+                <Col xs={6}>
+                  <div className="h_pstat">
+                    <FaBook className="text-primary" />
+                    <div className="h_pstat_val fw-bold">{completedLessons.length}</div>
+                    <div className="h_pstat_lbl small text-muted">Lessons Done</div>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="h_pstat">
+                    <FaCalendar className="text-info" />
+                    <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
+                    <div className="h_pstat_lbl small text-muted">Active Days</div>
+                  </div>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+
+          <Card className="border-0 shadow-sm h_profile_card">
+            <Card.Body className="p-3 text-center">
+              <h6 className="fw-bold mb-2">Hearts</h6>
+              <div className="h_hearts_row d-flex justify-content-center gap-2 mb-2">
+                {Array(5).fill(0).map((_, i) => (
+                  <FaHeart key={i} className={i < (user?.hearts ?? 5) ? 'h_icon_heart' : 'h_icon_heart_empty'} />
+                ))}
+              </div>
+              <p className="text-muted small mb-2">
+                {(user?.hearts ?? 5) === 5 ? 'Fully charged' : `${user?.hearts ?? 0} hearts remaining`}
+              </p>
+              <Button size="sm" variant="outline-danger" className="w-100" onClick={() => navigate('dashboard')}>
+                Practice to Restore
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Right Content */}
+        <Col xl={12}>
+          <Tab.Container defaultActiveKey="activity">
+            <Nav variant="tabs" className="h_profile_tabs mb-4">
+              <Nav.Item>
+                <Nav.Link eventKey="activity" className="h_profile_tab">
+                  <FaChartBar className="me-1" /> Activity
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="achievements" className="h_profile_tab">
+                  <FaMedal className="me-1" /> Achievements
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="history" className="h_profile_tab">
+                  <FaBook className="me-1" /> History
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
+
+            <Tab.Content>
+              {/* Activity */}
+              <Tab.Pane eventKey="activity">
+                <Card className="border-0 shadow-sm mb-4">
+                  <Card.Body className="p-4">
+                    <h6 className="fw-bold mb-4">Weekly XP Activity</h6>
+                    <div className="h_activity_chart">
+                      {activityData.map((d, i) => (
+                        <div key={i} className="h_activity_bar_col text-center">
+                          <div className="h_bar_wrap">
+                            <div className="h_bar_fill" style={{ height: `${(d.xp / 100) * 100}%` }}></div>
                           </div>
-                        ))
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Tab.Pane>
-              </Tab.Content>
-            </Tab.Container>
-          </Col>
-        </Row>
+                          <div className="h_bar_label small text-muted mt-1">{d.day}</div>
+                          <div className="h_bar_xp small fw-semibold">{d.xp}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card.Body>
+                </Card>
+
+                <Row className="g-3">
+                  {[
+                    { label: 'Total XP', value: user?.xp || 0, icon: <FaStar className="h_icon_xp" />, change: 'Earned' },
+                    { label: 'Best Streak', value: `${user?.streak || 0} days`, icon: <FaFire className="h_icon_fire" />, change: user?.streak > 0 ? 'Active' : 'Start!' },
+                    { label: 'Lessons Done', value: completedLessons.length, icon: <FaCheckCircle style={{ color: 'var(--success)' }} />, change: `${completedLessons.length} total` },
+                  ].map((s, i) => (
+                    <Col xs={12} sm={4} key={i}>
+                      <Card className="h_summary_card border-0 shadow-sm text-center">
+                        <Card.Body className="p-3">
+                          <div className="mb-1">{s.icon}</div>
+                          <div className="fw-bold fs-5">{s.value}</div>
+                          <div className="text-muted small">{s.label}</div>
+                          <Badge bg="light" text="success" className="mt-1 small">{s.change}</Badge>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Tab.Pane>
+
+              {/* Achievements */}
+              <Tab.Pane eventKey="achievements">
+                <Row className="g-3">
+                  {achievements.map((a, i) => (
+                    <Col xs={6} md={3} key={i}>
+                      <Card className={`h_achievement_card text-center border-0 shadow-sm ${!a.earned ? 'h_achievement_locked' : ''}`}>
+                        <Card.Body className="p-3">
+                          <div className="h_achievement_big_icon mb-2">{a.icon}</div>
+                          <div className="fw-bold small">{a.label}</div>
+                          <div className="text-muted" style={{ fontSize: '0.7rem' }}>{a.desc}</div>
+                          {a.earned && <FaCheck className="text-success mt-1" />}
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Tab.Pane>
+
+              {/* History */}
+              <Tab.Pane eventKey="history">
+                <Card className="border-0 shadow-sm">
+                  <Card.Body className="p-0">
+                    {completedLessons.length === 0 ? (
+                      <div className="text-center py-5 text-muted">
+                        <FaBook size={32} className="mb-2" />
+                        <p>No lessons completed yet. Start learning!</p>
+                        <Button size="sm" className="h_btn_get_started" onClick={() => navigate('dashboard')}>
+                          Go to Dashboard
+                        </Button>
+                      </div>
+                    ) : (
+                      completedLessons.map((lessonId, i) => (
+                        <div key={i} className="h_history_row d-flex align-items-center gap-3 p-3">
+                          <div className="h_history_icon">
+                            <FaBook />
+                          </div>
+                          <div className="flex-grow-1">
+                            <div className="fw-semibold">Lesson {lessonId}</div>
+                            <div className="text-muted small">Completed</div>
+                          </div>
+                          <Badge className="h_xp_earned">+10 XP</Badge>
+                        </div>
+                      ))
+                    )}
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        </Col>
+      </Row>
     </div>
   );
 };
