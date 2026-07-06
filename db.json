@@ -30,8 +30,16 @@
       "name": "Demo User",
       "email": "demo@demo.com",
       "password": "demo123",
-      "avatar": "👩",
-      "xp": 1180,
+      "avatar": {
+        "skin": "#E8B88A",
+        "emotion": "happy",
+        "hairStyle": "curly",
+        "hairColor": "#FF6347",
+        "clothColor": "#F59E0B",
+        "headWear": "pagdi",
+        "headWearColor": "#0000FF"
+      },
+      "xp": 950,
       "streak": 7,
       "hearts": 2,
       "language": "English",
