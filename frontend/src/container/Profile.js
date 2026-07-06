@@ -273,86 +273,95 @@ const Profile = () => {
                 </h4>
               )}
 
-              <div className="text-muted small mb-3">{user?.email || ''}</div>
+              {!editing && (
+                <>
+                  <div className="text-muted small mb-3">{user?.email || ''}</div>
 
-              <Badge className="h_lang_badge mb-4">
-                <FaGlobe className="me-1" /> Learning {user?.language || 'Spanish'}
-              </Badge>
+                  <Badge className="h_lang_badge mb-4">
+                    <FaGlobe className="me-1" /> Learning {user?.language || 'Spanish'}
+                  </Badge>
 
-              <div className="h_level_section mb-4">
-                <div className="d-flex justify-content-between small mb-1">
-                  <span className="fw-semibold">Level: {user?.level || 'Beginner'}</span>
-                  <span className="text-muted">{user?.xp || 0}/{maxXP} XP</span>
-                </div>
-                <ProgressBar now={levelProgress} className="h_level_bar" />
-              </div>
+                  <div className="h_level_section mb-4">
+                    <div className="d-flex justify-content-between small mb-1">
+                      <span className="fw-semibold">Level: {user?.level || 'Beginner'}</span>
+                      <span className="text-muted">{user?.xp || 0}/{maxXP} XP</span>
+                    </div>
+                    <ProgressBar now={levelProgress} className="h_level_bar" />
+                  </div>
 
-              <Row className="g-2 text-center">
-                <Col xs={4}>
-                  <div className="h_pstat">
-                    <FaFire className="h_icon_fire" />
-                    <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
-                    <div className="h_pstat_lbl small text-muted">Streak</div>
-                  </div>
-                </Col>
-                <Col xs={4}>
-                  <div className="h_pstat">
-                    <FaStar className="h_icon_xp" />
-                    <div className="h_pstat_val fw-bold">{user?.xp || 0}</div>
-                    <div className="h_pstat_lbl small text-muted">Total XP</div>
-                  </div>
-                </Col>
-                <Col xs={4}>
-                  <div className="h_pstat">
-                    <FaTrophy className="text-warning" />
-                    <div className="h_pstat_val fw-bold">#{user?.xp >= 300 ? 2 : user?.xp >= 100 ? 5 : 10}</div>
-                    <div className="h_pstat_lbl small text-muted">Rank</div>
-                  </div>
-                </Col>
-              </Row>
+                  <Row className="g-2 text-center">
+                    <Col xs={4}>
+                      <div className="h_pstat">
+                        <FaFire className="h_icon_fire" />
+                        <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
+                        <div className="h_pstat_lbl small text-muted">Streak</div>
+                      </div>
+                    </Col>
+                    <Col xs={4}>
+                      <div className="h_pstat">
+                        <FaStar className="h_icon_xp" />
+                        <div className="h_pstat_val fw-bold">{user?.xp || 0}</div>
+                        <div className="h_pstat_lbl small text-muted">Total XP</div>
+                      </div>
+                    </Col>
+                    <Col xs={4}>
+                      <div className="h_pstat">
+                        <FaTrophy className="text-warning" />
+                        <div className="h_pstat_val fw-bold">#{user?.xp >= 300 ? 2 : user?.xp >= 100 ? 5 : 10}</div>
+                        <div className="h_pstat_lbl small text-muted">Rank</div>
+                      </div>
+                    </Col>
+                  </Row>
 
-              <hr className="my-3" />
+                  <hr className="my-3" />
 
-              <Row className="g-2 text-center">
-                <Col xs={6}>
-                  <div className="h_pstat">
-                    <FaBook className="text-primary" />
-                    <div className="h_pstat_val fw-bold">{completedLessons.length}</div>
-                    <div className="h_pstat_lbl small text-muted">Lessons Done</div>
-                  </div>
-                </Col>
-                <Col xs={6}>
-                  <div className="h_pstat">
-                    <FaCalendar className="text-info" />
-                    <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
-                    <div className="h_pstat_lbl small text-muted">Active Days</div>
-                  </div>
-                </Col>
-              </Row>
+                  <Row className="g-2 text-center">
+                    <Col xs={6}>
+                      <div className="h_pstat">
+                        <FaBook className="text-primary" />
+                        <div className="h_pstat_val fw-bold">{completedLessons.length}</div>
+                        <div className="h_pstat_lbl small text-muted">Lessons Done</div>
+                      </div>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="h_pstat">
+                        <FaCalendar className="text-info" />
+                        <div className="h_pstat_val fw-bold">{user?.streak || 0}</div>
+                        <div className="h_pstat_lbl small text-muted">Active Days</div>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+              )}
             </Card.Body>
           </Card>
 
-          <Card className="border-0 shadow-sm h_profile_card">
-            <Card.Body className="p-3 text-center">
-              <h6 className="fw-bold mb-2">Hearts</h6>
-              <div className="h_hearts_row d-flex justify-content-center gap-2 mb-2">
-                {Array(5).fill(0).map((_, i) => (
-                  <FaHeart key={i} className={i < (user?.hearts ?? 5) ? 'h_icon_heart' : 'h_icon_heart_empty'} />
-                ))}
-              </div>
-              <p className="text-muted small mb-2">
-                {(user?.hearts ?? 5) === 5 ? 'Fully charged' : `${user?.hearts ?? 0} hearts remaining`}
-              </p>
-              <Button size="sm" variant="outline-danger" className="w-100" onClick={() => navigate('dashboard')}>
-                Practice to Restore
-              </Button>
-            </Card.Body>
-          </Card>
+          {!editing && (
+            <>
+              <Card className="border-0 shadow-sm h_profile_card">
+                <Card.Body className="p-3 text-center">
+                  <h6 className="fw-bold mb-2">Hearts</h6>
+                  <div className="h_hearts_row d-flex justify-content-center gap-2 mb-2">
+                    {Array(5).fill(0).map((_, i) => (
+                      <FaHeart key={i} className={i < (user?.hearts ?? 5) ? 'h_icon_heart' : 'h_icon_heart_empty'} />
+                    ))}
+                  </div>
+                  <p className="text-muted small mb-2">
+                    {(user?.hearts ?? 5) === 5 ? 'Fully charged' : `${user?.hearts ?? 0} hearts remaining`}
+                  </p>
+                  <Button size="sm" variant="outline-danger" className="w-100" onClick={() => navigate('dashboard')}>
+                    Practice to Restore
+                  </Button>
+                </Card.Body>
+              </Card>
+            </>
+          )}
         </Col>
 
         {/* Right Content */}
-        <Col xl={12}>
-          <Tab.Container defaultActiveKey="activity">
+        {!editing && (
+          <Col xl={12}>
+            <Tab.Container defaultActiveKey="activity">
             <Nav variant="tabs" className="h_profile_tabs mb-4">
               <Nav.Item>
                 <Nav.Link eventKey="activity" className="h_profile_tab">
@@ -460,7 +469,8 @@ const Profile = () => {
               </Tab.Pane>
             </Tab.Content>
           </Tab.Container>
-        </Col>
+          </Col>
+          )}
       </Row>
     </div>
   );
