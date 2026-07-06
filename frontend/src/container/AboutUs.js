@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import { Globe, Users, Target, Rocket, Heart, Award, ArrowRight, Star, Zap, Lightbulb, Shield, MessageCircle, icons } from 'lucide-react';
+import { Globe, Users, Target, Rocket, Heart, Award, ArrowRight, Star, Zap, Lightbulb, Shield, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../style/info_pages.css';
 
@@ -8,39 +8,48 @@ const AboutUs = () => {
   const navigate = useNavigate();
 
   const stats = [
-    { value: '500M+', label: 'Learners Worldwide', icon: <Globe size={32} /> },
-    { value: '30+', label: 'Languages', icon: <Users size={32} /> },
-    { value: '4.9', label: 'App Rating', icon: <Star size={32} /> },
-    { value: '100M', label: 'Lessons', icon: <Zap size={32} /> }
+    { value: '500M+', label: 'Learners', icon: <Globe size={24} /> },
+    { value: '30+',   label: 'Languages', icon: <Users size={24} /> },
+    { value: '4.9',   label: 'App Rating', icon: <Star size={24} /> },
+    { value: '100M',  label: 'Lessons',   icon: <Zap size={24} /> },
   ];
 
   const team = [
-    { name: 'Sarah Johnson', role: 'CEO & Founder', image: '👩‍💼' },
-    { name: 'Michael Chen', role: 'CTO', image: '👨‍💻' },
-    { name: 'Emma Williams', role: 'Head of Content', image: '�‍🏫' },
-    { name: 'David Park', role: 'Lead Developer', image: '👨‍🔬' },
+    { name: 'Sarah Johnson',  role: 'CEO & Founder',    image: '👩‍💼' },
+    { name: 'Michael Chen',   role: 'CTO',               image: '👨‍💻' },
+    { name: 'Emma Williams',  role: 'Head of Content',   image: '👩‍🏫' },
+    { name: 'David Park',     role: 'Lead Developer',    image: '👨‍🔬' },
+  ];
+
+  const features = [
+    { icon: <Lightbulb size={28} />, title: 'AI-Powered Learning',  desc: 'Personalized lessons that adapt to your progress and learning style.' },
+    { icon: <Shield size={28} />,    title: 'Certified Content',    desc: 'Industry-recognized curriculum to validate your language skills.' },
+    { icon: <MessageCircle size={28} />, title: 'Community Support', desc: 'Connect with native speakers and fellow learners for practice.' },
   ];
 
   return (
     <div className="about-page-unique">
-      {/* Hero Section */}
+
+      {/* ── Hero ─────────────────────────────────────────── */}
       <section className="about-hero-unique">
         <Container>
-          <Row className="align-items-center">
-            <Col lg={6}>
+          <Row className="align-items-center g-4">
+            <Col lg={7}>
               <div className="hero-content-unique">
                 <div className="hero-badge-unique">
-                  <Globe size={20} /> About VocabLearn
+                  <Globe size={16} /> About VocabLearn
                 </div>
                 <h1 className="hero-title-unique">
-                  Making language learning <span className="highlight">accessible</span> to everyone
+                  Making language learning{' '}
+                  <span className="highlight">accessible</span> to everyone
                 </h1>
                 <p className="hero-desc-unique">
-                  We're on a mission to break down language barriers and connect people across the globe through innovative, personalized language education.
+                  We're on a mission to break down language barriers and connect
+                  people across the globe through innovative, personalized education.
                 </p>
                 <div className="hero-buttons-unique">
                   <Button className="btn-primary-unique" onClick={() => navigate('/signup')}>
-                    Start Learning <ArrowRight className="ms-2" size={18} />
+                    Start Learning <ArrowRight size={16} className="ms-1" />
                   </Button>
                   <Button className="btn-secondary-unique" onClick={() => navigate('/help')}>
                     Learn More
@@ -48,36 +57,46 @@ const AboutUs = () => {
                 </div>
               </div>
             </Col>
-            <Col lg={6}>
-              <div className="hero-visual-unique">
-                <div className="floating-card card-1">
-                  <Target size={48} />
-                  <span>Our Mission</span>
-                </div>
-                <div className="floating-card card-2">
-                  <Rocket size={48} />
-                  <span>Our Vision</span>
-                </div>
-                <div className="floating-card card-3">
-                  <Heart size={48} />
-                  <span>Our Passion</span>
-                </div>
+            <Col lg={5} className="d-none d-lg-flex justify-content-center">
+              <div className="d-flex flex-column gap-3" style={{ width: '100%', maxWidth: 320 }}>
+                {[
+                  { icon: <Target size={28} />, label: 'Our Mission' },
+                  { icon: <Rocket size={28} />, label: 'Our Vision' },
+                  { icon: <Heart size={28} />,  label: 'Our Passion' },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="d-flex align-items-center gap-3"
+                    style={{
+                      background: 'rgba(255,255,255,0.15)',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '14px 20px',
+                      backdropFilter: 'blur(8px)',
+                      color: 'var(--text-light)',
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                    }}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                ))}
               </div>
             </Col>
           </Row>
         </Container>
       </section>
 
-      {/* Stats Banner */}
+      {/* ── Stats ───────────────────────────────────────── */}
       <section className="stats-banner-unique">
         <Container>
-          <Row>
-            {stats.map((stat, i) => (
+          <Row className="g-3">
+            {stats.map((s, i) => (
               <Col xs={6} md={3} key={i}>
                 <div className="stat-item-unique">
-                  <div className="stat-icon-unique">{stat.icon}</div>
-                  <div className="stat-value-unique">{stat.value}</div>
-                  <div className="stat-label-unique">{stat.label}</div>
+                  <div className="stat-icon-unique">{s.icon}</div>
+                  <div className="stat-value-unique">{s.value}</div>
+                  <div className="stat-label-unique">{s.label}</div>
                 </div>
               </Col>
             ))}
@@ -85,46 +104,45 @@ const AboutUs = () => {
         </Container>
       </section>
 
-      {/* Story Section */}
+      {/* ── Story ───────────────────────────────────────── */}
       <section className="story-section-unique">
         <Container>
-          <Row className="align-items-center">
+          <Row className="align-items-center g-4">
             <Col lg={6}>
               <div className="story-content-unique">
                 <h2 className="section-title-unique">Our Story</h2>
                 <p className="story-text-unique">
-                  VocabLearn was founded in 2024 with a simple yet powerful idea: language learning should be accessible, enjoyable, and effective for everyone, regardless of their background or budget.
+                  VocabLearn was founded in 2024 with a simple idea: language learning
+                  should be accessible, enjoyable, and effective for everyone.
                 </p>
                 <p className="story-text-unique">
-                  Our founders, having experienced the challenges of traditional language learning methods, set out to create a platform that leverages technology to provide personalized, engaging, and results-driven language education.
+                  Our founders experienced the frustrations of traditional methods
+                  first-hand, so they built a platform that adapts to each learner
+                  with personalized, results-driven education.
                 </p>
                 <p className="story-text-unique">
-                  Today, we're proud to serve over 500 million learners worldwide, offering courses in 30+ languages and continuously innovating to make language learning more effective and enjoyable.
+                  Today we serve over 500 million learners in 30+ languages and keep
+                  pushing the boundaries of what's possible.
                 </p>
               </div>
             </Col>
             <Col lg={6}>
               <div className="story-visual-unique">
                 <div className="story-timeline">
-                  <div className="timeline-point">
-                    <div className="timeline-year">2024</div>
-                    <div className="timeline-desc">Founded</div>
-                  </div>
-                  <div className="timeline-line"></div>
-                  <div className="timeline-point">
-                    <div className="timeline-year">2024</div>
-                    <div className="timeline-desc">1M Users</div>
-                  </div>
-                  <div className="timeline-line"></div>
-                  <div className="timeline-point">
-                    <div className="timeline-year">2025</div>
-                    <div className="timeline-desc">30 Languages</div>
-                  </div>
-                  <div className="timeline-line"></div>
-                  <div className="timeline-point">
-                    <div className="timeline-year">2025</div>
-                    <div className="timeline-desc">500M Learners</div>
-                  </div>
+                  {[
+                    { year: '2024', desc: 'Founded' },
+                    { year: '2024', desc: '1M Users' },
+                    { year: '2025', desc: '30 Languages' },
+                    { year: '2025', desc: '500M Learners' },
+                  ].map((t, i) => (
+                    <React.Fragment key={i}>
+                      <div className="timeline-point">
+                        <div className="timeline-year">{t.year}</div>
+                        <div className="timeline-desc">{t.desc}</div>
+                      </div>
+                      {i < 3 && <div className="timeline-line" />}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </Col>
@@ -132,7 +150,7 @@ const AboutUs = () => {
         </Container>
       </section>
 
-      {/* Features Grid */}
+      {/* ── Features ────────────────────────────────────── */}
       <section className="features-section-unique">
         <Container>
           <div className="section-header-unique">
@@ -140,51 +158,12 @@ const AboutUs = () => {
             <p className="section-subtitle-unique">Innovative features designed for your success</p>
           </div>
           <Row className="g-4">
-            <Col md={6} lg={4}>
-              <div className="feature-card-unique">
-                <div className="feature-icon-circle">
-                  <Lightbulb size={40} />
-                </div>
-                <h3 className="feature-title-unique">AI-Powered Learning</h3>
-                <p className="feature-desc-unique">Personalized lessons that adapt to your progress and learning style for optimal results.</p>
-              </div>
-            </Col>
-            <Col md={6} lg={4}>
-              <div className="feature-card-unique">
-                <div className="feature-icon-circle">
-                  <Shield size={40} />
-                </div>
-                <h3 className="feature-title-unique">Certified Content</h3>
-                <p className="feature-desc-unique">Industry-recognized curriculum and assessments to validate your language skills.</p>
-              </div>
-            </Col>
-            <Col md={6} lg={4}>
-              <div className="feature-card-unique">
-                <div className="feature-icon-circle">
-                  <MessageCircle size={40} />
-                </div>
-                <h3 className="feature-title-unique">Community Support</h3>
-                <p className="feature-desc-unique">Connect with native speakers and fellow learners for practice and support.</p>
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
-
-      {/* Team Section */}
-      <section className="team-section-unique">
-        <Container>
-          <div className="section-header-unique">
-            <h2 className="section-title-unique">Meet Our Team</h2>
-            <p className="section-subtitle-unique">The passionate people behind VocabLearn</p>
-          </div>
-          <Row className="g-4">
-            {team.map((member, i) => (
-              <Col xs={6} md={3} key={i}>
-                <div className="team-card-unique">
-                  <div className="team-avatar">{member.image}</div>
-                  <h3 className="team-name">{member.name}</h3>
-                  <p className="team-role">{member.role}</p>
+            {features.map((f, i) => (
+              <Col md={4} key={i}>
+                <div className="feature-card-unique">
+                  <div className="feature-icon-circle">{f.icon}</div>
+                  <h3 className="feature-title-unique">{f.title}</h3>
+                  <p className="feature-desc-unique">{f.desc}</p>
                 </div>
               </Col>
             ))}
@@ -192,19 +171,43 @@ const AboutUs = () => {
         </Container>
       </section>
 
-      {/* CTA Section */}
+      {/* ── Team ────────────────────────────────────────── */}
+      <section className="team-section-unique">
+        <Container>
+          <div className="section-header-unique">
+            <h2 className="section-title-unique">Meet Our Team</h2>
+            <p className="section-subtitle-unique">The passionate people behind VocabLearn</p>
+          </div>
+          <Row className="g-3 justify-content-center">
+            {team.map((m, i) => (
+              <Col xs={6} sm={4} md={3} key={i}>
+                <div className="team-card-unique">
+                  <div className="team-avatar">{m.image}</div>
+                  <h3 className="team-name">{m.name}</h3>
+                  <p className="team-role">{m.role}</p>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
+
+      {/* ── CTA ─────────────────────────────────────────── */}
       <section className="cta-section-unique">
         <Container>
           <div className="cta-content-unique">
-            <Award size={64} />
+            <Award size={48} />
             <h2 className="cta-title-unique">Ready to Start Your Journey?</h2>
-            <p className="cta-desc-unique">Join millions of learners and unlock new opportunities through language mastery.</p>
-            <Button className="btn-primary-unique btn-lg" onClick={() => navigate('/signup')}>
-              Get Started Free <ArrowRight className="ms-2" size={18} />
+            <p className="cta-desc-unique">
+              Join millions of learners and unlock new opportunities through language mastery.
+            </p>
+            <Button className="btn-primary-unique" onClick={() => navigate('/signup')}>
+              Get Started Free <ArrowRight size={16} className="ms-1" />
             </Button>
           </div>
         </Container>
       </section>
+
     </div>
   );
 };

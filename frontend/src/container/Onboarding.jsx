@@ -24,8 +24,202 @@ import ohter_img from "../assets/more.jpg";
 
 import { BsArrowRightCircleFill } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { title } from "framer-motion/client";
-import { FaSpinner, FaCrown, FaStar, FaGem } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa";
+
+/* ───────────────────────────────────────── Subscription Step ───────────────────────────────────────── */
+const plans = [
+  {
+    id: "monthly",
+    label: "3 monthly",
+    price: "$10.7",
+    per: "/ mo",
+    total: "$32 per 3 months",
+    badge: "BEST CHOICE",
+    highlight: true,
+  },
+  {
+    id: "annual",
+    label: "Annual",
+    price: "$24.8",
+    per: "/ mo",
+    total: "$298 per year",
+    badge: null,
+    highlight: false,
+  },
+  {
+    id: "family",
+    label: "Family",
+    price: "$49.9",
+    per: "/ mo",
+    total: "$599 per year · 3 members",
+    badge: null,
+    highlight: false,
+  },
+];
+
+const timeline = [
+  {
+    day: "Today",
+    color: "var(--h-primary)",
+    desc: "No pay. Full access to all features.",
+  },
+  {
+    day: "Day 5",
+    color: "var(--h-primary-light)",
+    desc: "No pay. Your trial is ending soon.",
+  },
+  {
+    day: "Day 7",
+    color: "var(--h-gray-400)",
+    desc: "Trial ends — stay Pro or cancel anytime.",
+  },
+];
+
+const SubscriptionStep = ({ onComplete }) => {
+  const [selectedPlan, setSelectedPlan] = React.useState("monthly");
+  const [showPlans, setShowPlans] = React.useState(false);
+
+  return (
+    <div className="h_sub_wrapper">
+      {/* ── Close Button ── */}
+      <motion.button
+        className="h_sub_close_btn"
+        onClick={onComplete}
+        whileHover={{ scale: 1.1, rotate: 90 }}
+        whileTap={{ scale: 0.9 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        aria-label="Close and go to login"
+      >
+        ✕
+      </motion.button>
+      {/* ── Header ── */}
+      <motion.div
+        className="h_sub_header"
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h2 className="h_sub_title">
+          Unlock Your Pro<br />Experience
+        </h2>
+        <ul className="h_sub_perks">
+          {[
+            "Personalized plan",
+            "Real listening",
+            "Feedback pronunciation",
+            "AI roleplays",
+          ].map((p) => (
+            <li key={p}>
+              <FaCheck className="h_sub_perk_check" />
+              {p}
+            </li>
+          ))}
+        </ul>
+      </motion.div>
+
+      {/* ── Timeline — always visible ── */}
+      <motion.div
+        className="h_sub_timeline"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        {timeline.map((item, idx) => (
+          <div key={idx} className="h_sub_timeline_row">
+            <div className="h_sub_timeline_dot_col">
+              <div
+                className="h_sub_timeline_dot"
+                style={{ background: item.color }}
+              />
+              {idx < timeline.length - 1 && (
+                <div className="h_sub_timeline_line" />
+              )}
+            </div>
+            <div className="h_sub_timeline_text">
+              <span className="h_sub_timeline_day">{item.day}</span>
+              <span className="h_sub_timeline_desc">{item.desc}</span>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* ── Plan Cards — visible only after "See all plans" ── */}
+      <AnimatePresence>
+        {showPlans && (
+          <motion.div
+            className="h_sub_plans"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            {plans.map((plan, idx) => (
+              <motion.div
+                key={plan.id}
+                className={`h_sub_plan_card ${
+                  selectedPlan === plan.id ? "h_sub_plan_card_selected" : ""
+                } ${plan.highlight ? "h_sub_plan_card_highlight" : ""}`}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.08 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setSelectedPlan(plan.id)}
+              >
+                {plan.badge && (
+                  <span className="h_sub_plan_badge">{plan.badge}</span>
+                )}
+                <div className="h_sub_plan_left">
+                  <div
+                    className={`h_sub_plan_radio ${
+                      selectedPlan === plan.id ? "h_sub_plan_radio_active" : ""
+                    }`}
+                  />
+                  <span className="h_sub_plan_label">{plan.label}</span>
+                </div>
+                <div className="h_sub_plan_right">
+                  <span className="h_sub_plan_price">{plan.price}</span>
+                  <span className="h_sub_plan_per">{plan.per}</span>
+                </div>
+                <div className="h_sub_plan_total">{plan.total}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CTA — visible only when plans are shown ── */}
+      <motion.button
+            className="h_sub_cta_btn"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ delay: 0.25 }}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onComplete}
+          >
+            Start a 7-days free trial
+            <FaRocket size={15} style={{ marginLeft: "8px" }} />
+          </motion.button>
+
+      {/* ── "See all plans" — toggles plan cards ── */}
+      <motion.p
+        className="h_sub_skip"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        onClick={() => setShowPlans((prev) => !prev)}
+      >
+        {showPlans ? "Hide plans" : "See all plans"}
+      </motion.p>
+    </div>
+  );
+};
+
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -115,7 +309,7 @@ const Onboarding = () => {
         <>
           {/* Login link at top right */}
           <div className="h_onboarding_login_link_container">
-            <a href="/auth" className="h_onboarding_login_link">
+            <a href="/login" className="h_onboarding_login_link">
               Already have an account? Login
             </a>
           </div>
@@ -166,7 +360,7 @@ const Onboarding = () => {
             </div>
             <div className="h_onboarding_stats">
               {[
-                { label: "Languages", value: "35+" },
+                { label: "Languages", value: "4" },
                 { label: "Lessons", value: "10K+" },
                 { label: "Learners", value: "50M+" },
               ].map((stat, idx) => (
@@ -447,62 +641,10 @@ const Onboarding = () => {
       ),
     },
     {
-      title: "Unlock Your Pro Experience",
-      subtitle: "Get unlimited access to premium features",
+      title: null,
+      subtitle: null,
       content: (
-        <div className="h_onboarding_subscription">
-          <motion.div
-            className="h_onboarding_subscription_header"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="h_onboarding_subscription_icon">
-              <FaCrown size={60} />
-            </div>
-            <h3 className="h_onboarding_subscription_title">
-              Congrats, You Just Unlocked Everything!
-            </h3>
-            <p className="h_onboarding_subscription_subtitle">
-              Welcome Home Premium
-            </p>
-          </motion.div>
-          
-          <div className="h_onboarding_subscription_features">
-            {[
-              { icon: <FaStar />, text: "Unlimited lessons" },
-              { icon: <FaGem />, text: "Premium content" },
-              { icon: <FaCrown />, text: "Ad-free experience" },
-              { icon: <FaStar />, text: "Offline access" },
-            ].map((feature, idx) => (
-              <motion.div
-                key={idx}
-                className="h_onboarding_subscription_feature"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + idx * 0.1 }}
-              >
-                <span className="h_onboarding_subscription_feature_icon">
-                  {feature.icon}
-                </span>
-                <span className="h_onboarding_subscription_feature_text">
-                  {feature.text}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-          
-          <motion.div
-            className="h_onboarding_subscription_cta"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <p className="h_onboarding_subscription_cta_text">
-              Start your free trial today!
-            </p>
-          </motion.div>
-        </div>
+        <SubscriptionStep onComplete={() => navigate('/signup')} />
       ),
     },
   ];
@@ -521,7 +663,7 @@ const Onboarding = () => {
 
   const handleComplete = () => {
     console.log('Onboarding complete!', formData);
-    navigate('/auth');
+    navigate('/signup');
   };
 
   const isLastStep = currentStep === steps.length - 1;
@@ -559,9 +701,10 @@ const Onboarding = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ type: "spring", bounce: 0.2 }}
             >
-              {/* Progress Bar */}
+              {/* Progress Bar — only shows steps 0–7 (Welcome to "You're ready!") */}
+              {currentStep < 9 && (
               <div className="h_onboarding_progress_bar">
-                {steps.map((_, index) => (
+                {steps.slice(0, 8).map((_, index) => (
                   <motion.div
                     key={index}
                     className={`h_onboarding_progress_step ${
@@ -571,15 +714,17 @@ const Onboarding = () => {
                           ? "h_onboarding_progress_step_completed"
                           : ""
                     }`}
-                    style={{ width: `${100 / steps.length}%` }}
+                    style={{ width: `${100 / 8}%` }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
                   />
                 ))}
               </div>
+              )}
 
               {/* Main Content */}
-              <div className="h_onboarding_content">
+              <div className={`h_onboarding_content${currentStep === 9 ? " h_onboarding_content_sub" : ""}`}>
                 {/* Header with Back Button */}
+                {currentStep < 8 && (
                 <div className="h_onboarding_header">
                   {!isFirstStep && (
                     <motion.button
@@ -592,6 +737,7 @@ const Onboarding = () => {
                     </motion.button>
                   )}
                 </div>
+                )}
 
                 {/* Step Content with animation */}
                 <AnimatePresence mode="wait">
@@ -634,7 +780,8 @@ const Onboarding = () => {
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Footer Navigation Buttons */}
+                {/* Footer Navigation Buttons — hidden on subscription step */}
+                {currentStep !== steps.length - 1 && (
                 <div className="h_onboarding_footer">
                   {!isLastStep ? (
                     <motion.button
@@ -664,6 +811,7 @@ const Onboarding = () => {
                     </motion.button>
                   )}
                 </div>
+                )}
               </div>
             </motion.div>
           </div>

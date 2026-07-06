@@ -1,235 +1,391 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import { Globe, Star, Flame, Trophy, ArrowRight, BookOpen, Users, Zap } from 'lucide-react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Button, Navbar } from "react-bootstrap";
+import {
+  Globe,
+  Star,
+  Flame,
+  Trophy,
+  ArrowRight,
+  BookOpen,
+  Users,
+  Zap,
+  CheckCircle,
+  TrendingUp,
+  Award,
+} from "lucide-react";
+import flag_1 from "../assets/USFlag.webp";
+import flag_2 from "../assets/FranceFlag.png";
+import flag_3 from "../assets/GermanyFlag.jpg";
+import flag_4 from "../assets/PolandFlag.png";
 
 const languages = [
-  { flag: '🇪🇸', name: 'Spanish', learners: '32M', native: 'Español' },
-  { flag: '🇫🇷', name: 'French', learners: '18M', native: 'Français' },
-  { flag: '🇩🇪', name: 'German', learners: '12M', native: 'Deutsch' },
-  { flag: '🇯🇵', name: 'Japanese', learners: '15M', native: '日本語' },
-  { flag: '🇮🇳', name: 'Hindi', learners: '9M', native: 'हिन्दी' },
-  { flag: '🇵🇹', name: 'Portuguese', learners: '11M', native: 'Português' },
-  { flag: '🇮🇹', name: 'Italian', learners: '8M', native: 'Italiano' },
-  { flag: '🇰🇷', name: 'Korean', learners: '10M', native: '한국어' },
+  {
+    flag: flag_1,
+    name: "English",
+    learners: "1.5B",
+    native: "English",
+    color: "#4A90D9",
+  },
+  {
+    flag: flag_2,
+    name: "French",
+    learners: "18M",
+    native: "Français",
+    color: "#E8334A",
+  },
+  {
+    flag: flag_3,
+    name: "German",
+    learners: "12M",
+    native: "Deutsch",
+    color: "#F5A623",
+  },
+  {
+    flag: flag_4,
+    name: "Polish",
+    learners: "8M",
+    native: "Polski",
+    color: "#C0392B",
+  },
 ];
 
 const features = [
   {
-    icon: <Star size={26} />,
-    title: 'Earn XP & Rewards',
-    desc: 'Complete lessons to earn experience points, unlock achievements and climb the leaderboard.',
+    icon: <Star size={24} />,
+    title: "Earn XP & Rewards",
+    desc: "Complete lessons to earn experience points, unlock achievements and climb the leaderboard.",
+    accent: "var(--accent)",
   },
   {
-    icon: <Flame size={26} />,
-    title: 'Daily Streaks',
-    desc: 'Build a habit by maintaining your daily learning streak. Miss a day and it resets!',
+    icon: <Flame size={24} />,
+    title: "Daily Streaks",
+    desc: "Build a habit by maintaining your daily learning streak. Miss a day and it resets!",
+    accent: "var(--warning)",
   },
   {
-    icon: <Trophy size={26} />,
-    title: 'Compete & Win',
-    desc: 'Join weekly leagues, compete with friends and earn top ranks on the global leaderboard.',
+    icon: <Trophy size={24} />,
+    title: "Compete & Win",
+    desc: "Join weekly leagues, compete with friends and earn top ranks on the global leaderboard.",
+    accent: "var(--gold)",
   },
   {
-    icon: <Globe size={26} />,
-    title: '30+ Languages',
-    desc: 'Choose from a wide variety of languages with structured paths from beginner to advanced.',
+    icon: <Globe size={24} />,
+    title: "30+ Languages",
+    desc: "Choose from a wide variety of languages with structured paths from beginner to advanced.",
+    accent: "var(--primary)",
   },
 ];
 
 const steps = [
-  'Create your free account',
-  'Pick a language you want to learn',
-  'Set your daily goal',
-  'Complete bite-sized lessons',
-  'Track your progress and earn rewards',
+  { icon: "✨", text: "Create your free account" },
+  { icon: "🌍", text: "Pick a language you want to learn" },
+  { icon: "🎯", text: "Set your daily goal" },
+  { icon: "📚", text: "Complete bite-sized lessons" },
+  { icon: "🏆", text: "Track your progress and earn rewards" },
+];
+
+const stats = [
+  { value: "500M+", label: "Learners", icon: <Users size={20} /> },
+  { value: "30+", label: "Languages", icon: <Globe size={20} /> },
+  { value: "100M", label: "Daily Lessons", icon: <BookOpen size={20} /> },
+  { value: "#1", label: "Education App", icon: <Award size={20} /> },
 ];
 
 const Home = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="h_home_page">
-      {/* Hero */}
-      <section className="h_hero_section">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
+    <div className="hp_page">
+      {/* ── HERO ── */}
+      <section className="hp_hero">
+        {/* background blobs */}
+        <div className="hp_hero_blob hp_hero_blob_1" aria-hidden="true" />
+        <div className="hp_hero_blob hp_hero_blob_2" aria-hidden="true" />
+
+        <Container
+          style={{
+            maxWidth: "var(--container-wide)",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
           <Row className="align-items-center g-5">
-            <Col lg={6} className="h_hero_text order-lg-1 order-2 text-center text-lg-start">
-              <div className="h_courses_label">
-                <BookOpen size={16} /> Free language learning
+            {/* Text */}
+            <Col lg={6} className="order-lg-1 order-2">
+              <div className="hp_hero_pill">
+                <BookOpen size={14} />
+                <span>Free language learning</span>
               </div>
-              <h1 className="h_hero_title">
-                Learn a language <span className="h_highlight">for free</span>
+              <h1 className="hp_hero_title">
+                The smarter way to learn a&nbsp;
+                <span className="hp_hero_accent">language</span>
               </h1>
-              <p className="h_hero_subtitle mx-auto mx-lg-0">
-                The effective, bite-sized way to learn a new language. Join millions of learners and start your journey today.
+              <p className="hp_hero_sub">
+                Bite‑sized lessons, daily streaks and real rewards. Join
+                millions of learners and start your journey today — completely
+                free.
               </p>
-              <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                <Button
-                  size="lg"
-                  className="h_btn_get_started"
-                  onClick={() => navigate('/signup')}
-                >
-                  Get Started — It's Free
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline-secondary"
-                  className="h_btn_login_hero"
-                  onClick={() => navigate('/login')}
-                >
-                  I Have an Account
-                </Button>
-              </div>
-            </Col>
-            <Col lg={6} className="h_hero_visual order-lg-2 order-1">
-              <div className="h_hero_card_stack">
-                <div className="h_hero_preview_card">
-                  <div className="h_preview_header">
-                    <span className="fw-bold" style={{ color: 'var(--text)' }}>My Courses</span>
-                    <span className="h_preview_badge">3 active</span>
-                  </div>
-                  <div className="h_preview_progress">
-                    <div className="h_preview_progress_fill" style={{ width: '68%' }} />
-                  </div>
-                  <small className="text-muted d-block mb-3">Daily goal: 68 / 100 XP</small>
-                  {languages.slice(0, 3).map((lang) => (
-                    <div className="h_preview_lang_row" key={lang.name}>
-                      <span className="h_preview_flag">{lang.flag}</span>
-                      <div>
-                        <div className="h_preview_lang_name">{lang.name}</div>
-                        <div className="h_preview_lang_meta">{lang.learners} learners</div>
-                      </div>
-                      <Zap size={18} style={{ color: 'var(--primary)', marginLeft: 'auto' }} />
-                    </div>
-                  ))}
-                </div>
-                <div className="h_hero_preview_card" aria-hidden="true" />
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
 
-      {/* Stats */}
-      <section className="h_stats_banner">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
-          <Row className="text-center g-3">
-            {[
-              { value: '500M+', label: 'Learners' },
-              { value: '30+', label: 'Languages' },
-              { value: '100M', label: 'Lessons Daily' },
-              { value: '#1', label: 'Education App' },
-            ].map((stat, i) => (
-              <Col xs={6} md={3} key={i}>
-                <div className="h_stat_box">
-                  <div className="h_stat_number">{stat.value}</div>
-                  <div className="h_stat_label">{stat.label}</div>
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Courses Grid — Duolingo-style */}
-      <section className="h_section_alt" id="courses">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
-          <div className="text-center mb-5">
-            <div className="h_courses_label mx-auto">
-              <Globe size={16} /> Language courses
-            </div>
-            <h2 className="h_section_title mb-2">I want to learn...</h2>
-            <p className="h_section_sub mb-0">Choose a language and start learning for free</p>
-          </div>
-          <Row className="g-3 g-md-4 justify-content-center">
-            {languages.map((lang, i) => (
-              <Col xs={6} sm={4} md={3} lg={3} xl={2} key={i}>
-                <Card className="h_lang_card" onClick={() => navigate('/signup')}>
-                  <div className="h_lang_card_top">
-                    <span className="h_lang_flag">{lang.flag}</span>
-                    <div className="h_lang_name">{lang.name}</div>
-                    <div className="h_lang_native">{lang.native}</div>
-                  </div>
-                  <div className="h_lang_card_body">
-                    <span className="h_lang_learners mb-0">
-                      <Users size={12} className="me-1" style={{ verticalAlign: '-2px' }} />
-                      {lang.learners}
+              {/* trust row */}
+              <div className="hp_trust_row">
+                {["No credit card", "Free forever", "Start in 60 s"].map(
+                  (t) => (
+                    <span className="hp_trust_chip" key={t}>
+                      <CheckCircle size={13} /> {t}
                     </span>
-                    <span className="h_lang_cta">Start <ArrowRight size={14} /></span>
+                  ),
+                )}
+              </div>
+
+              <div className="hp_hero_actions">
+                <Button
+                  className="hp_btn_primary"
+                  onClick={() => navigate("/onboarding")}
+                >
+                  Get Started — It's Free <ArrowRight size={16} />
+                </Button>
+                <Button
+                  className="hp_btn_ghost"
+                  onClick={() => navigate("/login")}
+                >
+                  I have an account
+                </Button>
+              </div>
+            </Col>
+
+            {/* Visual card */}
+            <Col
+              lg={6}
+              className="order-lg-2 order-1 d-flex justify-content-center"
+            >
+              <div className="hp_card_wrap">
+                {/* ghost card behind */}
+                <div className="hp_card hp_card_ghost" aria-hidden="true" />
+
+                {/* main card */}
+                <div className="hp_card hp_card_main">
+                  <div className="hp_card_header">
+                    <div>
+                      <p className="hp_card_header_label">My Courses</p>
+                      <p className="hp_card_header_sub">
+                        Daily goal: 68 / 100 XP
+                      </p>
+                    </div>
+                    <span className="hp_badge_active">4 active</span>
                   </div>
-                </Card>
-              </Col>
-            ))}
+
+                  {/* progress bar */}
+                  <div className="hp_xp_track">
+                    <div className="hp_xp_fill" style={{ width: "68%" }} />
+                  </div>
+
+                  {/* language rows */}
+                  <div className="hp_lang_list">
+                    {languages.map((lang) => (
+                      <div className="hp_lang_row" key={lang.name}>
+                        <div className="hp_lang_flag_wrap">
+                          <img
+                            src={lang.flag}
+                            alt={lang.name}
+                            className="hp_lang_flag_img"
+                          />
+                        </div>
+                        <div className="hp_lang_info">
+                          <span className="hp_lang_name">{lang.name}</span>
+                          <span className="hp_lang_sub">
+                            {lang.learners} learners
+                          </span>
+                        </div>
+                        <Zap size={16} className="hp_lang_zap" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* floating XP badge */}
+                <div className="hp_float_badge hp_float_xp">
+                  <TrendingUp size={14} /> +20 XP earned
+                </div>
+                {/* floating streak badge */}
+                <div className="hp_float_badge hp_float_streak">
+                  <Flame size={14} /> 7 day streak 🔥
+                </div>
+              </div>
+            </Col>
           </Row>
+        </Container>
+      </section>
+
+      {/* ── STATS RIBBON ── */}
+      <section className="hp_stats_ribbon">
+        <Container style={{ maxWidth: "var(--container-wide)" }}>
+          <div className="hp_stats_grid">
+            {stats.map((s, i) => (
+              <div className="hp_stat_item" key={i}>
+                <div className="hp_stat_icon">{s.icon}</div>
+                <div className="hp_stat_value">{s.value}</div>
+                <div className="hp_stat_label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ── LANGUAGES ── */}
+      <section className="hp_section hp_section_white" id="courses">
+        <Container style={{ maxWidth: "var(--container-wide)" }}>
+          <div className="hp_section_head">
+            <div className="hp_section_pill">
+              <Globe size={14} /> Language courses
+            </div>
+            <h2 className="hp_section_title">I want to learn…</h2>
+            <p className="hp_section_sub">
+              Choose a language and start for free
+            </p>
+          </div>
+
+          <div className="hp_lang_cards_grid">
+            {languages.map((lang, i) => (
+              <div
+                className="hp_lang_card"
+                key={i}
+                onClick={() => navigate("/signup")}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="hp_lang_card_flag_wrap">
+                  <img
+                    src={lang.flag}
+                    alt={lang.name}
+                    className="hp_lang_card_flag"
+                  />
+                </div>
+                <div className="hp_lang_card_body">
+                  <p className="hp_lang_card_name">{lang.name}</p>
+                  <p className="hp_lang_card_native">{lang.native}</p>
+                  <div className="hp_lang_card_foot">
+                    <span className="hp_lang_card_learners">
+                      <Users size={11} /> {lang.learners}
+                    </span>
+                    <span className="hp_lang_card_cta">
+                      Start <ArrowRight size={13} />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="text-center mt-5">
-            <Button variant="outline-secondary" className="h_btn_more_langs px-4 py-2" onClick={() => navigate('/signup')}>
-              View All Languages <ArrowRight className="ms-1" size={16} />
+            <Button
+              className="hp_btn_outline"
+              onClick={() => navigate("/signup")}
+            >
+              View All Languages <ArrowRight size={15} className="ms-1" />
             </Button>
           </div>
         </Container>
       </section>
 
-      {/* Features */}
-      <section className="h_features_section py-5">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
-          <h2 className="h_section_title text-center mb-2">Why VocabLearn?</h2>
-          <p className="h_section_sub text-center mb-5">Science-backed methods in a clean, focused experience</p>
-          <Row className="g-4">
+      {/* ── FEATURES ── */}
+      <section className="hp_section hp_section_tinted">
+        <Container style={{ maxWidth: "var(--container-wide)" }}>
+          <div className="hp_section_head">
+            <h2 className="hp_section_title">Why VocabLearn?</h2>
+            <p className="hp_section_sub">
+              Science-backed methods in a clean, focused experience
+            </p>
+          </div>
+
+          <div className="hp_features_grid">
             {features.map((f, i) => (
-              <Col xs={12} sm={6} lg={3} key={i}>
-                <Card className="h_feature_card h-100 border-0">
-                  <Card.Body className="p-4 text-center">
-                    <div className="h_feature_icon mb-3">{f.icon}</div>
-                    <h5 className="h_feature_title">{f.title}</h5>
-                    <p className="h_feature_desc mb-0">{f.desc}</p>
-                  </Card.Body>
-                </Card>
-              </Col>
+              <div className="hp_feature_card" key={i}>
+                <div
+                  className="hp_feature_icon_wrap"
+                  style={{ "--f-accent": f.accent }}
+                >
+                  {f.icon}
+                </div>
+                <h3 className="hp_feature_title">{f.title}</h3>
+                <p className="hp_feature_desc">{f.desc}</p>
+              </div>
             ))}
-          </Row>
+          </div>
         </Container>
       </section>
 
-      {/* How It Works */}
-      <section className="h_how_section py-5">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
+      {/* ── HOW IT WORKS ── */}
+      <section className="hp_section hp_section_white">
+        <Container style={{ maxWidth: "var(--container-wide)" }}>
           <Row className="align-items-center g-5">
             <Col lg={6}>
-              <h2 className="h_section_title mb-4">How It Works</h2>
-              <div className="h_steps_list">
-                {steps.map((step, i) => (
-                  <div className="h_step_item d-flex align-items-start gap-3 mb-3" key={i}>
-                    <div className="h_step_number">{i + 1}</div>
-                    <div className="h_step_text">{step}</div>
+              <div className="hp_section_pill" style={{ marginBottom: 16 }}>
+                <CheckCircle size={14} /> How it works
+              </div>
+              <h2 className="hp_section_title mb-4">Five steps to fluency</h2>
+              <div className="hp_steps">
+                {steps.map((s, i) => (
+                  <div className="hp_step" key={i}>
+                    <div className="hp_step_num">{i + 1}</div>
+                    <div className="hp_step_icon">{s.icon}</div>
+                    <p className="hp_step_text">{s.text}</p>
+                    {i < steps.length - 1 && (
+                      <div className="hp_step_connector" aria-hidden="true" />
+                    )}
                   </div>
                 ))}
               </div>
-              <Button className="h_btn_get_started mt-4 px-4 py-2" size="lg" onClick={() => navigate('/signup')}>
-                Start Learning Now <ArrowRight className="ms-1" size={16} />
+              <Button
+                className="hp_btn_primary mt-4"
+                onClick={() => navigate("/signup")}
+              >
+                Start Learning Now <ArrowRight size={16} />
               </Button>
             </Col>
-            <Col lg={6} className="text-center">
-              <div className="h_mockup_phone">
-                <div className="h_mockup_screen">
-                  <div className="h_mockup_header">Daily Goal</div>
-                  <div className="h_mockup_progress mb-1">
-                    <div className="h_mockup_bar">
-                      <div className="h_mockup_fill" style={{ width: '65%' }} />
+
+            {/* App mockup */}
+            <Col lg={6} className="d-flex justify-content-center">
+              <div className="hp_mockup">
+                <div className="hp_mockup_notch" aria-hidden="true" />
+                <div className="hp_mockup_inner">
+                  <div className="hp_mk_header">
+                    <span className="hp_mk_title">Daily Goal</span>
+                    <span className="hp_mk_streak">
+                      <Flame size={14} /> 7 days
+                    </span>
+                  </div>
+
+                  <div className="hp_mk_progress_wrap">
+                    <div className="hp_mk_progress_bar">
+                      <div
+                        className="hp_mk_progress_fill"
+                        style={{ width: "65%" }}
+                      />
                     </div>
-                    <span className="h_mockup_xp">65 / 100 XP</span>
+                    <span className="hp_mk_xp_label">65 / 100 XP</span>
                   </div>
-                  <div className="h_mockup_lesson_card">
-                    <span>🔤</span>
-                    <span>Vocabulary</span>
-                    <span className="h_mockup_badge">+10 XP</span>
+
+                  <div className="hp_mk_card">
+                    <span className="hp_mk_card_emoji">🔤</span>
+                    <span className="hp_mk_card_label">Vocabulary</span>
+                    <span className="hp_mk_badge">+10 XP</span>
                   </div>
-                  <div className="h_mockup_lesson_card">
-                    <span>🎧</span>
-                    <span>Listening</span>
-                    <span className="h_mockup_badge">+15 XP</span>
+                  <div className="hp_mk_card">
+                    <span className="hp_mk_card_emoji">🎧</span>
+                    <span className="hp_mk_card_label">Listening</span>
+                    <span className="hp_mk_badge">+15 XP</span>
                   </div>
-                  <div className="h_mockup_streak">
-                    <Flame className="h_icon_fire" size={18} style={{ verticalAlign: '-3px' }} /> 7 day streak!
+                  <div className="hp_mk_card">
+                    <span className="hp_mk_card_emoji">✍️</span>
+                    <span className="hp_mk_card_label">Writing</span>
+                    <span className="hp_mk_badge hp_mk_badge_locked">
+                      Locked
+                    </span>
+                  </div>
+
+                  <div className="hp_mk_footer">
+                    <span>🔥 Keep your streak!</span>
                   </div>
                 </div>
               </div>
@@ -238,31 +394,128 @@ const Home = () => {
         </Container>
       </section>
 
-      {/* CTA */}
-      <section className="h_cta_section text-center">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
-          <h2 className="h_cta_title">Start your journey today</h2>
-          <p className="h_cta_sub">Free forever. No credit card required.</p>
-          <Button size="lg" className="h_btn_get_started px-5 py-2" onClick={() => navigate('/signup')}>
-            Get Started for Free
-          </Button>
+      {/* ── CTA / NEWSLETTER ── */}
+      <section className="hp_cta">
+        <div className="hp_cta_glow hp_cta_glow_tl" aria-hidden="true" />
+        <div className="hp_cta_glow hp_cta_glow_br" aria-hidden="true" />
+
+        <Container
+          style={{ maxWidth: "860px", position: "relative", zIndex: 2 }}
+        >
+          <div className="hp_cta_inner">
+            <div className="hp_cta_eyebrow">
+              <span className="hp_cta_eyebrow_dot" />
+              Join 500M+ learners worldwide
+            </div>
+
+            <h2 className="hp_cta_title">
+              Ready to speak a new&nbsp;
+              <span className="hp_cta_title_accent">language?</span>
+            </h2>
+
+            <p className="hp_cta_sub">
+              Drop your email and we'll send you a personalised study plan —
+              free forever.
+            </p>
+
+            {/* newsletter input row */}
+            <form
+              className="hp_nl_form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                navigate("/signup");
+              }}
+            >
+              <div className="hp_nl_input_wrap">
+                <input
+                  type="email"
+                  className="hp_nl_input"
+                  placeholder="Enter your email address…"
+                  aria-label="Email address"
+                />
+              </div>
+              <button type="submit" className="hp_nl_btn">
+                Get My Free Plan <ArrowRight size={16} />
+              </button>
+            </form>
+
+            <div className="hp_cta_trust">
+              {["🔒 No spam, ever", "⚡ Free forever", "🌍 30+ languages"].map(
+                (t) => (
+                  <span key={t} className="hp_cta_trust_item">
+                    {t}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
         </Container>
       </section>
 
-      {/* Footer */}
-      <footer className="h_footer">
-        <Container style={{ maxWidth: 'var(--container-wide)' }}>
-          <Row className="align-items-center">
-            <Col xs={12} md={6} className="text-center text-md-start mb-2 mb-md-0">
-              <span className="h_footer_brand">VocabLearn</span>
-              <span className="h_footer_copy ms-2">© 2025 All rights reserved</span>
-            </Col>
-            <Col xs={12} md={6} className="text-center text-md-end">
-              <span className="h_footer_link me-3">About</span>
-              <span className="h_footer_link me-3">Privacy</span>
-              <span className="h_footer_link">Terms</span>
-            </Col>
-          </Row>
+      {/* ── FOOTER ── */}
+      <footer className="hp_footer">
+        <Container style={{ maxWidth: "var(--container-wide)" }}>
+          {/* top row */}
+          <div className="hp_footer_top">
+            <div className="hp_footer_brand_col">
+              <div className="hp_footer_brand">
+                <Navbar.Brand
+                  className="h_navbar_brand d-flex align-items-center"
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="h_brand_logo_img">
+                    <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" />
+                  </div>
+                </Navbar.Brand>
+                {/* <span className="hp_footer_logo">V</span> */}
+                <span className="hp_footer_name">VocabLearn</span>
+              </div>
+              <p className="hp_footer_tagline">
+                The smarter, faster, free way to learn a new language.
+              </p>
+            </div>
+
+            <div className="hp_footer_nav_cols">
+              <div className="hp_footer_col">
+                <p className="hp_footer_col_title">Product</p>
+                {["Courses", "Leaderboard", "Quests", "Shop"].map((l) => (
+                  <span className="hp_footer_link" key={l}>
+                    {l}
+                  </span>
+                ))}
+              </div>
+              <div className="hp_footer_col">
+                <p className="hp_footer_col_title">Company</p>
+                {["About", "Blog", "Help"].map((l) => (
+                  <span className="hp_footer_link" key={l}>
+                    {l}
+                  </span>
+                ))}
+              </div>
+              <div className="hp_footer_col">
+                <p className="hp_footer_col_title">Legal</p>
+                {["Privacy", "Terms"].map((l) => (
+                  <span className="hp_footer_link" key={l}>
+                    {l}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* divider */}
+          <div className="hp_footer_divider" />
+
+          {/* bottom row */}
+          <div className="hp_footer_bottom">
+            <p className="hp_footer_copy">
+              © 2025 VocabLearn. All rights reserved.
+            </p>
+            <div className="hp_footer_badges">
+              <span className="hp_footer_badge">🌍 30+ Languages</span>
+              <span className="hp_footer_badge">⭐ #1 Education App</span>
+            </div>
+          </div>
         </Container>
       </footer>
     </div>

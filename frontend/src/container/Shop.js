@@ -14,7 +14,7 @@ const Shop = () => {
   return (
     <div className="h_shop_page">
       <h1 className="h_shop_title">Shop</h1>
-      <p className="text-muted mb-4">Spend gems earned from lessons on power-ups</p>
+      <p className="text-muted small mb-4">Spend gems earned from lessons on power-ups</p>
 
       <div className="h_shop_gems mb-4">
         <span className="h_shop_gems_icon">💎</span>
