@@ -112,7 +112,7 @@ const ProtectedRoute = ({ children }) => {
   const { user } = useApp();
   const location = useLocation();
   return user
-    ? children
+    ? children 
     : <Navigate to="/login" state={{ from: location }} replace />;
 };
 

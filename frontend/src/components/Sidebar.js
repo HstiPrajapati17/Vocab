@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Home, Type, Trophy, Zap, ShoppingBag, User, MoreHorizontal, Globe, LogOut
 } from 'lucide-react';
@@ -13,10 +13,33 @@ const navItems = [
   { id: 'profile', label: 'Profile', icon: User },
 ];
 
-const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
+const Sidebar = ({ currentPage, navigate, onLogout }) => {
+  const [showMore, setShowMore] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const moreBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (!showMore || !moreBtnRef.current) return;
+
+    const updatePosition = () => {
+      const rect = moreBtnRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.top, left: rect.right + 12 });
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [showMore]);
+
   const handleNav = (page) => {
     navigate(`/${page}`);
   };
+
+  const closeMore = () => setShowMore(false);
 
   const isActive = (id) => {
     if (id === 'dashboard') return currentPage === 'dashboard' || currentPage === 'lesson';
@@ -45,11 +68,32 @@ const Sidebar = ({ currentPage, navigate, onLogout, onMoreClick }) => {
             <span className="h_sidebar_label">{label}</span>
           </button>
         ))}
-        <button type="button" className="h_sidebar_item" onClick={onMoreClick}>
+        <button
+          ref={moreBtnRef}
+          type="button"
+          className={`h_sidebar_item h_sidebar_item_more${showMore ? ' h_sidebar_item_active' : ''}`}
+          onClick={() => setShowMore((prev) => !prev)}
+        >
           <span className="h_sidebar_icon"><MoreHorizontal size={22} /></span>
           <span className="h_sidebar_label">More</span>
         </button>
       </nav>
+
+      {showMore && (
+        <>
+          <div className="h_more_backdrop" onClick={closeMore} />
+          <div
+            className="h_more_popover"
+            style={{ top: menuPos.top, left: menuPos.left }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button type="button" onClick={() => { navigate('/settings'); closeMore(); }}>Settings</button>
+            <button type="button" onClick={() => { navigate('/help'); closeMore(); }}>Help</button>
+            <div className="h_more_popover_divider" />
+            <button type="button" className="h_more_popover_danger" onClick={() => { onLogout(); closeMore(); }}>Log out</button>
+          </div>
+        </>
+      )}
 
       <button type="button" className="h_sidebar_logout d-none d-lg-flex" onClick={onLogout}>
         <LogOut size={18} />

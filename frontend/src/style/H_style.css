@@ -2793,6 +2793,64 @@ body {
   color: var(--primary-dark);
 }
 
+.h_sidebar_item_more {
+  position: relative !important;
+}
+
+.h_more_backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+  background: transparent;
+}
+
+.h_more_popover {
+  position: fixed;
+  z-index: 300;
+  min-width: 220px;
+  background: var(--bg-white);
+  border: 2px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  padding: 8px 0;
+  box-shadow: 0 8px 24px rgba(61, 68, 84, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.h_more_popover button {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.h_more_popover button:hover {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.h_more_popover_danger {
+  color: #e04545 !important;
+}
+
+.h_more_popover_danger:hover {
+  background: rgba(224, 69, 69, 0.08) !important;
+  color: #c93a3a !important;
+}
+
+.h_more_popover_divider {
+  height: 2px;
+  margin: 6px 0;
+  background: var(--primary-border);
+}
+
 .h_sidebar_icon {
   display: flex;
   align-items: center;
@@ -2981,36 +3039,6 @@ body {
 .h_bottom_nav_active {
   color: var(--primary-dark);
   background: var(--primary-soft);
-}
-
-.h_more_overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(61, 68, 84, 0.4);
-  z-index: 300;
-  display: flex;
-  align-items: center; 
-  justify-content: center;
-}
-
-.h_more_menu {
-  background: var(--bg-white);
-  border-radius: var(--radius-xl) var(--radius-xl);
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.h_more_menu button {
-  padding: 14px;
-  border: none;
-  background: var(--bg);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
 }
 
 /* ===== LEARN PAGE (Dashboard center) ===== */
@@ -3256,7 +3284,7 @@ body {
 .db_panel {
   width: 100%;
   max-width: 480px;
-  height: 100dvh;
+  height: 100%;
   background: var(--bg-white);
   display: flex;
   flex-direction: column;
@@ -4123,6 +4151,12 @@ body {
     font-size: 2.5rem;
   }
 }
+@media (max-width: 1024px) {
+  .h_right_panel {
+    width: 300px;
+    min-width: 300px;
+  }
+}
 
 @media (max-width: 991.98px) {
   .h_right_panel {
@@ -4150,8 +4184,6 @@ body {
     max-width: 100%;
   }
 
-  /* .h_learn_node_left .h_learn_node_area,
-  .h_learn_node_right .h_learn_node_area { transform: none; } */
 }
 
 @media (max-width: 575.98px) {
