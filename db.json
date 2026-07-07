@@ -46,9 +46,10 @@
       "level": "Beginner",
       "dailyGoal": "Regular",
       "completedLessons": [
-        13
+        13,
+        14
       ],
-      "activeLesson": 14,
+      "activeLesson": 15,
       "joinedDate": "2025-06-01"
     },
     {
@@ -4503,7 +4504,7 @@
       "userId": 2,
       "name": "Demo User",
       "avatar": "🧑",
-      "xp": 1180,
+      "xp": 1420,
       "streak": 7,
       "language": "🇪🇸",
       "change": "same",
