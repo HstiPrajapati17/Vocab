@@ -98,7 +98,7 @@ const Home = () => {
   return (
     <div className="hp_page">
       {/* ── HERO ── */}
-      <section className="hp_hero">
+      <section className="hp_hero ">
         {/* background blobs */}
         <div className="hp_hero_blob hp_hero_blob_1" aria-hidden="true" />
         <div className="hp_hero_blob hp_hero_blob_2" aria-hidden="true" />

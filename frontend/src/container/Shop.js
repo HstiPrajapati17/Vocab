@@ -30,7 +30,7 @@ const Shop = () => {
             <div className="text-muted small">{item.desc}</div>
           </div>
           <button type="button" className="h_shop_buy_btn" disabled={gems < item.price}>
-            GET FOR 💎 {item.price}
+            GET FOR 💎  {item.price}
           </button>
         </div>
       ))}
