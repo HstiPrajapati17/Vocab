@@ -2922,6 +2922,13 @@ body {
   font-size: 0.95rem;
   color: var(--text);
   padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.h_rp_stat:hover {
+  background: var(--primary-soft);
+  border-radius: var(--radius-md);
 }
 
 .h_rp_lang_btn {
@@ -2982,6 +2989,59 @@ body {
 .h_rp_lang_preview_flag {
   font-size: 3rem;
   margin-bottom: 8px;
+}
+
+/* Tooltip styles */
+.h_rp_tooltip {
+  background: var(--bg-white);
+  border: 2px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  max-width: 280px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.h_rp_tooltip_content h6 {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.h_rp_tooltip_content p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.h_rp_tooltip_link {
+  background: var(--primary);
+  border: none;
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 8px;
+}
+
+.h_rp_tooltip_link:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
 .h_rp_footer {
