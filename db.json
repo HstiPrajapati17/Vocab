@@ -31,19 +31,23 @@
       "email": "demo@demo.com",
       "password": "demo123",
       "avatar": {
-        "skin": "#E8B88A",
+        "gender": "male",
+        "skin": "#E0AC69",
         "emotion": "happy",
-        "hairStyle": "curly",
-        "hairColor": "#FF6347",
-        "clothColor": "#F97316",
-        "headWear": "headband",
-        "headWearColor": "#0000FF",
-        "eyeColor": "#8B4513",
-        "faceShape": "round",
-        "accessory": "glasses",
-        "accessoryColor": "#FFD700"
+        "hairStyle": "short",
+        "hairColor": "#1a1a1a",
+        "clothColor": "#F43F5E",
+        "headWear": "cap",
+        "headWearColor": "#808080",
+        "eyeColor": "#00CED1",
+        "faceShape": "oval",
+        "accessory": "none",
+        "accessoryColor": "#FF1493",
+        "size": 1,
+        "backgroundColor": "#e8f5e9",
+        "backgroundPattern": "circles"
       },
-      "xp": 950,
+      "xp": 1130,
       "streak": 7,
       "hearts": 2,
       "language": "English",
@@ -51,9 +55,12 @@
       "dailyGoal": "Regular",
       "completedLessons": [
         13,
-        14
+        14,
+        15,
+        16,
+        17
       ],
-      "activeLesson": 15,
+      "activeLesson": 18,
       "joinedDate": "2025-06-01"
     },
     {
@@ -4508,7 +4515,7 @@
       "userId": 2,
       "name": "Demo User",
       "avatar": "🧑",
-      "xp": 1420,
+      "xp": 1130,
       "streak": 7,
       "language": "🇪🇸",
       "change": "same",

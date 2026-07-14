@@ -56,7 +56,7 @@ const Quests = () => {
         );
       })}
 
-      <button type="button" className="h_btn_get_started mt-4 px-4 py-2" onClick={() => navigate('dashboard')}>
+      <button type="button" className="hlp2_feedback_btn" onClick={() => navigate('dashboard')}>
         Start a Lesson
       </button>
     </div>
