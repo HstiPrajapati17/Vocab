@@ -127,7 +127,7 @@ const FaqGroup = ({ group }) => {
         return (
           <div
             key={idx}
-            className={`hlp2_item ${isOpen ? "hlp2_item_open" : ""}`}
+            className={`hlp2_ item ${isOpen ? "hlp2_item_open" : ""}`}
           >
             <button
               className="hlp2_item_q"

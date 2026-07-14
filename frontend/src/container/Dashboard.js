@@ -20,7 +20,7 @@ const unitMeta = [
     description: "I can greet people and introduce myself in everyday situations.",
     color: "var(--primary)",
     emoji: "👋",
-    unitCount: 4,
+    unitCount: 5,
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const unitMeta = [
     description: "I can participate in short, simple conversations about familiar topics.",
     color: "#7c87a3",
     emoji: "💬",
-    unitCount: 6,
+    unitCount: 4,
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const unitMeta = [
     description: "I am able to discuss travel plans, compare experiences and give opinions.",
     color: "#5f6982",
     emoji: "✈️",
-    unitCount: 8,
+    unitCount: 3,
   },
 ];
 

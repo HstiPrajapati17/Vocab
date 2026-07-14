@@ -30,30 +30,18 @@
       "name": "Demo User",
       "email": "demo@demo.com",
       "password": "demo123",
-      "avatar": {
-        "skin": "#E8B88A",
-        "emotion": "happy",
-        "hairStyle": "curly",
-        "hairColor": "#FF6347",
-        "clothColor": "#F97316",
-        "headWear": "headband",
-        "headWearColor": "#0000FF",
-        "eyeColor": "#8B4513",
-        "faceShape": "round",
-        "accessory": "glasses",
-        "accessoryColor": "#FFD700"
-      },
-      "xp": 950,
+      "avatar": "👵",
+      "xp": 1180,
       "streak": 7,
       "hearts": 2,
-      "language": "English",
+      "language": "German",
       "level": "Beginner",
       "dailyGoal": "Regular",
       "completedLessons": [
-        13,
-        14
+        22,
+        23
       ],
-      "activeLesson": 15,
+      "activeLesson": 24,
       "joinedDate": "2025-06-01"
     },
     {
@@ -4508,7 +4496,7 @@
       "userId": 2,
       "name": "Demo User",
       "avatar": "🧑",
-      "xp": 1420,
+      "xp": 1180,
       "streak": 7,
       "language": "🇪🇸",
       "change": "same",

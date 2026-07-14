@@ -15,10 +15,10 @@ const AboutUs = () => {
   ];
 
   const team = [
-    { name: 'Sarah Johnson',  role: 'CEO & Founder',    image: '👩‍💼' },
-    { name: 'Michael Chen',   role: 'CTO',               image: '👨‍💻' },
-    { name: 'Emma Williams',  role: 'Head of Content',   image: '👩‍🏫' },
-    { name: 'David Park',     role: 'Lead Developer',    image: '👨‍🔬' },
+    { name: 'Sarah Johnson',  role: 'CEO & Founder',    image: 'https://randomuser.me/api/portraits/men/97.jpg' },
+    { name: 'Michael Chen',   role: 'CTO',               image: 'https://randomuser.me/api/portraits/men/1.jpg' },
+    { name: 'Emma Williams',  role: 'Head of Content',   image: 'https://randomuser.me/api/portraits/women/90.jpg' },
+    { name: 'David Park',     role: 'Lead Developer',    image: 'https://randomuser.me/api/portraits/men/61.jpg' },
   ];
 
   const features = [
@@ -182,7 +182,8 @@ const AboutUs = () => {
             {team.map((m, i) => (
               <Col xs={6} sm={4} md={3} key={i}>
                 <div className="team-card-unique">
-                  <div className="team-avatar">{m.image}</div>
+                  {/* <div className="team-avatar">{m.image}</div> */}
+                  <img src={m.image} alt={m.name} style={{width : '100px', borderRadius : "50%", marginBottom : "5px"}} />
                   <h3 className="team-name">{m.name}</h3>
                   <p className="team-role">{m.role}</p>
                 </div>

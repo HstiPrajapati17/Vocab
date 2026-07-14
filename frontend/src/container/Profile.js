@@ -4,12 +4,11 @@ import { Row, Col, Card, Badge, Button, ProgressBar, Tab, Nav } from 'react-boot
 import {
   FaFire, FaStar, FaHeart, FaTrophy, FaMedal,
   FaEdit, FaCheck, FaGlobe, FaCalendar,
-  FaChartBar, FaBook, FaCheckCircle, FaVolumeUp
+  FaChartBar, FaBook, FaCheckCircle, FaVolumeUp,
+  FaCamera
 } from 'react-icons/fa';
 import { updateUser } from '../api';
 import { useApp } from '../App';
-import AvatarPreview from "./AvatarPreview";
-import '../style/avatar_customizer.css';
 const allAchievements = [
   { icon: '🔥', label: '7-Day Streak', desc: 'Practice 7 days in a row', check: (u) => (u.streak || 0) >= 7 },
   { icon: '⭐', label: 'First Lesson', desc: 'Complete your first lesson', check: (u) => (u.completedLessons || []).length >= 1 },
@@ -23,12 +22,14 @@ const allAchievements = [
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const skinTones = ['#F2C7A5', '#E8B88A', '#D4A574', '#C68642', '#8D5524', '#5C3317', '#FFDBAC', '#E0AC69', '#C68642', '#8D5524', '#5C3317', '#3E2723'];
-const hairColors = ['#222222', '#8B4513', '#FFD700', '#FF6347', '#4A4A4A', '#1a1a1a', '#A52A2A', '#D2691E', '#F4A460', '#808080', '#FFFFFF', '#E6E6FA'];
-const clothColors = ['#4F46E5', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1', '#14B8A6', '#F43F5E'];
-const headWearColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080', '#FFC0CB', '#A52A2A', '#808080', '#FFFFFF'];
-const eyeColors = ['#4A4A4A', '#8B4513', '#228B22', '#0000FF', '#808080', '#A52A2A', '#FFD700', '#00CED1'];
-const accessoryColors = ['#FFD700', '#C0C0C0', '#FF69B4', '#00CED1', '#FF4500', '#9370DB', '#32CD32', '#FF1493'];
+const avatarImages = [
+  '🧑', '👨', '👩', '🧒', '👶',
+  '👴', '👵', '👨‍🦱', '👩‍🦱', '👨‍🦳',
+  '👩‍🦳', '🧔', '👱', '👱‍♀️', '🦸',
+  '🦸‍♀️', '🦹', '🦹‍♀️', '🧙', '🧙‍♀️',
+  '🧚', '🧚‍♀️', '🧛', '🧛‍♀️', '🧜',
+  '🧜‍♀️', '🧝', '🧝‍♀️', '🧞', '🧞‍♀️'
+];
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -36,72 +37,39 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || 'Learner');
   const [saving, setSaving] = useState(false);
-  const [avatar, setAvatar] = useState({
-    gender: "male",
-    skin: "#F2C7A5",
-    emotion: "happy",
-    hairStyle: "short",
-    hairColor: "#222222",
-    clothColor: "#4F46E5",
-    headWear: "none",
-    headWearColor: "#ff0000",
-    eyeColor: "#4A4A4A",
-    faceShape: "round",
-    accessory: "none",
-    accessoryColor: "#FFD700",
-    size: 1,
-    backgroundColor: "#ffffff",
-    backgroundPattern: "none",
-  });
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    typeof user?.avatar === 'string' ? user?.avatar : '🧑'
+  );
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [avatarType, setAvatarType] = useState('emoji'); // 'emoji' or 'image'
+  const fileInputRef = React.useRef(null);
   
   // Sync with user data when it changes
   React.useEffect(() => {
     setDisplayName(user?.name || 'Learner');
-    if (user?.avatar && typeof user.avatar === 'object') {
-      setAvatar({
-        ...user.avatar,
-        gender: user.avatar.gender || 'male',
-        size: user.avatar.size || 1,
-        backgroundColor: user.avatar.backgroundColor || '#ffffff',
-        backgroundPattern: user.avatar.backgroundPattern || 'none',
-      });
-    } else if (user?.avatar && typeof user.avatar === 'string') {
-      // If avatar is a string (old emoji or base64), convert to default avatar object
-      setAvatar({
-        gender: "male",
-        skin: "#F2C7A5",
-        emotion: "happy",
-        hairStyle: "short",
-        hairColor: "#222222",
-        clothColor: "#4F46E5",
-        headWear: "none",
-        headWearColor: "#ff0000",
-        eyeColor: "#4A4A4A",
-        faceShape: "round",
-        accessory: "none",
-        accessoryColor: "#FFD700",
-        size: 1,
-        backgroundColor: "#ffffff",
-        backgroundPattern: "none",
-      });
+    // Handle both old object avatar and new emoji string
+    if (user?.avatar) {
+      if (typeof user.avatar === 'string') {
+        setSelectedAvatar(user.avatar);
+        setAvatarType('emoji');
+        setSelectedImage(null);
+      } else if (user.avatar.startsWith('data:')) {
+        // Handle base64 image
+        setSelectedImage(user.avatar);
+        setAvatarType('image');
+        setSelectedAvatar('🧑');
+      } else {
+        // Convert old object avatar to default emoji
+        setSelectedAvatar('🧑');
+        setAvatarType('emoji');
+        setSelectedImage(null);
+      }
+    } else {
+      setSelectedAvatar('🧑');
+      setAvatarType('emoji');
+      setSelectedImage(null);
     }
   }, [user]);
-
-  // Reset hair style when gender changes to incompatible style
-  const prevGenderRef = React.useRef(avatar.gender);
-  React.useEffect(() => {
-    const femaleStyles = ['short', 'long', 'curly', 'ponytail', 'braid', 'bun'];
-    const maleStyles = ['short', 'long', 'curly', 'spiky', 'ponytail', 'bald'];
-    
-    if (prevGenderRef.current !== avatar.gender) {
-      if (avatar.gender === 'female' && !femaleStyles.includes(avatar.hairStyle)) {
-        setAvatar(prev => ({ ...prev, hairStyle: 'long' }));
-      } else if (avatar.gender === 'male' && !maleStyles.includes(avatar.hairStyle)) {
-        setAvatar(prev => ({ ...prev, hairStyle: 'short' }));
-      }
-      prevGenderRef.current = avatar.gender;
-    }
-  }, [avatar.gender]);
 
   const completedLessons = user?.completedLessons || [];
   const maxXP = 500;
@@ -120,9 +88,10 @@ const Profile = () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
     setSaving(true);
     try {
+      const avatarToSave = avatarType === 'image' ? selectedImage : selectedAvatar;
       const updated = await updateUser(user.id, {
         name: displayName.trim(),
-        avatar: avatar
+        avatar: avatarToSave
       });
       refreshUser(updated);
     } catch (err) {
@@ -133,47 +102,20 @@ const Profile = () => {
     }
   };
 
-  const handleRandomAvatar = () => {
-    const randomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    const newGender = randomItem(['male', 'female']);
-    setAvatar({
-      ...avatar,
-      gender: newGender,
-      skin: randomItem(skinTones),
-      emotion: randomItem(['happy', 'sad', 'surprised', 'excited', 'neutral']),
-      hairStyle: randomItem(newGender === 'female' 
-        ? ['short', 'long', 'curly', 'ponytail', 'braid', 'bun']
-        : ['short', 'long', 'curly', 'spiky', 'ponytail', 'bald']
-      ),
-      hairColor: randomItem(hairColors),
-      clothColor: randomItem(clothColors),
-      headWear: randomItem(['none', 'cap', 'pagdi', 'crown', 'headband']),
-      headWearColor: randomItem(headWearColors),
-      eyeColor: randomItem(eyeColors),
-      faceShape: randomItem(['round', 'oval', 'square']),
-      accessory: randomItem(['none', 'glasses', 'earrings', 'necklace']),
-      accessoryColor: randomItem(accessoryColors),
-    });
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+        setAvatarType('image');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleResetAvatar = () => {
-    setAvatar({
-      gender: "male",
-      skin: "#F2C7A5",
-      emotion: "happy",
-      hairStyle: "short",
-      hairColor: "#222222",
-      clothColor: "#4F46E5",
-      headWear: "none",
-      headWearColor: "#ff0000",
-      eyeColor: "#4A4A4A",
-      faceShape: "round",
-      accessory: "none",
-      accessoryColor: "#FFD700",
-      size: 1,
-      backgroundColor: "#ffffff",
-      backgroundPattern: "none",
-    });
+  const handleCameraClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -185,7 +127,27 @@ const Profile = () => {
             <Card.Body className="p-4">
               <div className="h_profile_avatar_wrap mb-3">
                 <div className="h_profile_avatar">
-                  <AvatarPreview avatar={avatar} />
+                  {avatarType === 'image' && selectedImage ? (
+                    <img src={selectedImage} alt="Avatar" className="h_avatar_image" />
+                  ) : (
+                    <span className="h_avatar_emoji">{selectedAvatar}</span>
+                  )}
+                  {editing && (
+                    <button
+                      type="button"
+                      className="h_avatar_camera_btn"
+                      onClick={handleCameraClick}
+                    >
+                      <FaCamera size={20} />
+                    </button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImageUpload}
+                  />
                 </div>
               </div>
 
@@ -200,353 +162,18 @@ const Profile = () => {
                     />
                   </div>
                   
-                  <div className="h_avatar_customizer mb-3">
-                    <div className="text-muted small mb-3 fw-bold">✨ Customize Your Avatar</div>
-                    
-                    {/* Gender Selection */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">⚧ Gender</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['male', 'female'].map((gender) => (
-                          <button
-                            key={gender}
-                            onClick={() => setAvatar({ ...avatar, gender })}
-                            className={`btn btn-sm ${avatar.gender === gender ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '80px' }}
-                          >
-                            {gender === 'male' ? '👨 Male' : '👩 Female'}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Avatar Size */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">📐 Avatar Size</label>
-                      <div className="d-flex align-items-center gap-3">
-                        <input
-                          type="range"
-                          min="0.5"
-                          max="1.5"
-                          step="0.1"
-                          value={avatar.size || 1}
-                          onChange={(e) => setAvatar({ ...avatar, size: parseFloat(e.target.value) })}
-                          className="flex-grow-1"
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <span className="small fw-bold" style={{ minWidth: '45px', color: 'var(--primary)' }}>{Math.round((avatar.size || 1) * 100)}%</span>
-                      </div>
-                    </div>
-
-                    {/* Background Color */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">🎨 Background Color</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['#ffffff', '#f0f0f0', '#e0f7fa', '#fce4ec', '#fff3e0', '#f3e5f5', '#e8f5e9', '#fffde7'].map((color) => (
-                          <div
-                            key={color}
-                            onClick={() => setAvatar({ ...avatar, backgroundColor: color })}
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              border: avatar.backgroundColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                              boxShadow: avatar.backgroundColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Background Pattern */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">🔲 Background Pattern</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['none', 'dots', 'stripes', 'circles'].map((pattern) => (
-                          <button
-                            key={pattern}
-                            onClick={() => setAvatar({ ...avatar, backgroundPattern: pattern })}
-                            className={`btn btn-sm ${avatar.backgroundPattern === pattern ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {pattern === 'none' ? 'None' : pattern}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Face Shape */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">😊 Face Shape</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['round', 'oval', 'square'].map((shape) => (
-                          <button
-                            key={shape}
-                            onClick={() => setAvatar({ ...avatar, faceShape: shape })}
-                            className={`btn btn-sm ${avatar.faceShape === shape ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {shape}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Skin Tone */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">👤 Skin Tone</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {skinTones.map((color) => (
-                          <div
-                            key={color}
-                            onClick={() => setAvatar({ ...avatar, skin: color })}
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              border: avatar.skin === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                              boxShadow: avatar.skin === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Hair Style */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">💇 Hair Style</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {(avatar.gender === 'female' 
-                          ? ['short', 'long', 'curly', 'ponytail', 'braid', 'bun']
-                          : ['short', 'long', 'curly', 'spiky', 'ponytail', 'bald']
-                        ).map((style) => (
-                          <button
-                            key={style}
-                            onClick={() => setAvatar({ ...avatar, hairStyle: style })}
-                            className={`btn btn-sm ${avatar.hairStyle === style ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {style}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Hair Color */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">🎨 Hair Color</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {hairColors.map((color) => (
-                          <div
-                            key={color}
-                            onClick={() => setAvatar({ ...avatar, hairColor: color })}
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              border: avatar.hairColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                              boxShadow: avatar.hairColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Eye Color */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">👁️ Eye Color</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {eyeColors.map((color) => (
-                          <div
-                            key={color}
-                            onClick={() => setAvatar({ ...avatar, eyeColor: color })}
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              border: avatar.eyeColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                              boxShadow: avatar.eyeColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Cloth Color */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">👕 Outfit Color</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {clothColors.map((color) => (
-                          <div
-                            key={color}
-                            onClick={() => setAvatar({ ...avatar, clothColor: color })}
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              backgroundColor: color,
-                              cursor: 'pointer',
-                              border: avatar.clothColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                              boxShadow: avatar.clothColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Headwear */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">🎩 Headwear</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['none', 'cap', 'pagdi', 'crown', 'headband'].map((wear) => (
-                          <button
-                            key={wear}
-                            onClick={() => setAvatar({ ...avatar, headWear: wear })}
-                            className={`btn btn-sm ${avatar.headWear === wear ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {wear}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Headwear Color */}
-                    {avatar.headWear !== 'none' && (
-                      <div className="mb-3">
-                        <label className="small text-muted mb-2 d-block fw-semibold">🎨 Headwear Color</label>
-                        <div className="d-flex gap-2 flex-wrap">
-                          {headWearColors.map((color) => (
-                            <div
-                              key={color}
-                              onClick={() => setAvatar({ ...avatar, headWearColor: color })}
-                              style={{
-                                width: '38px',
-                                height: '38px',
-                                borderRadius: '50%',
-                                backgroundColor: color,
-                                cursor: 'pointer',
-                                border: avatar.headWearColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                                boxShadow: avatar.headWearColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                              title={color}
-                            />
-                          ))}
+                  <div className="h_avatar_selector mb-3">
+                    <div className="text-muted small mb-3 fw-bold">✨ Choose Your Avatar</div>
+                    <div className="d-flex gap-2 flex-wrap justify-content-center">
+                      {avatarImages.map((emoji) => (
+                        <div
+                          key={emoji}
+                          onClick={() => setSelectedAvatar(emoji)}
+                          className={`h_avatar_option ${selectedAvatar === emoji ? 'h_avatar_option_selected' : ''}`}
+                        >
+                          {emoji}
                         </div>
-                      </div>
-                    )}
-
-                    {/* Accessories */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">💎 Accessories</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['none', 'glasses', 'earrings', 'necklace'].map((acc) => (
-                          <button
-                            key={acc}
-                            onClick={() => setAvatar({ ...avatar, accessory: acc })}
-                            className={`btn btn-sm ${avatar.accessory === acc ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {acc}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Accessory Color */}
-                    {avatar.accessory !== 'none' && (
-                      <div className="mb-3">
-                        <label className="small text-muted mb-2 d-block fw-semibold">🎨 Accessory Color</label>
-                        <div className="d-flex gap-2 flex-wrap">
-                          {accessoryColors.map((color) => (
-                            <div
-                              key={color}
-                              onClick={() => setAvatar({ ...avatar, accessoryColor: color })}
-                              style={{
-                                width: '38px',
-                                height: '38px',
-                                borderRadius: '50%',
-                                backgroundColor: color,
-                                cursor: 'pointer',
-                                border: avatar.accessoryColor === color ? '3px solid var(--primary)' : '2px solid #ddd',
-                                boxShadow: avatar.accessoryColor === color ? '0 4px 12px rgba(47, 133, 90, 0.4)' : '0 2px 6px rgba(0,0,0,0.15)',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => e.target.style.transform = 'scale(1.15)'}
-                              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                              title={color}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Emotion */}
-                    <div className="mb-3">
-                      <label className="small text-muted mb-2 d-block fw-semibold">😀 Expression</label>
-                      <div className="d-flex gap-2 flex-wrap">
-                        {['happy', 'sad', 'surprised', 'excited', 'neutral'].map((emotion) => (
-                          <button
-                            key={emotion}
-                            onClick={() => setAvatar({ ...avatar, emotion })}
-                            className={`btn btn-sm ${avatar.emotion === emotion ? 'btn-primary' : 'btn-outline-secondary'}`}
-                            style={{ textTransform: 'capitalize', minWidth: '70px' }}
-                          >
-                            {emotion}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="d-flex gap-2 mb-3">
-                      <Button 
-                        size="sm" 
-                        variant="outline-primary" 
-                        onClick={handleRandomAvatar}
-                        className="flex-grow-1"
-                      >
-                        🎲 Random
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline-secondary" 
-                        onClick={handleResetAvatar}
-                        className="flex-grow-1"
-                      >
-                        🔄 Reset
-                      </Button>
+                      ))}
                     </div>
                   </div>
                   

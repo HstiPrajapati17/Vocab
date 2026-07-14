@@ -28,6 +28,7 @@ const Leaderboard = () => {
   const enriched = data.map(entry => ({
     ...entry,
     isYou: entry.userId === user?.id,
+    avatar: typeof entry.avatar === 'string' ? entry.avatar : '🧑',
   }));
 
   const getChangeIcon = (change) => {

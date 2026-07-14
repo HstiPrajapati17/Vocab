@@ -8,9 +8,9 @@ const Privacy = () => {
     <div className="text-page privacy-text-page">
       <Container className="text-container">
         <div className="text-header">
-          <div className='text-icon'>
+          {/* <div className='text-icon'>
             <Shield  fontSize={'20px'} color="#667eea" />
-          </div>          
+          </div>           */}
           <h1 className="text-title">Privacy Policy</h1>
           <p className="text-subtitle">Last Updated: January 2024</p>
         </div>
