@@ -62,7 +62,6 @@ const Leaderboard = () => {
           <p className="text-muted small mb-0">
             Earn XP through lessons, then compete with players in a weekly leaderboard.
           </p>
-          <span className="h_lb_mascot">🦉</span>
         </div>
       </div>
     );
