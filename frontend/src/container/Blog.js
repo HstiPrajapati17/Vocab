@@ -1,5 +1,5 @@
-import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
 import {
   BookOpen,
   Clock,
@@ -14,6 +14,10 @@ import {
 import '../style/info_pages.css';
 
 const Blog = () => {
+  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
   const featuredPost = {
     title: '10 Tips to Master Spanish Vocabulary',
     excerpt:
@@ -29,7 +33,7 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
-      title: 'The Science Behind Language Learning',
+      title: 'The Science of Learning',
       excerpt:
         'Learn how your brain processes new languages and optimise your routine.',
       author: 'Dr. James Wilson',
@@ -86,88 +90,120 @@ const Blog = () => {
     'Motivation',
   ];
 
+  const filteredPosts =
+    selectedFilter === "All"
+      ? blogPosts
+      : blogPosts.filter(
+        (post) => post.category === selectedFilter
+      );
+
   return (
     <div className="blog-page-unique">
 
       {/* Hero */}
       <section className="blog-hero-unique">
+
+        <div className="hero-bg-circle hero-circle-1"></div>
+        <div className="hero-bg-circle hero-circle-2"></div>
+
         <Container>
-          <Row className="align-items-center g-4">
+          <Row className="align-items-center">
+
             <Col lg={6}>
               <div className="hero-content-blog">
-                <div className="blog-badge">
-                  <BookOpen size={16} /> VocabLearn Blog
-                </div>
+
+                <span className="blog-badge">
+                  <BookOpen size={17} />
+                  VocabLearn Blog
+                </span>
 
                 <h1 className="blog-hero-title">
-                  Expert insights for{' '}
+                  Learn Languages
+                  <br />
+                  Smarter With
                   <span className="blog-highlight">
-                    language mastery
+                    {" "}Expert Advice
                   </span>
                 </h1>
 
                 <p className="blog-hero-desc">
-                  Proven strategies, tips, and success stories from learners worldwide.
+                  Explore vocabulary hacks, grammar guides, study
+                  techniques, and inspiring learner success stories
+                  written by language experts.
                 </p>
 
+                <div className="hero-buttons">
+
+                  <button className="hero-btn-primary">
+                    Explore Articles
+                  </button>
+
+                  <button className="hero-btn-outline">
+                    Latest Posts
+                  </button>
+
+                </div>
+
                 <div className="blog-hero-stats">
-                  {[
-                    {
-                      icon: <BookOpen size={18} />,
-                      label: '50+ Articles',
-                    },
-                    {
-                      icon: <TrendingUp size={18} />,
-                      label: '10K+ Readers',
-                    },
-                    {
-                      icon: <Clock size={18} />,
-                      label: 'Weekly Updates',
-                    },
-                  ].map((s, i) => (
-                    <div className="blog-stat" key={i}>
-                      {s.icon}
-                      <span>{s.label}</span>
+
+                  <div className="blog-stat">
+                    <BookOpen size={20} />
+                    <div>
+                      <h4>50+</h4>
+                      <p>Articles</p>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="blog-stat">
+                    <TrendingUp size={20} />
+                    <div>
+                      <h4>10K+</h4>
+                      <p>Readers</p>
+                    </div>
+                  </div>
+                  <div className="blog-stat">
+                    <Clock size={20} />
+                    <div>
+                      <h4>Weekly</h4>
+                      <p>Updates</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </Col>
 
-            <Col lg={6} className="d-none d-lg-block">
+            <Col lg={6}>
               <div className="blog-hero-visual">
                 <div className="featured-card-large">
-
                   <img
                     src={featuredPost.image}
                     alt={featuredPost.title}
                     className="featured-image"
                   />
-
+                  {/* <div className="floating-tag">
+                            ⭐ Featured Article
+                        </div> */}
                   <div className="featured-content">
                     <span className="featured-tag">
                       {featuredPost.category}
                     </span>
-
                     <h3>{featuredPost.title}</h3>
-
                     <p>{featuredPost.excerpt}</p>
-
                     <div className="featured-meta">
                       <span>
-                        <User size={13} /> {featuredPost.author}
+                        <User size={14} />
+                        {featuredPost.author}
                       </span>
-
                       <span>
-                        <Calendar size={13} /> {featuredPost.date}
+                        <Calendar size={14} />
+                        {featuredPost.date}
                       </span>
-
                       <span>
-                        <Clock size={13} /> {featuredPost.readTime}
+                        <Clock size={14} />
+                        {featuredPost.readTime}
                       </span>
                     </div>
                   </div>
-
                 </div>
               </div>
             </Col>
@@ -182,15 +218,17 @@ const Blog = () => {
             <div className="filter-label">
               <Filter size={16} /> Filter:
             </div>
-
             <div className="filter-tags">
-              {filters.map((f, i) => (
-                <span
-                  key={i}
-                  className={`filter-tag ${i === 0 ? 'active' : ''}`}
+              {filters.map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setSelectedFilter(filter)}
+                  className={`filter-tag ${selectedFilter === filter ? "active" : ""
+                    }`}
                 >
-                  {f}
-                </span>
+                  {filter}
+                </button>
               ))}
             </div>
           </div>
@@ -201,61 +239,71 @@ const Blog = () => {
       <section className="blog-grid-unique">
         <Container>
           <Row className="g-4">
-            {blogPosts.map((post) => (
-              <Col sm={6} lg={3} key={post.id}>
-                <div className="blog-card-unique">
-
-                  <div className="blog-card-image">
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="blog-image"
-                    />
-                  </div>
-
-                  <div className="blog-card-body">
-                    <span className="blog-category">
-                      {post.category}
-                    </span>
-
-                    <h3 className="blog-card-title">
-                      {post.title}
-                    </h3>
-
-                    <p className="blog-card-excerpt">
-                      {post.excerpt}
-                    </p>
-
-                    <div className="blog-card-meta">
-                      <span className="meta-item">
-                        <User size={12} /> {post.author}
-                      </span>
-
-                      <span className="meta-item">
-                        <Clock size={12} /> {post.readTime}
-                      </span>
+            {filteredPosts.length > 0 ? (
+              filteredPosts.map((post) => (
+                <Col sm={6} lg={3} key={post.id}>
+                  <div className="blog-card-unique">
+                    <div className="blog-card-image">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="blog-image"
+                      />
                     </div>
-
-                    <div className="blog-card-footer">
-                      <div className="blog-actions">
-                        <span className="blog-action">
-                          <Heart size={14} /> 156
+                    <div className="blog-card-body">
+                      <span className="blog-category">
+                        {post.category}
+                      </span>
+                      <h3 className="blog-card-title">
+                        {post.title}
+                      </h3>
+                      <p className="blog-card-excerpt">
+                        {post.excerpt}
+                      </p>
+                      <div className="blog-card-meta">
+                        <span className="meta-item">
+                          <User size={12} /> {post.author}
                         </span>
-
-                        <span className="blog-action">
-                          <MessageCircle size={14} /> 28
+                        <span className="meta-item">
+                          <Clock size={12} /> {post.readTime}
                         </span>
                       </div>
+                      <div className="blog-card-footer">
+                        <div className="blog-actions">
+                          <span className="blog-action">
+                            <Heart size={14} /> 156
+                          </span>
 
-                      <Button className="btn-read-more">
-                        Read <ArrowRight size={13} />
-                      </Button>
+                          <span className="blog-action">
+                            <MessageCircle size={14} /> 28
+                          </span>
+                        </div>
+
+                        {/* <Button className="btn-read-more">
+                          Read <ArrowRight size={13} />
+                        </Button> */}
+                        <Button
+                          className="btn-read-more"
+                          onClick={() => {
+                            setSelectedPost(post);
+                            setShowModal(true);
+                          }}
+                        >
+                          Read <ArrowRight size={13} />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
+                  </div>
+                </Col>
+              ))
+            ) : (
+              <Col xs={12}>
+                <div className="text-center py-5">
+                  <h4>No blogs found.</h4>
                 </div>
               </Col>
-            ))}
+            )}
           </Row>
         </Container>
       </section>
@@ -288,6 +336,79 @@ const Blog = () => {
           </div>
         </Container>
       </section>
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        size="xl"
+        className="blog-detail-modal"
+      >
+
+        {selectedPost && (
+
+          <>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {selectedPost.title}
+              </Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+
+              <img
+                src={selectedPost.image}
+                alt={selectedPost.title}
+                className="modal-blog-image"
+              />
+
+              <div className="modal-meta">
+
+                <span>
+                  <User size={15} /> {selectedPost.author}
+                </span>
+
+                <span>
+                  <Calendar size={15} /> {selectedPost.date}
+                </span>
+
+                <span>
+                  <Clock size={15} /> {selectedPost.readTime}
+                </span>
+
+              </div>
+
+              <p className="modal-blog-content">
+
+                {selectedPost.excerpt}
+
+                <br /><br />
+
+                Learning a language is one of the most rewarding journeys.
+                Consistent practice, reading articles, speaking with native
+                speakers and expanding your vocabulary daily will help you
+                become fluent faster.
+
+                <br /><br />
+
+                Make learning a habit instead of a task. Spend at least
+                15-20 minutes every day practicing listening, reading,
+                writing and speaking.
+
+                <br /><br />
+
+                Remember that mistakes are part of the learning process.
+                Every mistake helps you improve and brings you one step
+                closer to fluency.
+
+              </p>
+
+            </Modal.Body>
+
+          </>
+
+        )}
+
+      </Modal>
 
     </div>
   );

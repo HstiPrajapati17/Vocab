@@ -50,14 +50,17 @@ const Profile = () => {
     // Handle both old object avatar and new emoji string
     if (user?.avatar) {
       if (typeof user.avatar === 'string') {
-        setSelectedAvatar(user.avatar);
-        setAvatarType('emoji');
-        setSelectedImage(null);
-      } else if (user.avatar.startsWith('data:')) {
-        // Handle base64 image
-        setSelectedImage(user.avatar);
-        setAvatarType('image');
-        setSelectedAvatar('🧑');
+        if (user.avatar.startsWith('data:')) {
+          // Handle base64 image
+          setSelectedImage(user.avatar);
+          setAvatarType('image');
+          setSelectedAvatar('🧑');
+        } else {
+          // Handle emoji string
+          setSelectedAvatar(user.avatar);
+          setAvatarType('emoji');
+          setSelectedImage(null);
+        }
       } else {
         // Convert old object avatar to default emoji
         setSelectedAvatar('🧑');
