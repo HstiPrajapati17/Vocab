@@ -34,17 +34,11 @@
       "xp": 1130,
       "streak": 7,
       "hearts": 2,
-      "language": "German",
+      "language": "French",
       "level": "Beginner",
       "dailyGoal": "Regular",
-      "completedLessons": [
-        13,
-        14,
-        15,
-        16,
-        17
-      ],
-      "activeLesson": 18,
+      "completedLessons": [],
+      "activeLesson": 1,
       "joinedDate": "2025-06-01"
     },
     {

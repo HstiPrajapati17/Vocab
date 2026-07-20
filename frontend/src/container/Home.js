@@ -440,7 +440,7 @@ const Home = () => {
             </form>
 
             <div className="hp_cta_trust">
-              {["🔒 No spam, ever", "⚡ Free forever", "🌍 30+ languages"].map(
+              {["⚡ Free forever", "🌍 03+ languages"].map(
                 (t) => (
                   <span key={t} className="hp_cta_trust_item">
                     {t}
@@ -512,7 +512,7 @@ const Home = () => {
               © 2025 VocabLearn. All rights reserved.
             </p>
             <div className="hp_footer_badges">
-              <span className="hp_footer_badge">🌍 30+ Languages</span>
+              <span className="hp_footer_badge">🌍 03+ Languages</span>
               <span className="hp_footer_badge">⭐ #1 Education App</span>
             </div>
           </div>

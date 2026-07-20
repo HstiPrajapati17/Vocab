@@ -4,14 +4,41 @@ import { Row, Col, Spinner } from 'react-bootstrap';
 import { Check, Search } from 'lucide-react';
 import { useApp } from '../App';
 import { updateUser } from '../api';
+import flag_1 from "../assets/USFlag.webp";
+import flag_2 from "../assets/FranceFlag.png";
+import flag_3 from "../assets/GermanyFlag.jpg";
+import flag_4 from "../assets/PolandFlag.png";
 
 const allLanguages = [
-  { flag: '🇪🇸', name: 'English', learners: '50M' },
-  { flag: '🇩🇪', name: 'German', learners: '12M' },
-  { flag: '🇫🇷', name: 'French', learners: '18M' },
-  { flag: '🇵🇱', name: 'Polish', learners: '8M' },
+  {
+    flag: flag_1,
+    name: "English",
+    learners: "1.5B",
+    native: "English",
+    color: "#4A90D9",
+  },
+  {
+    flag: flag_2,
+    name: "French",
+    learners: "321M",
+    native: "Français",
+    color: "#6C63FF",
+  },
+  {
+    flag: flag_3,
+    name: "German",
+    learners: "135M",
+    native: "Deutsch",
+    color: "#FFC107",
+  },
+  {
+    flag: flag_4,
+    name: "Polish",
+    learners: "45M",
+    native: "Polski",
+    color: "#E91E63",
+  },
 ];
-
 const Courses = () => {
   const navigate = useNavigate();
   const { user, refreshUser, setPreviewLanguage } = useApp();
@@ -86,9 +113,24 @@ const Courses = () => {
                   <Spinner animation="border" size="sm" />
                 ) : (
                   <>
-                    <span className="h_course_flag">{lang.flag}</span>
-                    <span className="h_course_name">{lang.name}</span>
-                    <span className="h_course_learners">{lang.learners} learners</span>
+                    <div
+                      className="h_course_icon"
+                      style={{ backgroundColor: `${lang.color}20` }}
+                    >
+                      <img src={lang.flag} alt={lang.name} />
+                    </div>
+
+                    <div className="h_course_content">
+                      <h5>{lang.name}</h5>
+                      <p>{lang.native}</p>
+
+                      <span
+                        className="h_course_badge"
+                        style={{ backgroundColor: lang.color }}
+                      >
+                        {lang.learners} Speakers
+                      </span>
+                    </div>
                   </>
                 )}
               </button>
