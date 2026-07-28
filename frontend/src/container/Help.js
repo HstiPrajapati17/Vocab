@@ -118,7 +118,7 @@ const FaqGroup = ({ group }) => {
     setOpenItems((prev) =>
       prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
     );
- v
+ 
   return (
     <div className="hlp2_group">
       <div className="hlp2_group_header">{group.label}</div>
