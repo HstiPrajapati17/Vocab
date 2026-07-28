@@ -788,7 +788,6 @@ const Onboarding = () => {
                       className="h_onboarding_next_button"
                       onClick={handleNext}
                       disabled={!isStepValid()}
-                      whileHover={isStepValid() ? { scale: 1.05 } : {}}
                       whileTap={isStepValid() ? { scale: 0.97 } : {}}
                     >
                       {currentStep === steps.length - 2

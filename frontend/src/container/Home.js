@@ -245,20 +245,28 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="hp_lang_cards_grid">
+          <div className="hp_lang_cards_grid" role="list">
             {languages.map((lang, i) => (
               <div
                 className="hp_lang_card"
                 key={i}
                 onClick={() => navigate("/signup")}
-                role="button"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate("/signup");
+                  }
+                }}
+                role="listitem"
+                aria-label={`Learn ${lang.name} - Start language course`}
                 tabIndex={0}
               >
                 <div className="hp_lang_card_flag_wrap">
                   <img
                     src={lang.flag}
-                    alt={lang.name}
+                    alt={`${lang.name} flag`}
                     className="hp_lang_card_flag"
+                    loading="lazy"
                   />
                 </div>
                 <div className="hp_lang_card_body">
@@ -266,9 +274,9 @@ const Home = () => {
                   <p className="hp_lang_card_native">{lang.native}</p>
                   <div className="hp_lang_card_foot">
                     <span className="hp_lang_card_learners">
-                      <Users size={11} /> {lang.learners}
+                      <Users size={11} aria-hidden="true" /> {lang.learners}
                     </span>
-                    <span className="hp_lang_card_cta">
+                    <span className="hp_lang_card_cta" aria-hidden="true">
                       Start <ArrowRight size={13} />
                     </span>
                   </div>

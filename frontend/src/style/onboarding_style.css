@@ -903,15 +903,13 @@
   align-items: center;
   gap: 10px;
   letter-spacing: 0.02em;
-  box-shadow: 0 4px 14px rgba(47, 133, 90, 0.25);
+  box-shadow: 0 4px 0 var(--primary-dark);
   text-transform: none;
 }
 
 .h_onboarding_next_button:hover:not(:disabled),
 .h_onboarding_complete_button:hover {
   background: var(--h-primary-dark);
-  box-shadow: 0 6px 20px rgba(47, 133, 90, 0.35);
-  transform: translateY(-2px);
 }
 
 .h_onboarding_next_button:active:not(:disabled),

@@ -5,7 +5,6 @@ import {
   Trophy,
   Zap,
   Menu,
-  User,
   CircleHelp,
   LogOut,
 } from "lucide-react";
@@ -19,7 +18,7 @@ const items = [
   { id: "quests", icon: Zap, label: "Quests" },
 ];
 
-const BottomNav = ({ currentPage, navigate }) => {
+const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -38,6 +37,13 @@ const BottomNav = ({ currentPage, navigate }) => {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  const handleLogoutClick = () => {
+    setOpen(false);
+    if (onRequestLogout) {
+      onRequestLogout();
+    }
+  };
 
   return (
     <nav className="h_bottom_nav d-lg-none">
@@ -97,10 +103,7 @@ const BottomNav = ({ currentPage, navigate }) => {
 
             <button
               className="logout"
-              onClick={() => {
-                localStorage.clear();
-                navigate("/signin");
-              }}
+              onClick={handleLogoutClick}
             >
               <LogOut size={18} />
               <span>Logout</span>
