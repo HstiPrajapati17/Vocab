@@ -143,7 +143,7 @@ export default function Letters() {
         }
     };
     return (
-        <div className="h_profile_inner">
+        <div className="h_profile_inner min-h-auto">
             <div className="h_courses_header">
                 <div>
                     <h1 className="h_courses_title">{user?.language || 'English'} Alphabet</h1>
@@ -172,7 +172,7 @@ export default function Letters() {
                                         <span className="h_alphabet_pronunciation">{item.pronunciation}</span>
                                     </button>
                                 ))}
-                            </div>
+                            </div> 
                             {selectedLetter !== null && (
                                 <div className="h_alphabet_detail mt-3 p-3 bg-light rounded">
                                     <div className="h_alphabet_detail_letter">{currentAlphabets[selectedLetter].letter}</div>

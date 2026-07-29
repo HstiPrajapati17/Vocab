@@ -6268,3 +6268,670 @@ body {
   font-size: 2.8rem;
   line-height: 1;
 }
+
+/* ==============================================================
+   MODAL BACKDROP FIX for small screens (esp. 320px and below)
+   ==============================================================
+   Problem:  On 320px width screens, modal backdrop did not cover
+             the full viewport — only a narrow vertical strip was
+             dimmed, leaving right side bright.
+   Root causes addressed:
+     • Bootstrap default .modal-backdrop can be affected by ancestor
+       transforms or width calculations on very small widths.
+     • Force inset: 0 + 100vw/100vh with !important to ensure
+       full-screen coverage regardless of container context.
+     • On ≤320px: force html/body/root width to exactly 100% and
+       prevent any inner element from forcing a wider layout and
+       causing the backdrop to "short-sheet".
+   ============================================================== */
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  z-index: 1040 !important;
+}
+.modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1050 !important;
+}
+.modal .modal-dialog {
+  margin: 1.5rem auto !important;
+}
+.modal-open body,
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
+
+@media (max-width: 320px) {
+  html,
+  body,
+  #root,
+  .h_app_wrapper,
+  .h_app_shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+  .h_shell_body {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .h_shell_center {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    overflow-x: hidden !important;
+  }
+  .modal-backdrop {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .modal .modal-dialog {
+    width: calc(100% - 1rem) !important;
+    max-width: calc(100% - 1rem) !important;
+    margin: 0.5rem auto !important;
+  }
+  .modal .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ==============================================================
+   PROFILE PAGE STYLES (moved from Profile.js inline <style>)
+   ============================================================== */
+
+/* ---- Profile core layout ---- */
+.h_profile_inner {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: var(--bg);
+}
+.h_profile_inner * {
+  box-sizing: border-box;
+}
+
+/* ---- Profile header banner & card body ---- */
+.profile-header-banner {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  height: 70px;
+}
+.profile-card-body {
+  margin-top: -40px;
+}
+
+/* ---- Profile avatar (defaults) ---- */
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--bg-white);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-dark);
+  font-size: 2.25rem;
+  font-weight: 800;
+}
+
+/* ---- Profile name & email ---- */
+.h_profile_name {
+  font-weight: 800;
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.h_profile_email {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ---- Profile edit name input ---- */
+.profile-name-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--primary-border);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: all var(--transition);
+  background: var(--bg-white);
+  color: var(--text);
+}
+.profile-name-input:focus {
+  border-color: var(--primary);
+}
+.h_profile_edit_actions {
+  gap: 0.5rem;
+}
+.h_profile_editbtn_save {
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+}
+.h_profile_editbtn_cancel {
+  background: var(--bg-muted);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.5rem 1.5rem;
+}
+
+/* ---- Profile learning language badge ---- */
+.h_profile_badge {
+  background: var(--primary-soft) !important;
+  color: var(--primary-dark);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--primary-border);
+}
+
+/* ---- Profile level card ---- */
+.h_profile_levelcard {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--primary-border);
+}
+.h_profile_level_label {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.h_profile_level_xp {
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 0.9rem;
+}
+
+/* ---- Profile stats cards (streak / XP) ---- */
+.h_profile_statscol .h_profile_statcard {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--primary-border);
+}
+.stat-card-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.h_profile_statcard_icon {
+  font-size: 1.35rem;
+}
+.h_profile_statcard_label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ---- Profile hearts card ---- */
+.h_profile_hearts_card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, var(--danger-soft), #fff5f5);
+}
+.h_profile_hearts_heart {
+  transition: transform 0.2s ease;
+}
+.h_profile_hearts_cardbtn {
+  background: var(--danger);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+/* ---- Profile tabs nav ---- */
+.h_profile_tabs_nav {
+  background: var(--bg-card);
+  padding: 0.75rem 1rem 0;
+  border-bottom: 1px solid var(--primary-border);
+}
+.h_profile_tabs_nav .nav-link {
+  font-weight: 700;
+  color: var(--text-muted);
+  border: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: 0.75rem 1.25rem;
+  margin-right: 0.5rem;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.h_profile_tabs_nav .nav-link.active {
+  background: white !important;
+  color: var(--primary-dark) !important;
+  border-bottom: 3px solid var(--primary) !important;
+  margin-bottom: -1px !important;
+}
+.h_profile_tabs_nav .nav-link:hover:not(.active) {
+  color: var(--primary) !important;
+  background: var(--primary-soft) !important;
+}
+
+/* ---- Profile tab body ---- */
+.h_profile_tab_body {
+  padding: 1rem;
+}
+.h_profile_section_title {
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  font-size: 1.1rem;
+}
+
+/* ---- Profile chart (Weekly XP Activity bar chart) ---- */
+.h_profile_chart_wrap {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--primary-border);
+}
+.h_profile_chart_container {
+  height: 140px;
+  min-height: 140px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.h_profile_chart_bar_wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  text-align: center;
+}
+.h_profile_chart_bar {
+  width: 28px;
+  max-height: 110px;
+  background: linear-gradient(180deg, var(--primary), var(--primary-light));
+  border-radius: 6px 6px 4px 4px;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+.h_profile_chart_bar_wrap.xp-zero .h_profile_chart_bar {
+  background: var(--bg-muted);
+}
+.h_profile_chart_day {
+  margin-top: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 0.75rem;
+}
+.h_profile_chart_bar_wrap.xp-zero .h_profile_chart_day {
+  color: var(--text-muted);
+}
+.h_profile_chart_xp {
+  font-weight: 800;
+  color: var(--text);
+  font-size: 0.7rem;
+}
+
+/* ---- Profile summary cards (below chart) ---- */
+.h_profile_summary_card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--primary-border);
+  height: 100%;
+}
+.h_profile_summary_icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.h_profile_summary_value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.h_profile_summary_label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ---- Profile achievements tab ---- */
+.h_profile_achievement_card {
+  background: linear-gradient(135deg, var(--primary-soft), var(--bg-card));
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  border: 2px solid var(--primary-border);
+  height: 100%;
+  transition: all 0.3s ease;
+}
+.h_profile_achievement_card.locked {
+  background: var(--bg-card);
+  border-width: 1px;
+  opacity: 0.5;
+}
+.h_profile_achievement_card:hover {
+  transform: translateY(-4px);
+}
+.h_profile_achievement_icon {
+  font-size: 2.1rem;
+  margin-bottom: 0.5rem;
+}
+.h_profile_achievement_label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.h_profile_achievement_desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ---- Profile history tab ---- */
+.h_profile_history_item {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--primary-border);
+}
+.h_profile_history_item:last-child {
+  border-bottom: none;
+}
+.h_profile_history_item:hover {
+  background: var(--primary-soft);
+}
+.h_profile_history_iconbox {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-dark);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.h_profile_history_title {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.h_profile_history_sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.h_profile_history_badge {
+  background: var(--primary);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  color: var(--text-light);
+}
+
+/* ---- Profile empty state (history with 0 lessons) ---- */
+.h_profile_empty_state {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--primary-border);
+}
+
+/* ==============================================================
+   PROFILE PAGE — RESPONSIVE
+   ============================================================== */
+
+@media (max-width: 575.98px) {
+  .profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  .profile-name-input {
+    font-size: 1.2rem !important;
+    max-width: 100% !important;
+  }
+  .stat-card-value {
+    font-size: 1.25rem !important;
+  }
+  .h_profile_tabs_nav .nav-link {
+    padding: 0.6rem 0.85rem !important;
+    font-size: 0.8rem !important;
+    margin-right: 0.25rem !important;
+  }
+  .h_profile_tabs_nav .nav-link svg {
+    margin-right: 0.3rem !important;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .profile-avatar {
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 1.85rem !important;
+  }
+  .profile-header-banner {
+    height: 56px !important;
+  }
+  .profile-card-body {
+    margin-top: -36px !important;
+    padding: 0.85rem !important;
+  }
+  .h_profile_name {
+    font-size: 1.2rem !important;
+  }
+  .h_profile_email {
+    font-size: 0.82rem !important;
+  }
+  .h_profile_badge {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.76rem !important;
+  }
+  .h_profile_levelcard {
+    padding: 0.9rem !important;
+  }
+  .h_profile_statscol .h_profile_statcard {
+    padding: 0.8rem 0.5rem !important;
+  }
+  .stat-card-value {
+    font-size: 1.1rem !important;
+  }
+  .h_profile_statcard_icon {
+    font-size: 1.15rem !important;
+  }
+  .h_profile_statcard_label {
+    font-size: 0.68rem !important;
+  }
+  .h_profile_hearts_card .card-body {
+    padding: 0.85rem !important;
+  }
+  .h_profile_tabs_nav .nav-link {
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.74rem !important;
+    margin-right: 0.2rem !important;
+  }
+  .h_profile_tabs_nav .nav-link svg {
+    display: none !important;
+  }
+  .h_profile_tab_body {
+    padding: 0.85rem !important;
+  }
+  .h_profile_chart_wrap {
+    padding: 0.85rem !important;
+  }
+  .h_profile_chart_container {
+    min-height: 110px !important;
+    height: 110px !important;
+  }
+  .h_profile_chart_bar {
+    width: 20px !important;
+  }
+  .h_profile_chart_day {
+    font-size: 0.68rem !important;
+  }
+  .h_profile_chart_xp {
+    font-size: 0.62rem !important;
+  }
+  .h_profile_section_title {
+    font-size: 0.95rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+  .h_profile_summary_card {
+    padding: 0.75rem 0.5rem !important;
+  }
+  .h_profile_summary_icon {
+    font-size: 1.4rem !important;
+  }
+  .h_profile_summary_value {
+    font-size: 1.05rem !important;
+  }
+  .h_profile_summary_label {
+    font-size: 0.72rem !important;
+  }
+  .h_profile_achievement_card {
+    padding: 0.75rem 0.5rem !important;
+  }
+  .h_profile_achievement_icon {
+    font-size: 1.75rem !important;
+  }
+  .h_profile_achievement_label {
+    font-size: 0.74rem !important;
+  }
+  .h_profile_achievement_desc {
+    font-size: 0.66rem !important;
+  }
+  .h_profile_history_item {
+    padding: 0.75rem 0.85rem !important;
+    gap: 0.55rem !important;
+  }
+  .h_profile_history_iconbox {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.95rem !important;
+  }
+  .h_profile_history_title {
+    font-size: 0.86rem !important;
+  }
+  .h_profile_history_sub {
+    font-size: 0.72rem !important;
+  }
+  .h_profile_history_badge {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.72rem !important;
+  }
+  .h_profile_empty_state {
+    padding: 1.8rem 1rem !important;
+  }
+}
+
+@media (max-width: 374.98px) {
+  .profile-avatar {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 1.65rem !important;
+  }
+  .h_profile_name {
+    font-size: 1.05rem !important;
+  }
+  .h_profile_level_label,
+  .h_profile_level_xp {
+    font-size: 0.8rem !important;
+  }
+  .h_profile_statscol .h_profile_statcard {
+    padding: 0.7rem 0.4rem !important;
+  }
+  .stat-card-value {
+    font-size: 1rem !important;
+  }
+  .h_profile_tabs_nav {
+    padding: 0.55rem 0.5rem 0 !important;
+  }
+  .h_profile_tabs_nav .nav-link {
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.68rem !important;
+  }
+  .h_profile_tab_body {
+    padding: 0.7rem !important;
+  }
+  .h_profile_chart_wrap {
+    padding: 0.7rem !important;
+  }
+  .h_profile_chart_container {
+    min-height: 95px !important;
+    height: 95px !important;
+  }
+  .h_profile_chart_bar {
+    width: 16px !important;
+  }
+  .h_profile_summary_card {
+    padding: 0.65rem 0.4rem !important;
+  }
+  .h_profile_summary_icon {
+    font-size: 1.25rem !important;
+  }
+  .h_profile_summary_value {
+    font-size: 0.95rem !important;
+  }
+  .h_profile_summary_label {
+    font-size: 0.68rem !important;
+  }
+  .h_profile_editbtn_save,
+  .h_profile_editbtn_cancel {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+  .h_profile_edit_actions {
+    gap: 0.5rem !important;
+  }
+  .h_profile_hearts_heart {
+    font-size: 1.25rem !important;
+  }
+  .h_profile_hearts_cardbtn {
+    font-size: 0.8rem !important;
+  }
+}

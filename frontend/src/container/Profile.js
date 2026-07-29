@@ -32,7 +32,10 @@ const Profile = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = React.useRef(null);
 
-  // Sync with user data when it changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }, []);
+
   useEffect(() => {
     setDisplayName(user?.name || 'Learner');
     if (user?.avatar) {
@@ -98,40 +101,21 @@ const Profile = () => {
   };
 
   return (
-    <div className="h_profile_inner" style={{ padding: '1rem 0', background: 'var(--bg)' }}>
-      <style>{`
-        @media (max-width: 991.98px) {
-          .profile-page-content {
-            padding-top: 0.5rem !important;
-          }
-        }
-        @media (max-width: 575.98px) {
-          .profile-avatar {
-            width: 80px !important;
-            height: 80px !important;
-          }
-          .profile-name-input {
-            font-size: 1.2rem !important;
-          }
-          .stat-card-value {
-            font-size: 1.25rem !important;
-          }
-        }
-      `}</style>
+    <div className="h_profile_inner" style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
-      <Row className="g-4 profile-page-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+      <Row className="g-4 profile-page-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0' }}>
         {/* Left Column - Profile Info */}
-        <Col xs={12}>
+        <Col xs={12} className="p-0 m-0">
           <Card className="h_profile_card border-0 mb-4" style={{
             borderRadius: 'var(--radius-xl)',
             boxShadow: 'var(--shadow-md)',
             overflow: 'hidden'
           }}>
-            <div style={{
+            <div className="profile-header-banner" style={{
               background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
               height: '70px'
             }}></div>
-            <Card.Body className="p-3" style={{ marginTop: '-40px' }}>
+            <Card.Body className="p-3 overflow-hidden profile-card-body" style={{ marginTop: '-40px' }}>
               <div className="text-center mb-4">
                 {/* Avatar */}
                 <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem' }}>
@@ -169,7 +153,7 @@ const Profile = () => {
                     </div>
                   )}
                   {editing && (
-                    <div style={{ position: 'absolute', bottom: '4px', right: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ position: 'absolute', bottom: '0px', right: '0px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <button
                         type="button"
                         onClick={handleCameraClick}
@@ -246,11 +230,12 @@ const Profile = () => {
                       onBlur={(e) => e.target.style.borderColor = 'var(--primary-border)'}
                       placeholder="Enter your name"
                     />
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="d-flex gap-2 justify-content-center h_profile_edit_actions">
                       <Button
                         variant="primary"
                         onClick={handleSaveName}
                         disabled={saving}
+                        className="h_profile_editbtn_save"
                         style={{
                           background: 'var(--primary)',
                           border: 'none',
@@ -269,6 +254,7 @@ const Profile = () => {
                           setDisplayName(user?.name || 'Learner');
                           setSelectedImage(user?.avatar ? (typeof user.avatar === 'string' && user.avatar.startsWith('data:') ? user.avatar : null) : null);
                         }}
+                        className="h_profile_editbtn_cancel"
                         style={{
                           background: 'var(--bg-muted)',
                           border: 'none',
@@ -284,7 +270,7 @@ const Profile = () => {
                   </div>
                 ) : (
                   <div>
-                    <h3 style={{
+                    <h3 className="h_profile_name" style={{
                       fontWeight: '800',
                       color: 'var(--text)',
                       fontSize: '1.5rem',
@@ -314,7 +300,7 @@ const Profile = () => {
                         }}
                       />
                     </h3>
-                    <p style={{ color: 'var(--text-muted)', margin: '0', fontSize: '0.95rem' }}>
+                    <p className="h_profile_email" style={{ color: 'var(--text-muted)', margin: '0', fontSize: '0.95rem' }}>
                       {user?.email || ''}
                     </p>
                   </div>
@@ -324,7 +310,7 @@ const Profile = () => {
               {!editing && (
                 <>
                   <div className="d-flex justify-content-center mb-4">
-                    <Badge style={{
+                    <Badge className="h_profile_badge" style={{
                       background: 'var(--primary-soft) !important',
                       color: 'var(--primary-dark)',
                       padding: '0.5rem 1rem',
@@ -338,7 +324,7 @@ const Profile = () => {
                     </Badge>
                   </div>
 
-                  <div style={{
+                  <div className="h_profile_levelcard" style={{
                     background: 'var(--bg-card)',
                     borderRadius: 'var(--radius-md)',
                     padding: '1.25rem',
@@ -346,10 +332,10 @@ const Profile = () => {
                     border: '1px solid var(--primary-border)'
                   }}>
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.9rem' }}>
+                      <span className="h_profile_level_label" style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.9rem' }}>
                         Level: {user?.level || 'Beginner'}
                       </span>
-                      <span style={{ fontWeight: '600', color: 'var(--primary-dark)', fontSize: '0.9rem' }}>
+                      <span className="h_profile_level_xp" style={{ fontWeight: '600', color: 'var(--primary-dark)', fontSize: '0.9rem' }}>
                         {user?.xp || 0} / {maxXP} XP
                       </span>
                     </div>
@@ -360,37 +346,37 @@ const Profile = () => {
                     />
                   </div>
 
-                  <Row className="g-3 mb-4">
+                  <Row className="g-3 mb-4 h_profile_statscol">
                     <Col xs={6}>
-                      <div style={{
+                      <div className="h_profile_statcard" style={{
                         background: 'var(--bg-card)',
                         borderRadius: 'var(--radius-md)',
                         padding: '1rem',
                         textAlign: 'center',
                         border: '1px solid var(--primary-border)'
                       }}>
-                        <FaFire className="mb-1" style={{ color: 'var(--warning)', fontSize: '1.35rem' }} />
+                        <FaFire className="mb-1 h_profile_statcard_icon" style={{ color: 'var(--warning)', fontSize: '1.35rem' }} />
                         <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text)' }} className="stat-card-value">
                           {user?.streak || 0}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                        <div className="h_profile_statcard_label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
                           Streak
                         </div>
                       </div>
                     </Col>
                     <Col xs={6}>
-                      <div style={{
+                      <div className="h_profile_statcard" style={{
                         background: 'var(--bg-card)',
                         borderRadius: 'var(--radius-md)',
                         padding: '1rem',
                         textAlign: 'center',
                         border: '1px solid var(--primary-border)'
                       }}>
-                        <FaStar className="mb-1" style={{ color: 'var(--primary)', fontSize: '1.35rem' }} />
+                        <FaStar className="mb-1 h_profile_statcard_icon" style={{ color: 'var(--primary)', fontSize: '1.35rem' }} />
                         <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text)' }} className="stat-card-value">
                           {user?.xp || 0}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                        <div className="h_profile_statcard_label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
                           Total XP
                         </div>
                       </div>
@@ -402,7 +388,7 @@ const Profile = () => {
           </Card>
 
           {!editing && (
-            <Card className="border-0" style={{
+            <Card className="border-0 h_profile_hearts_card" style={{
               borderRadius: 'var(--radius-xl)',
               boxShadow: 'var(--shadow-md)',
               background: 'linear-gradient(135deg, var(--danger-soft), #fff5f5)'
@@ -415,6 +401,7 @@ const Profile = () => {
                   {Array(5).fill(0).map((_, i) => (
                     <FaHeart
                       key={i}
+                      className="h_profile_hearts_heart"
                       size={24}
                       style={{
                         color: i < (user?.hearts ?? 5) ? 'var(--danger)' : '#ffcdd2',
@@ -431,6 +418,7 @@ const Profile = () => {
                 <Button
                   variant="danger"
                   onClick={() => navigate('dashboard')}
+                  className="h_profile_hearts_cardbtn"
                   style={{
                     background: 'var(--danger)',
                     border: 'none',
@@ -449,19 +437,18 @@ const Profile = () => {
 
         {/* Right Column - Tabs */}
         {!editing && (
-          <Col xs={12}>
+          <Col xs={12} className="p-0">
             <Card className="border-0" style={{
               borderRadius: 'var(--radius-xl)',
               boxShadow: 'var(--shadow-md)',
               overflow: 'hidden'
             }}>
               <Tab.Container defaultActiveKey="activity">
-                <Nav variant="tabs" style={{
+                <Nav variant="tabs" className="h_profile_tabs_nav flex-nowrap" style={{
                   background: 'var(--bg-card)',
                   padding: '0.75rem 1rem 0',
                   borderBottom: '1px solid var(--primary-border)',
-                  overflowX: 'auto'
-                }} className="flex-nowrap">
+                }}>
                   <Nav.Item>
                     <Nav.Link
                       eventKey="activity"
@@ -528,41 +515,46 @@ const Profile = () => {
                   }
                 `}</style>
 
-                <Card.Body className="p-3">
+                <Card.Body className="p-3 h_profile_tab_body">
                   <Tab.Content>
                     {/* Activity Tab */}
                     <Tab.Pane eventKey="activity">
-                      <h5 style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
+                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
                         <FaChartBar className="me-2" style={{ color: 'var(--primary)' }} />
                         Weekly XP Activity
                       </h5>
 
-                      <div style={{
+                      <div className="h_profile_chart_wrap" style={{
                         background: 'var(--bg-card)',
                         borderRadius: 'var(--radius-md)',
                         padding: '1.25rem',
                         marginBottom: '1.25rem',
                         border: '1px solid var(--primary-border)'
                       }}>
-                        <div className="d-flex justify-content-between align-items-end" style={{ minHeight: '140px' }}>
+                        <div className="h_profile_chart_container d-flex justify-content-between align-items-end" style={{ height: '140px', minHeight: '140px' }}>
                           {activityData.map((d, i) => (
-                            <div key={i} className="text-center" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                              <div style={{
-                                height: `${Math.max((d.xp / 100) * 100, 10)}%`,
-                                width: '28px',
-                                background: d.xp > 0
-                                  ? 'linear-gradient(180deg, var(--primary), var(--primary-light))'
-                                  : 'var(--bg-muted)',
-                                borderRadius: '6px 6px 4px 4px',
-                                transition: 'all 0.3s ease'
-                              }}></div>
-                              <div style={{
+                            <div key={i} className="text-center h_profile_chart_bar_wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                              <div
+                                className="h_profile_chart_bar"
+                                style={{
+                                  height: `${Math.max((d.xp / 100) * 110, d.xp > 0 ? 8 : 4)}px`,
+                                  width: '28px',
+                                  maxHeight: '110px',
+                                  background: d.xp > 0
+                                    ? 'linear-gradient(180deg, var(--primary), var(--primary-light))'
+                                    : 'var(--bg-muted)',
+                                  borderRadius: '6px 6px 4px 4px',
+                                  transition: 'all 0.3s ease',
+                                  marginTop: 'auto'
+                                }}
+                              ></div>
+                              <div className="h_profile_chart_day" style={{
                                 marginTop: '0.75rem',
                                 fontWeight: '700',
                                 color: d.xp > 0 ? 'var(--primary-dark)' : 'var(--text-muted)',
                                 fontSize: '0.75rem'
                               }}>{d.day}</div>
-                              <div style={{
+                              <div className="h_profile_chart_xp" style={{
                                 fontWeight: '800',
                                 color: 'var(--text)',
                                 fontSize: '0.7rem'
@@ -579,7 +571,7 @@ const Profile = () => {
                           { label: 'Lessons Done', value: completedLessons.length, icon: <FaCheckCircle style={{ color: 'var(--success)' }} /> },
                         ].map((s, i) => (
                           <Col xs={12} sm={4} key={i}>
-                            <div style={{
+                            <div className="h_profile_summary_card" style={{
                               background: 'var(--bg-card)',
                               borderRadius: 'var(--radius-md)',
                               padding: '1rem',
@@ -587,9 +579,9 @@ const Profile = () => {
                               border: '1px solid var(--primary-border)',
                               height: '100%'
                             }}>
-                              <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
-                              <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{s.value}</div>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>{s.label}</div>
+                              <div className="h_profile_summary_icon" style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
+                              <div className="h_profile_summary_value" style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{s.value}</div>
+                              <div className="h_profile_summary_label" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>{s.label}</div>
                             </div>
                           </Col>
                         ))}
@@ -598,7 +590,7 @@ const Profile = () => {
 
                     {/* Achievements Tab */}
                     <Tab.Pane eventKey="achievements">
-                      <h5 style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
+                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
                         <FaMedal className="me-2" style={{ color: 'var(--primary)' }} />
                         Your Achievements
                       </h5>
@@ -606,7 +598,7 @@ const Profile = () => {
                       <Row className="g-3">
                         {achievements.map((a, i) => (
                           <Col xs={6} sm={4} md={3} key={i}>
-                            <div style={{
+                            <div className="h_profile_achievement_card" style={{
                               background: a.earned ? 'linear-gradient(135deg, var(--primary-soft), var(--bg-card))' : 'var(--bg-card)',
                               borderRadius: 'var(--radius-md)',
                               padding: '1rem',
@@ -619,11 +611,11 @@ const Profile = () => {
                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             >
-                              <div style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>{a.icon}</div>
-                              <div style={{ fontSize: '0.82rem', fontWeight: '800', color: 'var(--text)', marginBottom: '0.25rem' }}>
+                              <div className="h_profile_achievement_icon" style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>{a.icon}</div>
+                              <div className="h_profile_achievement_label" style={{ fontSize: '0.82rem', fontWeight: '800', color: 'var(--text)', marginBottom: '0.25rem' }}>
                                 {a.label}
                               </div>
-                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                              <div className="h_profile_achievement_desc" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '500' }}>
                                 {a.desc}
                               </div>
                               {a.earned && (
@@ -639,13 +631,13 @@ const Profile = () => {
 
                     {/* History Tab */}
                     <Tab.Pane eventKey="history">
-                      <h5 style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
+                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
                         <FaBook className="me-2" style={{ color: 'var(--primary)' }} />
                         Lesson History
                       </h5>
 
                       {completedLessons.length === 0 ? (
-                        <div style={{
+                        <div className="h_profile_empty_state" style={{
                           textAlign: 'center',
                           padding: '2.5rem 1.5rem',
                           background: 'var(--bg-card)',
@@ -682,7 +674,7 @@ const Profile = () => {
                           overflow: 'hidden'
                         }}>
                           {completedLessons.map((lessonId, i) => (
-                            <div key={i} style={{
+                            <div key={i} className="h_profile_history_item" style={{
                               padding: '1rem 1.25rem',
                               display: 'flex',
                               alignItems: 'center',
@@ -693,7 +685,7 @@ const Profile = () => {
                             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--primary-soft)'}
                             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                             >
-                              <div style={{
+                              <div className="h_profile_history_iconbox" style={{
                                 width: '40px',
                                 height: '40px',
                                 borderRadius: 'var(--radius-md)',
@@ -708,14 +700,14 @@ const Profile = () => {
                                 <FaBook />
                               </div>
                               <div style={{ flexGrow: 1 }}>
-                                <div style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.95rem' }}>
+                                <div className="h_profile_history_title" style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.95rem' }}>
                                   Lesson {lessonId}
                                 </div>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                                <div className="h_profile_history_sub" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500' }}>
                                   <FaCalendar className="me-1" size={10} /> Completed
                                 </div>
                               </div>
-                              <Badge style={{
+                              <Badge className="h_profile_history_badge" style={{
                                 background: 'var(--primary)',
                                 padding: '0.4rem 0.85rem',
                                 borderRadius: 'var(--radius-md)',
