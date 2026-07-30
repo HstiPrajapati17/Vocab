@@ -3883,8 +3883,9 @@ body {
 
 .h_courses_speak {
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   align-items: flex-end;
+  gap: 4px;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
@@ -4001,7 +4002,7 @@ body {
 }
 
 .h_course_card_active{
-    border:2px solid #58cc02;
+    border:2px solid var(--primary);
     background:#f6fff0;
 }
 
@@ -4045,6 +4046,7 @@ body {
     font-weight:600;
     padding:6px 14px;
     border-radius:30px;
+    white-space:nowrap;
 }
 
 .h_course_check{
@@ -4054,7 +4056,6 @@ body {
     width:26px;
     height:26px;
     border-radius:50%;
-    background:#58cc02;
     color:#fff;
     display:flex;
     align-items:center;
@@ -4476,9 +4477,9 @@ body {
   font-weight: 800;
   color: #ffffff;
 }
-.lp_stat_xp .lp_stat_pill_val   { color: #f2a541; }
+.lp_stat_xp .lp_stat_pill_val { color: #f2a541; }
 .lp_stat_great .lp_stat_pill_val { color: var(--primary-dark); }
-.lp_stat_ok .lp_stat_pill_val    { color: #c4973b; }
+.lp_stat_ok .lp_stat_pill_val { color: #c4973b; }
 .lp_stat_hearts .lp_stat_pill_val{ color: #e88080; }
 
 /* bottom action bar — matches reference screenshot */
@@ -4529,6 +4530,16 @@ body {
   box-shadow: 0 8px 24px rgba(47,133,90,0.50);
 }
 
+@media (max-width: 576px) {
+  .h_question_image {
+    max-width: 64px;
+  }
+  .profile-avatar-camera-btn {
+    height: 28px !important;
+    width: 28px !important;
+  }
+}
+
 @media (max-width: 480px) {
   .lp_result_video { height: 140px; }
   .lp_result_title { font-size: 1.5rem; }
@@ -4564,8 +4575,8 @@ body {
 }
 @media (max-width: 1024px) {
   .h_right_panel {
-    width: 300px;
-    min-width: 300px;
+    width: 264px;
+    min-width: 264px;
   }
 }
 

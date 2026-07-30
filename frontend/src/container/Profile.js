@@ -157,6 +157,7 @@ const Profile = () => {
                       <button
                         type="button"
                         onClick={handleCameraClick}
+                        className="profile-avatar-camera-btn"
                         style={{
                           width: '32px',
                           height: '32px',
@@ -285,8 +286,6 @@ const Profile = () => {
                         style={{
                           cursor: 'pointer',
                           color: 'var(--text-muted)',
-                          padding: '0.25rem',
-                          borderRadius: '50%',
                           transition: 'all var(--transition)'
                         }}
                         onClick={() => setEditing(true)}

@@ -7,8 +7,6 @@ import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
 import { useApp } from '../App';
 // import '../style/lesson_image_styles.css';
 
-
-
 const LessonPage = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();

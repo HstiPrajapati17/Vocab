@@ -128,20 +128,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
               <p className="small text-muted mb-0">Tap to see your rank this week</p>
             </div>
           )}
-          {hoveredItem === 'quests' && (
-            <div className="h_rp_tooltip_content">
-              <h6 className="fw-bold mb-1">Daily Quests</h6>
-              <p className="small text-muted mb-0">Earn {goalMax} XP today ({todayXP}/{goalMax})</p>
-              <button className="h_rp_tooltip_link mt-2" onClick={() => navigate('/quests')}>VIEW ALL</button>
-            </div>
-          )}
-          {hoveredItem === 'course' && (
-            <div className="h_rp_tooltip_content">
-              <h6 className="fw-bold mb-1">{activeLang} Course</h6>
-              <p className="small text-muted mb-0">{user?.level || 'Beginner'} · {progress}% complete</p>
-              <p className="small text-muted mb-0">{completedCount}/{lessonCount || '—'} lessons</p>
-            </div>
-          )}
         </div>
       )}
 
@@ -159,8 +145,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
       {lessonsNeeded > 0 ? (
         <div 
           className="h_rp_card"
-          onMouseEnter={(e) => handleMouseEnter('leaderboard-locked', e)}
-          onMouseLeave={handleMouseLeave}
         >
           <div className="d-flex align-items-start gap-3">
             <div className="h_rp_card_icon"><Shield size={28} style={{ color: 'var(--primary)' }} /></div>
@@ -192,8 +176,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
       {/* Daily Quests */}
       <div 
         className="h_rp_card"
-        onMouseEnter={(e) => handleMouseEnter('quests', e)}
-        onMouseLeave={handleMouseLeave}
       >
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h6 className="fw-bold mb-0">Daily Quests</h6>
