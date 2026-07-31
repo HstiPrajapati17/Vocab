@@ -4,12 +4,12 @@ import {
   Globe,
   Trophy,
   Zap,
-  Menu,
   CircleHelp,
   LogOut,
 } from "lucide-react";
 import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { CgProfile } from "react-icons/cg";
+import { GrMore } from "react-icons/gr";
 
 const items = [
   { id: "dashboard", icon: Home, label: "Learn" },
@@ -65,7 +65,7 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
           className={`h_bottom_nav_item ${open ? "h_bottom_nav_active" : ""}`}
           onClick={() => setOpen(!open)}
         >
-          <Menu size={22} />
+          <GrMore size={26} />
           <span>More</span>
         </button>
 

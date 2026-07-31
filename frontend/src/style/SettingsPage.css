@@ -173,10 +173,10 @@
   flex-shrink: 0;
 }
 
-.settings-card:hover .settings-icon {
+/* .settings-card:hover .settings-icon {
   transform: scale(1.1) rotate(5deg);
   box-shadow: 0 6px 20px rgba(47, 133, 90, 0.4);
-}
+} */
 
 .settings-info {
   flex: 1;
@@ -274,11 +274,11 @@
 }
 
 .toggle-off {
-  background: var(--text-muted);
+  background: #878787;
 }
 
 .toggle-off .toggle-knob {
-  border: 5px solid var(--text-muted);
+  border: 5px solid #878787;
 }
 
 .toggle-knob {
@@ -349,10 +349,10 @@
   box-shadow: 0 2px 0 #8b4444;
 }
 
-.danger-zone .settings-card {
+/* .danger-zone .settings-card {
   border-color: var(--danger);
   background: linear-gradient(135deg, rgba(196, 92, 92, 0.08) 0%, var(--bg-white) 100%);
-}
+} */
 
 .danger-zone .settings-card:hover {
   border-color: var(--danger);
