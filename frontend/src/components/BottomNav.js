@@ -6,16 +6,17 @@ import {
   Zap,
   CircleHelp,
   LogOut,
+  BarChart2,
 } from "lucide-react";
 import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { CgProfile } from "react-icons/cg";
 import { GrMore } from "react-icons/gr";
 
 const items = [
-  { id: "dashboard", icon: Home, label: "Learn" },
-  { id: "courses", icon: Globe, label: "Courses" },
-  { id: "leaderboard", icon: Trophy, label: "Rank" },
-  { id: "quests", icon: Zap, label: "Quests" },
+  { id: "dashboard",  icon: Home,      label: "Learn"    },
+  { id: "courses",    icon: Globe,     label: "Courses"  },
+  { id: "leaderboard",icon: Trophy,    label: "Rank"     },
+  { id: "insights",   icon: BarChart2, label: "Insights" },
 ];
 
 const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
@@ -70,7 +71,17 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
         </button>
 
         {open && (
-          <div className="h_more_menu">
+          <div className="h_moZa re_menu">
+            <button
+              onClick={() => {
+                navigate("/quests");
+                setOpen(false);
+              }}
+            >
+              <Zap size={18} />
+              <span>Quests</span>
+            </button>
+
             <button
               onClick={() => {
                 navigate("/letters");

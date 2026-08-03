@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Home, Type, Trophy, Zap, ShoppingBag, User, MoreHorizontal, Globe, LogOut
+  Home, Type, Trophy, Zap, ShoppingBag, User, MoreHorizontal, Globe, LogOut, BarChart2
 } from 'lucide-react';
 
 const navItems = [
-  { id: 'dashboard', label: 'Learn', icon: Home },
-  { id: 'courses', label: 'Courses', icon: Globe },
-  { id: 'letters', label: 'Letters', icon: Type },
-  { id: 'leaderboard', label: 'Leaderboards', icon: Trophy },
-  { id: 'quests', label: 'Quests', icon: Zap },
-  { id: 'shop', label: 'Shop', icon: ShoppingBag },
-  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'dashboard',   label: 'Learn',         icon: Home },
+  { id: 'courses',     label: 'Courses',       icon: Globe },
+  { id: 'letters',     label: 'Letters',       icon: Type },
+  { id: 'leaderboard', label: 'Leaderboards',  icon: Trophy },
+  { id: 'quests',      label: 'Quests',        icon: Zap },
+  { id: 'shop',        label: 'Shop',          icon: ShoppingBag },
+  { id: 'insights',    label: 'Insights',      icon: BarChart2 },
+  { id: 'profile',     label: 'Profile',       icon: User },
 ];
 
 const Sidebar = ({ currentPage, navigate, onRequestLogout }) => {

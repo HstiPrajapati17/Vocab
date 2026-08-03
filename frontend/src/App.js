@@ -33,6 +33,7 @@ import Blog          from './container/Blog';
 import Help          from './container/Help';
 import Letters       from './container/Letters';
 import Onboarding    from './container/Onboarding';
+import Insights      from './container/Insights';
 
 /* ─────────────────────────── Context ─────────────────────────── */
 const AppContext = createContext();
@@ -202,6 +203,9 @@ function App() {
             } />
             <Route path="/settings" element={
               <ProtectedRoute><ShellLayout><SettingsPage /></ShellLayout></ProtectedRoute>
+            } />
+            <Route path="/insights" element={
+              <ProtectedRoute><ShellLayout><Insights /></ShellLayout></ProtectedRoute>
             } />
 
             {/* ── Fullscreen lesson (no navbar, no shell) ── */}

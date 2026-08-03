@@ -237,7 +237,7 @@ const Dashboard = () => {
   }, [lessons, completedLessons]);
 
   const handleLessonClick = (lesson) => {
-    const isCompleted = completedLessons.includes(lesson.id);
+     const isCompleted = completedLessons.includes(lesson.id);
     const isActive = lesson.id === activeLesson;
     if (!isCompleted && !isActive) return;
     navigate(`/lesson/${lesson.id}`);
