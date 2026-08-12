@@ -117,8 +117,6 @@ const SettingsPage = () => {
           </SettingCard>
         </div>
 
-       
-
         <div className="settings-section" style={{ animationDelay: '0.3s' }}>
           <h2 className="section-title">Notifications</h2>
           

@@ -7,7 +7,6 @@ import {
   Star,
   Dumbbell,
   Trophy,
-  BookOpen,
   ChevronLeft,
   ArrowRight,
   X,

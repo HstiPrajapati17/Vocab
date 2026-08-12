@@ -156,12 +156,12 @@ const LessonPage = () => {
     );
   }
 
-
   if (showResult) {
     const passed = score >= Math.ceil(questions.length * 0.6);
     const accuracy = Math.round((score / questions.length) * 100);
 
     return (
+      <div className='container'>
       <div className="lp_result_overlay">
         {/* top close */}
         {/* <button className="lp_result_close" onClick={() => navigate('/dashboard')} aria-label="Close">
@@ -220,13 +220,14 @@ const LessonPage = () => {
 
         {/* bottom action bar */}
         <div className="lp_result_footer">
-          <button className="lp_result_btn_review" onClick={resetLesson}>
+          <button className="hlp2_feedback_btn" onClick={resetLesson}>
             {passed ? 'Review Lesson' : 'Try Again'}
           </button>
-          <button className="lp_result_btn_continue" onClick={() => navigate('/dashboard')}>
+          <button className=" hlp2_feedback_btn" onClick={() => navigate('/dashboard')}>
             Continue
           </button>
         </div>
+      </div>
       </div>
     );
   }

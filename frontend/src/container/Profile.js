@@ -1,31 +1,33 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Col, Card, Badge, Button, ProgressBar, Tab, Nav } from 'react-bootstrap';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FaFire, FaStar, FaHeart, FaTrophy, FaMedal,
-  FaEdit, FaCheck, FaGlobe, FaCalendar,
-  FaChartBar, FaBook, FaCheckCircle, FaCamera, FaTrash
+  FaFire, FaStar, FaMedal, FaEdit, FaCheck,
+  FaChartBar, FaBook, FaCamera, FaTrash,
+  FaCalendar, FaShieldAlt, FaLanguage,
+  FaBullseye, FaClock, FaCrown, FaGem,
+  FaRocket, FaTrophy, FaAward
 } from 'react-icons/fa';
 import { updateUser } from '../api';
 import { useApp } from '../App';
 
 const allAchievements = [
-  { icon: '🔥', label: '7-Day Streak', desc: 'Practice 7 days in a row', check: (u) => (u.streak || 0) >= 7 },
-  { icon: '⭐', label: 'First Lesson', desc: 'Complete your first lesson', check: (u) => (u.completedLessons || []).length >= 1 },
-  { icon: '💎', label: '100 XP Club', desc: 'Earn 100 XP total', check: (u) => (u.xp || 0) >= 100 },
-  { icon: '🏆', label: 'Top 10', desc: 'Reach top 10 on leaderboard', check: () => false },
-  { icon: '🌟', label: 'Perfect Score', desc: 'Get 100% on a lesson', check: () => false },
-  { icon: '📚', label: '10 Lessons', desc: 'Complete 10 lessons', check: (u) => (u.completedLessons || []).length >= 10 },
-  { icon: '🚀', label: 'Level Up', desc: 'Advance to intermediate', check: (u) => u.level === 'Intermediate' || u.level === 'Advanced' },
-  { icon: '🎯', label: 'Goal Setter', desc: 'Set a daily goal', check: (u) => !!u.dailyGoal },
+  { icon: '🔥', label: '7-Day Streak',  desc: '7 days in a row',         check: u => (u.streak||0)>=7, accent: '#f2a541' },
+  { icon: '⭐', label: 'First Lesson',  desc: 'Complete first lesson',    check: u => (u.completedLessons||[]).length>=1, accent: '#2f855a' },
+  { icon: '💎', label: '100 XP Club',   desc: 'Earn 100 XP total',        check: u => (u.xp||0)>=100, accent: '#c4973b' },
+  { icon: '🏆', label: 'Top 10',        desc: 'Reach top 10',             check: () => false, accent: '#c45c5c' },
+  { icon: '🌟', label: 'Perfect Score', desc: 'Get 100% on a lesson',     check: () => false, accent: '#6b7fd4' },
+  { icon: '📚', label: '10 Lessons',    desc: 'Complete 10 lessons',      check: u => (u.completedLessons||[]).length>=10, accent: '#2f855a' },
+  { icon: '🚀', label: 'Level Up',      desc: 'Advance to intermediate',  check: u => u.level==='Intermediate'||u.level==='Advanced', accent: '#f2a541' },
+  { icon: '🎯', label: 'Goal Setter',   desc: 'Set a daily goal',         check: u => !!u.dailyGoal, accent: '#c4973b' },
 ];
 
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refreshUser } = useApp();
+  const [activeTab, setActiveTab] = useState('activity');
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || 'Learner');
   const [saving, setSaving] = useState(false);
@@ -38,696 +40,465 @@ const Profile = () => {
 
   useEffect(() => {
     setDisplayName(user?.name || 'Learner');
-    if (user?.avatar) {
-      if (typeof user.avatar === 'string' && user.avatar.startsWith('data:')) {
-        setSelectedImage(user.avatar);
-      } else {
-        setSelectedImage(null);
-      }
-    }
+    if (user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('data:')) {
+      setSelectedImage(user.avatar);
+    } else { setSelectedImage(null); }
   }, [user]);
 
-  const getInitial = (name) => {
-    if (!name) return 'L';
-    return name.trim().charAt(0).toUpperCase();
-  };
-
+  const getInitial = n => n?.trim()?.charAt(0)?.toUpperCase() || 'L';
   const completedLessons = user?.completedLessons || [];
   const maxXP = 500;
-  const levelProgress = Math.min(Math.round(((user?.xp || 0) / maxXP) * 100), 100);
-
+  const currentXP = user?.xp || 0;
+  const levelProgress = Math.min(Math.round((currentXP / maxXP) * 100), 100);
+  const xpToNext = maxXP - currentXP;
   const achievements = allAchievements.map(a => ({ ...a, earned: a.check(user) }));
-
-  // Fake weekly data based on xp
+  const earnedCount = achievements.filter(a => a.earned).length;
   const activityData = weekDays.map((day, i) => ({
-    day,
-    xp: i < (user?.streak || 0) ? Math.floor(Math.random() * 80) + 10 : 0,
+    day, xp: i < (user?.streak || 0) ? Math.floor(Math.random() * 80) + 20 : 0,
   }));
+  const maxBarXP = Math.max(...activityData.map(d => d.xp), 1);
+  const joinedDate = user?.joinedDate ? new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently joined';
 
   const handleSaveName = async () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
     setSaving(true);
     try {
-      const updated = await updateUser(user.id, {
-        name: displayName.trim(),
-        avatar: selectedImage || null,
-      });
+      const updated = await updateUser(user.id, { name: displayName.trim(), avatar: selectedImage || null });
       refreshUser(updated);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-      setEditing(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setSaving(false); setEditing(false); }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageUpload = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onloadend = () => setSelectedImage(r.result);
+    r.readAsDataURL(f);
+  };
+  const handleCameraClick = () => fileInputRef.current?.click();
+  const handleRemoveImage = () => setSelectedImage(null);
+
+  const getLeagueBadge = () => {
+    const xp = currentXP;
+    if (xp >= 400) return { label: 'Diamond League', icon: <FaGem />, color: '#6b7fd4', bg: 'linear-gradient(135deg, #eef0ff, #dde2ff)' };
+    if (xp >= 250) return { label: 'Gold League', icon: <FaCrown />, color: '#c4973b', bg: 'linear-gradient(135deg, #fdf5dc, #faecd0)' };
+    if (xp >= 100) return { label: 'Silver League', icon: <FaMedal />, color: '#6b7280', bg: 'linear-gradient(135deg, #f0f1f3, #e4e6ea)' };
+    return { label: 'Bronze League', icon: <FaShieldAlt />, color: '#a67c52', bg: 'linear-gradient(135deg, #faeedd, #f4dec6)' };
   };
 
-  const handleCameraClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-  };
+  const league = getLeagueBadge();
 
   return (
-    <div className="h_profile_inner" style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+    <div className="hprof_page">
+      <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleImageUpload} />
 
-      <Row className="g-4 profile-page-content" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0' }}>
-        {/* Left Column - Profile Info */}
-        <Col xs={12} className="p-0 m-0">
-          <Card className="h_profile_card border-0 mb-4" style={{
-            borderRadius: 'var(--radius-xl)',
-            boxShadow: 'var(--shadow-md)',
-            overflow: 'hidden'
-          }}>
-            <div className="profile-header-banner" style={{
-              background: 'linear-gradient(135deg, var(--primary), var(--primary-light))',
-              height: '70px'
-            }}></div>
-            <Card.Body className="p-3 overflow-hidden profile-card-body" style={{ marginTop: '-40px' }}>
-              <div className="text-center mb-4">
-                {/* Avatar */}
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '0.75rem' }}>
-                  {selectedImage ? (
-                    <div style={{
-                      width: '100px',
-                      height: '100px',
-                      borderRadius: '50%',
-                      border: '4px solid var(--bg-white)',
-                      boxShadow: 'var(--shadow-md)',
-                      overflow: 'hidden'
-                    }} className="profile-avatar">
-                      <img 
-                        src={selectedImage} 
-                        alt="Avatar" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                  ) : (
-                    <div style={{
-                      width: '100px',
-                      height: '100px',
-                      borderRadius: '50%',
-                      border: '4px solid var(--bg-white)',
-                      boxShadow: 'var(--shadow-md)',
-                      background: 'var(--bg-card)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--primary-dark)',
-                      fontSize: '2.25rem',
-                      fontWeight: '800'
-                    }} className="profile-avatar">
-                      {getInitial(displayName)}
-                    </div>
-                  )}
-                  {editing && (
-                    <div style={{ position: 'absolute', bottom: '0px', right: '0px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <button
-                        type="button"
-                        onClick={handleCameraClick}
-                        className="profile-avatar-camera-btn"
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          background: 'var(--primary)',
-                          color: 'var(--text-light)',
-                          border: '2px solid var(--bg-white)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: 'var(--shadow-sm)'
-                        }}
-                      >
-                        <FaCamera size={12} />
-                      </button>
-                      {selectedImage && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveImage}
-                          style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            background: 'var(--danger)',
-                            color: 'var(--text-light)',
-                            border: '2px solid var(--bg-white)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            boxShadow: 'var(--shadow-sm)'
-                          }}
-                        >
-                          <FaTrash size={10} />
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleImageUpload}
-                  />
-                </div>
+      {/* HERO / COVER SECTION */}
+      <div className="hprof_hero">
+        <div className="hprof_hero_bg">
+          <div className="hprof_hero_blob hprof_blob_1" />
+          <div className="hprof_hero_blob hprof_blob_2" />
+          <div className="hprof_hero_blob hprof_blob_3" />
+          <div className="hprof_hero_grid" />
+        </div>
+      </div>
 
-                {editing ? (
-                  <div>
-                    <input
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      autoFocus
-                      className="profile-name-input"
-                      style={{
-                        width: '100%',
-                        maxWidth: '300px',
-                        padding: '0.75rem 1rem',
-                        borderRadius: 'var(--radius-md)',
-                        border: '2px solid var(--primary-border)',
-                        fontSize: '1.25rem',
-                        fontWeight: '700',
-                        textAlign: 'center',
-                        marginBottom: '1rem',
-                        outline: 'none',
-                        transition: 'all var(--transition)'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
-                      onBlur={(e) => e.target.style.borderColor = 'var(--primary-border)'}
-                      placeholder="Enter your name"
-                    />
-                    <div className="d-flex gap-2 justify-content-center h_profile_edit_actions">
-                      <Button
-                        variant="primary"
-                        onClick={handleSaveName}
-                        disabled={saving}
-                        className="h_profile_editbtn_save"
-                        style={{
-                          background: 'var(--primary)',
-                          border: 'none',
-                          borderRadius: 'var(--radius-md)',
-                          fontWeight: '700',
-                          padding: '0.5rem 1.5rem'
-                        }}
-                      >
-                        {saving ? <FaCheck className="me-1" /> : null}
-                        {saving ? 'Saving...' : 'Save'}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          setEditing(false);
-                          setDisplayName(user?.name || 'Learner');
-                          setSelectedImage(user?.avatar ? (typeof user.avatar === 'string' && user.avatar.startsWith('data:') ? user.avatar : null) : null);
-                        }}
-                        className="h_profile_editbtn_cancel"
-                        style={{
-                          background: 'var(--bg-muted)',
-                          border: 'none',
-                          borderRadius: 'var(--radius-md)',
-                          fontWeight: '600',
-                          color: 'var(--text-muted)',
-                          padding: '0.5rem 1.5rem'
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="h_profile_name" style={{
-                      fontWeight: '800',
-                      color: 'var(--text)',
-                      fontSize: '1.5rem',
-                      marginBottom: '0.25rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      {displayName}
-                      <FaEdit
-                        style={{
-                          cursor: 'pointer',
-                          color: 'var(--text-muted)',
-                          transition: 'all var(--transition)'
-                        }}
-                        onClick={() => setEditing(true)}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.color = 'var(--primary)';
-                          e.currentTarget.style.background = 'var(--primary-soft)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.color = 'var(--text-muted)';
-                          e.currentTarget.style.background = 'transparent';
-                        }}
-                      />
-                    </h3>
-                    <p className="h_profile_email" style={{ color: 'var(--text-muted)', margin: '0', fontSize: '0.95rem' }}>
-                      {user?.email || ''}
-                    </p>
-                  </div>
-                )}
+      {/* MAIN PROFILE CARD */}
+      <motion.div
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="hprof_profile_card"
+      >
+        {/* AVATAR + NAME SECTION */}
+        <div className="hprof_header">
+          <div className="hprof_avatar_section">
+            <div className="hprof_avatar_ring">
+              <div className="hprof_avatar">
+                {selectedImage ? <img src={selectedImage} alt="avatar" /> : <span>{getInitial(displayName)}</span>}
               </div>
-
-              {!editing && (
-                <>
-                  <div className="d-flex justify-content-center mb-4">
-                    <Badge className="h_profile_badge" style={{
-                      background: 'var(--primary-soft) !important',
-                      color: 'var(--primary-dark)',
-                      padding: '0.5rem 1rem',
-                      borderRadius: 'var(--radius-full)',
-                      fontWeight: '600',
-                      fontSize: '0.85rem',
-                      border: '1px solid var(--primary-border)'
-                    }}>
-                      <FaGlobe className="me-2" />
-                      Learning {user?.language || 'Spanish'}
-                    </Badge>
-                  </div>
-
-                  <div className="h_profile_levelcard" style={{
-                    background: 'var(--bg-card)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    marginBottom: '1.5rem',
-                    border: '1px solid var(--primary-border)'
-                  }}>
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="h_profile_level_label" style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.9rem' }}>
-                        Level: {user?.level || 'Beginner'}
-                      </span>
-                      <span className="h_profile_level_xp" style={{ fontWeight: '600', color: 'var(--primary-dark)', fontSize: '0.9rem' }}>
-                        {user?.xp || 0} / {maxXP} XP
-                      </span>
-                    </div>
-                    <ProgressBar
-                      now={levelProgress}
-                      className="h_level_bar"
-                      style={{ height: '10px', borderRadius: '6px' }}
-                    />
-                  </div>
-
-                  <Row className="g-3 mb-4 h_profile_statscol">
-                    <Col xs={6}>
-                      <div className="h_profile_statcard" style={{
-                        background: 'var(--bg-card)',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '1rem',
-                        textAlign: 'center',
-                        border: '1px solid var(--primary-border)'
-                      }}>
-                        <FaFire className="mb-1 h_profile_statcard_icon" style={{ color: 'var(--warning)', fontSize: '1.35rem' }} />
-                        <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text)' }} className="stat-card-value">
-                          {user?.streak || 0}
-                        </div>
-                        <div className="h_profile_statcard_label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
-                          Streak
-                        </div>
-                      </div>
-                    </Col>
-                    <Col xs={6}>
-                      <div className="h_profile_statcard" style={{
-                        background: 'var(--bg-card)',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '1rem',
-                        textAlign: 'center',
-                        border: '1px solid var(--primary-border)'
-                      }}>
-                        <FaStar className="mb-1 h_profile_statcard_icon" style={{ color: 'var(--primary)', fontSize: '1.35rem' }} />
-                        <div style={{ fontSize: '1.35rem', fontWeight: '800', color: 'var(--text)' }} className="stat-card-value">
-                          {user?.xp || 0}
-                        </div>
-                        <div className="h_profile_statcard_label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '600' }}>
-                          Total XP
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </>
-              )}
-            </Card.Body>
-          </Card>
-
-          {!editing && (
-            <Card className="border-0 h_profile_hearts_card" style={{
-              borderRadius: 'var(--radius-xl)',
-              boxShadow: 'var(--shadow-md)',
-              background: 'linear-gradient(135deg, var(--danger-soft), #fff5f5)'
-            }}>
-              <Card.Body className="p-3 text-center">
-                <h6 style={{ fontWeight: '800', color: 'var(--danger)', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                  <FaHeart className="me-2" /> Hearts
-                </h6>
-                <div className="d-flex justify-content-center gap-2 mb-3">
-                  {Array(5).fill(0).map((_, i) => (
-                    <FaHeart
-                      key={i}
-                      className="h_profile_hearts_heart"
-                      size={24}
-                      style={{
-                        color: i < (user?.hearts ?? 5) ? 'var(--danger)' : '#ffcdd2',
-                        transition: 'transform 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    />
-                  ))}
+              {editing && (
+                <div className="hprof_avatar_actions">
+                  <button type="button" className="hprof_avatar_btn hprof_cam_btn" onClick={handleCameraClick} title="Change photo">
+                    <FaCamera size={11} />
+                  </button>
+                  {selectedImage && (
+                    <button type="button" className="hprof_avatar_btn hprof_del_btn" onClick={handleRemoveImage} title="Remove photo">
+                      <FaTrash size={9} />
+                    </button>
+                  )}
                 </div>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: '500', fontSize: '0.85rem' }}>
-                  {(user?.hearts ?? 5) === 5 ? 'Fully charged! Ready to learn!' : `${user?.hearts ?? 0} hearts remaining`}
-                </p>
-                <Button
-                  variant="danger"
-                  onClick={() => navigate('dashboard')}
-                  className="h_profile_hearts_cardbtn"
-                  style={{
-                    background: 'var(--danger)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-md)',
-                    fontWeight: '700',
-                    width: '100%',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  Practice to Restore
-                </Button>
-              </Card.Body>
-            </Card>
-          )}
-        </Col>
+              )}
+            </div>
 
-        {/* Right Column - Tabs */}
+            {/* Level indicator badge */}
+            <div className="hprof_level_badge">
+              <span className="hprof_level_num">{levelProgress}%</span>
+            </div>
+          </div>
+
+          <div className="hprof_info_section">
+            {editing ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="hprof_edit_block"
+              >
+                <label className="hprof_edit_label">Display Name</label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  autoFocus
+                  className="hprof_name_input"
+                  placeholder="Your full name"
+                  maxLength={30}
+                />
+                <div className="hprof_edit_actions">
+                  <button className="hprof_save_btn" onClick={handleSaveName} disabled={saving}>
+                    <FaCheck size={12} /> {saving ? 'Saving…' : 'Save Changes'}
+                  </button>
+                  <button className="hprof_cancel_btn" onClick={() => {
+                    setEditing(false);
+                    setDisplayName(user?.name || 'Learner');
+                    setSelectedImage(user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('data:') ? user.avatar : null);
+                  }}>
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <>
+                <div className="hprof_name_row">
+                  <h1 className="hprof_name">
+                    {displayName}
+                    <span className="hprof_name_sparkle" role="img" aria-label="sparkle">✨</span>
+                  </h1>
+                  <button className="hprof_edit_btn" onClick={() => setEditing(true)} title="Edit profile">
+                    <FaEdit size={13} /> Edit
+                  </button>
+                </div>
+                <p className="hprof_email">{user?.email || ''}</p>
+
+                <div className="hprof_badges_row">
+                  <span className="hprof_badge hprof_badge_lang">
+                    <FaLanguage size={10} /> Learning {user?.language || 'Spanish'}
+                  </span>
+                  <span
+                    className="hprof_badge hprof_badge_league"
+                    style={{ '--league-color': league.color, '--league-bg': league.bg }}
+                  >
+                    <span className="hprof_league_icon">{league.icon}</span>
+                    {league.label}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* XP LEVEL PROGRESS */}
         {!editing && (
-          <Col xs={12} className="p-0">
-            <Card className="border-0" style={{
-              borderRadius: 'var(--radius-xl)',
-              boxShadow: 'var(--shadow-md)',
-              overflow: 'hidden'
-            }}>
-              <Tab.Container defaultActiveKey="activity">
-                <Nav variant="tabs" className="h_profile_tabs_nav flex-nowrap" style={{
-                  background: 'var(--bg-card)',
-                  padding: '0.75rem 1rem 0',
-                  borderBottom: '1px solid var(--primary-border)',
-                }}>
-                  <Nav.Item>
-                    <Nav.Link
-                      eventKey="activity"
-                      style={{
-                        fontWeight: '700',
-                        color: 'var(--text-muted)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-                        padding: '0.75rem 1.25rem',
-                        marginRight: '0.5rem',
-                        transition: 'all var(--transition)',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      <FaChartBar className="me-2" /> Activity
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link
-                      eventKey="achievements"
-                      style={{
-                        fontWeight: '700',
-                        color: 'var(--text-muted)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-                        padding: '0.75rem 1.25rem',
-                        marginRight: '0.5rem',
-                        transition: 'all var(--transition)',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      <FaMedal className="me-2" /> Achievements
-                    </Nav.Link>
-                  </Nav.Item>
-                  <Nav.Item>
-                    <Nav.Link
-                      eventKey="history"
-                      style={{
-                        fontWeight: '700',
-                        color: 'var(--text-muted)',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md) var(--radius-md) 0 0',
-                        padding: '0.75rem 1.25rem',
-                        marginRight: '0.5rem',
-                        transition: 'all var(--transition)',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      <FaBook className="me-2" /> History
-                    </Nav.Link>
-                  </Nav.Item>
-                </Nav>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="hprof_level_section"
+          >
+            <div className="hprof_level_header">
+              <div className="hprof_level_title">
+                <span className="hprof_level_icon"><FaTrophy size={14} /></span>
+                <span className="hprof_level_text">Level: <strong>{user?.level || 'Beginner'}</strong></span>
+              </div>
+              <div className="hprof_level_xp">
+                <strong>{currentXP}</strong> / {maxXP} XP
+              </div>
+            </div>
+            <div className="hprof_progress_track">
+              <div className="hprof_progress_fill" style={{ width: `${levelProgress}%` }}>
+                <div className="hprof_progress_shine" />
+              </div>
+            </div>
+            <div className="hprof_level_footer">
+              <span className="hprof_next_level">
+                <FaRocket size={11} /> {xpToNext} XP to next level
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
 
-                <style jsx>{`
-                  .nav-link.active {
-                    background: white !important;
-                    color: var(--primary-dark) !important;
-                    border-bottom: 3px solid var(--primary) !important;
-                    margin-bottom: -1px !important;
-                  }
-                  .nav-link:hover:not(.active) {
-                    color: var(--primary) !important;
-                    background: var(--primary-soft) !important;
-                  }
-                `}</style>
+      {/* STATS GRID */}
+      {!editing && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="hprof_stats_grid"
+        >
+          {[
+            {
+              icon: <FaFire />,
+              value: user?.streak || 0,
+              label: 'Day Streak',
+              color: '#f2a541',
+              bg: 'linear-gradient(135deg, #fff7ec 0%, #ffe9cf 100%)',
+              border: 'rgba(242, 165, 65, 0.35)'
+            },
+            {
+              icon: <FaStar />,
+              value: currentXP,
+              label: 'Total XP',
+              color: '#2f855a',
+              bg: 'linear-gradient(135deg, #eefaf3 0%, #d7f0e1 100%)',
+              border: 'rgba(47, 133, 90, 0.30)'
+            },
+            {
+              icon: <FaAward />,
+              value: user?.hearts ?? 5,
+              label: 'Hearts Left',
+              color: '#c45c5c',
+              bg: 'linear-gradient(135deg, #fdf0f0 0%, #fadddd 100%)',
+              border: 'rgba(196, 92, 92, 0.30)'
+            },
+            {
+              icon: <FaBook />,
+              value: completedLessons.length,
+              label: 'Lessons Done',
+              color: '#6b7fd4',
+              bg: 'linear-gradient(135deg, #eef0ff 0%, #dde2ff 100%)',
+              border: 'rgba(107, 127, 212, 0.30)'
+            },
+          ].map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + (i * 0.06) }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="hprof_stat_card"
+              style={{ '--stat-bg': s.bg, '--stat-color': s.color, '--stat-border': s.border }}
+            >
+              <div className="hprof_stat_icon">{s.icon}</div>
+              <div className="hprof_stat_value">{s.value}</div>
+              <div className="hprof_stat_label">{s.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
-                <Card.Body className="p-3 h_profile_tab_body">
-                  <Tab.Content>
-                    {/* Activity Tab */}
-                    <Tab.Pane eventKey="activity">
-                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
-                        <FaChartBar className="me-2" style={{ color: 'var(--primary)' }} />
-                        Weekly XP Activity
-                      </h5>
+      {/* QUICK INFO BAR */}
+      {!editing && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="hprof_info_bar"
+        >
+          <div className="hprof_info_item">
+            <div className="hprof_info_icon"><FaCalendar size={13} /></div>
+            <div>
+              <div className="hprof_info_label">Joined</div>
+              <div className="hprof_info_value">{joinedDate}</div>
+            </div>
+          </div>
+          <div className="hprof_info_divider" />
+          <div className="hprof_info_item">
+            <div className="hprof_info_icon"><FaBullseye size={13} /></div>
+            <div>
+              <div className="hprof_info_label">Daily Goal</div>
+              <div className="hprof_info_value">{user?.dailyGoal || 'Regular'}</div>
+            </div>
+          </div>
+          <div className="hprof_info_divider" />
+          <div className="hprof_info_item">
+            <div className="hprof_info_icon"><FaClock size={13} /></div>
+            <div>
+              <div className="hprof_info_label">Achievements</div>
+              <div className="hprof_info_value">{earnedCount} / {achievements.length}</div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
-                      <div className="h_profile_chart_wrap" style={{
-                        background: 'var(--bg-card)',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '1.25rem',
-                        marginBottom: '1.25rem',
-                        border: '1px solid var(--primary-border)'
-                      }}>
-                        <div className="h_profile_chart_container d-flex justify-content-between align-items-end" style={{ height: '140px', minHeight: '140px' }}>
-                          {activityData.map((d, i) => (
-                            <div key={i} className="text-center h_profile_chart_bar_wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-                              <div
-                                className="h_profile_chart_bar"
-                                style={{
-                                  height: `${Math.max((d.xp / 100) * 110, d.xp > 0 ? 8 : 4)}px`,
-                                  width: '28px',
-                                  maxHeight: '110px',
-                                  background: d.xp > 0
-                                    ? 'linear-gradient(180deg, var(--primary), var(--primary-light))'
-                                    : 'var(--bg-muted)',
-                                  borderRadius: '6px 6px 4px 4px',
-                                  transition: 'all 0.3s ease',
-                                  marginTop: 'auto'
-                                }}
-                              ></div>
-                              <div className="h_profile_chart_day" style={{
-                                marginTop: '0.75rem',
-                                fontWeight: '700',
-                                color: d.xp > 0 ? 'var(--primary-dark)' : 'var(--text-muted)',
-                                fontSize: '0.75rem'
-                              }}>{d.day}</div>
-                              <div className="h_profile_chart_xp" style={{
-                                fontWeight: '800',
-                                color: 'var(--text)',
-                                fontSize: '0.7rem'
-                              }}>{d.xp}</div>
-                            </div>
-                          ))}
+      {/* TABS CONTENT CARD */}
+      {!editing && (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+          className="hprof_tabs_card"
+        >
+          <div className="hprof_tabs_nav">
+            {[
+              { key: 'activity', icon: <FaChartBar size={12} />, label: 'Activity' },
+              { key: 'achievements', icon: <FaMedal size={12} />, label: 'Badges' },
+              { key: 'history', icon: <FaBook size={12} />, label: 'History' },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`hprof_tab_btn ${activeTab === t.key ? 'hprof_tab_active' : ''}`}
+                onClick={() => setActiveTab(t.key)}
+              >
+                {t.icon}
+                <span>{t.label}</span>
+                {activeTab === t.key && <motion.span layoutId="hprofTabIndicator" className="hprof_tab_indicator" />}
+              </button>
+            ))}
+          </div>
+
+          <div className="hprof_tab_content">
+            <AnimatePresence mode="wait">
+              {activeTab === 'activity' && (
+                <motion.div
+                  key="activity"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28 }}
+                  className="hprof_tab_panel"
+                >
+                  <div className="hprof_section_head">
+                    <h4 className="hprof_section_title">Weekly XP Activity</h4>
+                    <span className="hprof_section_subtitle">Last 7 days progress</span>
+                  </div>
+
+                  <div className="hprof_chart_wrap">
+                    <div className="hprof_chart">
+                      {activityData.map((d, i) => (
+                        <div key={i} className="hprof_chart_col">
+                          {d.xp > 0 && <span className="hprof_chart_val">{d.xp}</span>}
+                          <div
+                            className={`hprof_chart_bar ${d.xp === 0 ? 'hprof_bar_empty' : ''}`}
+                            style={{ height: `${Math.max((d.xp / maxBarXP) * 100, d.xp > 0 ? 6 : 2)}px` }}
+                          />
+                          <span className={`hprof_chart_day ${d.xp === 0 ? 'hprof_day_dim' : ''}`}>{d.day}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="hprof_summary_grid">
+                    {[
+                      { icon: '⭐', val: currentXP, lbl: 'Total XP Earned', color: '#2f855a' },
+                      { icon: '🔥', val: `${user?.streak || 0}d`, lbl: 'Current Streak', color: '#f2a541' },
+                      { icon: '✅', val: completedLessons.length, lbl: 'Lessons Completed', color: '#6b7fd4' },
+                    ].map((s, i) => (
+                      <div key={i} className="hprof_summary_card" style={{ '--sum-accent': s.color }}>
+                        <span className="hprof_sum_icon">{s.icon}</span>
+                        <div className="hprof_sum_meta">
+                          <div className="hprof_sum_val">{s.val}</div>
+                          <div className="hprof_sum_lbl">{s.lbl}</div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-                      <Row className="g-3">
-                        {[
-                          { label: 'Total XP', value: user?.xp || 0, icon: <FaStar style={{ color: 'var(--primary)' }} /> },
-                          { label: 'Best Streak', value: `${user?.streak || 0} days`, icon: <FaFire style={{ color: 'var(--warning)' }} /> },
-                          { label: 'Lessons Done', value: completedLessons.length, icon: <FaCheckCircle style={{ color: 'var(--success)' }} /> },
-                        ].map((s, i) => (
-                          <Col xs={12} sm={4} key={i}>
-                            <div className="h_profile_summary_card" style={{
-                              background: 'var(--bg-card)',
-                              borderRadius: 'var(--radius-md)',
-                              padding: '1rem',
-                              textAlign: 'center',
-                              border: '1px solid var(--primary-border)',
-                              height: '100%'
-                            }}>
-                              <div className="h_profile_summary_icon" style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{s.icon}</div>
-                              <div className="h_profile_summary_value" style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{s.value}</div>
-                              <div className="h_profile_summary_label" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>{s.label}</div>
-                            </div>
-                          </Col>
-                        ))}
-                      </Row>
-                    </Tab.Pane>
+              {activeTab === 'achievements' && (
+                <motion.div
+                  key="achievements"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28 }}
+                  className="hprof_tab_panel"
+                >
+                  <div className="hprof_section_head">
+                    <h4 className="hprof_section_title">Your Achievements</h4>
+                    <span className="hprof_section_subtitle">
+                      {earnedCount} earned · {achievements.length - earnedCount} to go
+                    </span>
+                  </div>
 
-                    {/* Achievements Tab */}
-                    <Tab.Pane eventKey="achievements">
-                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
-                        <FaMedal className="me-2" style={{ color: 'var(--primary)' }} />
-                        Your Achievements
-                      </h5>
-
-                      <Row className="g-3">
-                        {achievements.map((a, i) => (
-                          <Col xs={6} sm={4} md={3} key={i}>
-                            <div className="h_profile_achievement_card" style={{
-                              background: a.earned ? 'linear-gradient(135deg, var(--primary-soft), var(--bg-card))' : 'var(--bg-card)',
-                              borderRadius: 'var(--radius-md)',
-                              padding: '1rem',
-                              textAlign: 'center',
-                              border: a.earned ? '2px solid var(--primary-border)' : '1px solid var(--primary-border)',
-                              opacity: a.earned ? 1 : 0.5,
-                              height: '100%',
-                              transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                            >
-                              <div className="h_profile_achievement_icon" style={{ fontSize: '2.1rem', marginBottom: '0.5rem' }}>{a.icon}</div>
-                              <div className="h_profile_achievement_label" style={{ fontSize: '0.82rem', fontWeight: '800', color: 'var(--text)', marginBottom: '0.25rem' }}>
-                                {a.label}
-                              </div>
-                              <div className="h_profile_achievement_desc" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-                                {a.desc}
-                              </div>
-                              {a.earned && (
-                                <div style={{ marginTop: '0.5rem', color: 'var(--success)', fontWeight: '800', fontSize: '0.75rem' }}>
-                                  <FaCheck className="me-1" /> Earned!
-                                </div>
-                              )}
-                            </div>
-                          </Col>
-                        ))}
-                      </Row>
-                    </Tab.Pane>
-
-                    {/* History Tab */}
-                    <Tab.Pane eventKey="history">
-                      <h5 className="h_profile_section_title" style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.25rem', fontSize: '1.1rem' }}>
-                        <FaBook className="me-2" style={{ color: 'var(--primary)' }} />
-                        Lesson History
-                      </h5>
-
-                      {completedLessons.length === 0 ? (
-                        <div className="h_profile_empty_state" style={{
-                          textAlign: 'center',
-                          padding: '2.5rem 1.5rem',
-                          background: 'var(--bg-card)',
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px dashed var(--primary-border)'
-                        }}>
-                          <FaBook size={32} style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }} />
-                          <h6 style={{ fontWeight: '700', color: 'var(--text)', marginBottom: '0.5rem' }}>
-                            No lessons completed yet
-                          </h6>
-                          <p style={{ color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                            Start your learning journey today!
-                          </p>
-                          <Button
-                            className="h_btn_get_started"
-                            onClick={() => navigate('dashboard')}
-                            style={{
-                              background: 'var(--primary)',
-                              border: 'none',
-                              borderRadius: 'var(--radius-md)',
-                              fontWeight: '700',
-                              padding: '0.75rem 1.5rem',
-                              fontSize: '0.9rem'
-                            }}
-                          >
-                            Go to Dashboard
-                          </Button>
+                  <div className="hprof_ach_grid">
+                    {achievements.map((a, i) => (
+                      <motion.div
+                        key={i}
+                        whileHover={a.earned ? { y: -4, scale: 1.02 } : {}}
+                        transition={{ duration: 0.2 }}
+                        className={`hprof_ach_card ${a.earned ? '' : 'hprof_ach_locked'}`}
+                        style={{ '--ach-accent': a.accent }}
+                      >
+                        <div className={`hprof_ach_icon_wrap ${a.earned ? 'hprof_ach_unlocked_bg' : 'hprof_ach_locked_bg'}`}>
+                          <span className="hprof_ach_icon">{a.icon}</span>
+                          {a.earned && <span className="hprof_ach_check"><FaCheck size={8} /></span>}
                         </div>
-                      ) : (
-                        <div style={{
-                          background: 'var(--bg-card)',
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid var(--primary-border)',
-                          overflow: 'hidden'
-                        }}>
-                          {completedLessons.map((lessonId, i) => (
-                            <div key={i} className="h_profile_history_item" style={{
-                              padding: '1rem 1.25rem',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.75rem',
-                              borderBottom: i < completedLessons.length - 1 ? '1px solid var(--primary-border)' : 'none',
-                              transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--primary-soft)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                              <div className="h_profile_history_iconbox" style={{
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: 'var(--radius-md)',
-                                background: 'var(--primary-soft)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--primary-dark)',
-                                fontSize: '1.1rem',
-                                flexShrink: '0'
-                              }}>
-                                <FaBook />
-                              </div>
-                              <div style={{ flexGrow: 1 }}>
-                                <div className="h_profile_history_title" style={{ fontWeight: '700', color: 'var(--text)', fontSize: '0.95rem' }}>
-                                  Lesson {lessonId}
-                                </div>
-                                <div className="h_profile_history_sub" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-                                  <FaCalendar className="me-1" size={10} /> Completed
-                                </div>
-                              </div>
-                              <Badge className="h_profile_history_badge" style={{
-                                background: 'var(--primary)',
-                                padding: '0.4rem 0.85rem',
-                                borderRadius: 'var(--radius-md)',
-                                fontWeight: '700',
-                                fontSize: '0.8rem',
-                                flexShrink: '0'
-                              }}>
-                                +10 XP
-                              </Badge>
+                        <div className="hprof_ach_label">{a.label}</div>
+                        <div className="hprof_ach_desc">{a.desc}</div>
+                        {a.earned ? (
+                          <span className="hprof_ach_status hprof_ach_earned">
+                            <FaCheck size={9} /> Unlocked
+                          </span>
+                        ) : (
+                          <span className="hprof_ach_status hprof_ach_locked_text">
+                            🔒 Locked
+                          </span>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'history' && (
+                <motion.div
+                  key="history"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28 }}
+                  className="hprof_tab_panel"
+                >
+                  <div className="hprof_section_head">
+                    <h4 className="hprof_section_title">Lesson History</h4>
+                    <span className="hprof_section_subtitle">Your learning journey</span>
+                  </div>
+
+                  {completedLessons.length === 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="hprof_empty_state"
+                    >
+                      <div className="hprof_empty_icon">📖</div>
+                      <h5>No lessons completed yet</h5>
+                      <p>Start your learning journey and track progress here.</p>
+                      <button className="hprof_empty_cta" onClick={() => navigate('/dashboard')}>
+                        Start Learning <FaRocket size={12} />
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <div className="hprof_history_list">
+                      {completedLessons.slice().reverse().map((id, i) => (
+                        <motion.div
+                          key={`${id}-${i}`}
+                          initial={{ opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.04 }}
+                          whileHover={{ x: 4, backgroundColor: 'var(--primary-soft)' }}
+                          className="hprof_history_row"
+                        >
+                          <div className="hprof_history_icon">
+                            <FaBook size={14} />
+                          </div>
+                          <div className="hprof_history_meta">
+                            <div className="hprof_history_title">Lesson {id}</div>
+                            <div className="hprof_history_sub">
+                              <FaCalendar size={10} /> Completed · +10 XP earned
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </Tab.Pane>
-                  </Tab.Content>
-                </Card.Body>
-              </Tab.Container>
-            </Card>
-          </Col>
-        )}
-      </Row>
+                          </div>
+                          <div className="hprof_history_badge">+10 XP</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };
