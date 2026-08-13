@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Home,
   Globe,
@@ -13,15 +14,17 @@ import { CgProfile } from "react-icons/cg";
 import { GrMore } from "react-icons/gr";
 
 const items = [
-  { id: "dashboard",  icon: Home,      label: "Learn"    },
-  { id: "courses",    icon: Globe,     label: "Courses"  },
-  { id: "leaderboard",icon: Trophy,    label: "Rank"     },
-  { id: "insights",   icon: BarChart2, label: "Insights" },
+  { id: "dashboard",   icon: Home,      label: "Learn"    },
+  { id: "courses",     icon: Globe,     label: "Courses"  },
+  { id: "leaderboard", icon: Trophy,    label: "Rank"     },
+  { id: "insights",    icon: BarChart2, label: "Insights" },
 ];
 
 const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
   const [open, setOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0, w: 226, arrowX: 0 });
   const menuRef = useRef(null);
+  const moreBtnRef = useRef(null);
 
   const isActive = (id) => {
     if (id === "dashboard")
@@ -29,9 +32,31 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
     return currentPage === id;
   };
 
+  const calcMenuPosition = () => {
+    if (!moreBtnRef.current) return;
+    const btn = moreBtnRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const menuW = 220;
+    const gap = 12;
+
+    let x = btn.left + btn.width / 2 - menuW / 2;
+    if (x < 12) x = 12;
+    if (x + menuW > vw - 12) x = vw - 12 - menuW;
+
+    const y = btn.top - gap;
+    const arrowX = btn.left + btn.width / 2 - x;
+
+    setMenuPos({ x, y, w: menuW, arrowX });
+  };
+
   useEffect(() => {
     const handleClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
+        moreBtnRef.current &&
+        !moreBtnRef.current.contains(e.target)
+      ) {
         setOpen(false);
       }
     };
@@ -39,12 +64,66 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      calcMenuPosition();
+      const t = setTimeout(calcMenuPosition, 10);
+      const handler = () => calcMenuPosition();
+      window.addEventListener("resize", handler);
+      window.addEventListener("scroll", handler, true);
+      return () => {
+        clearTimeout(t);
+        window.removeEventListener("resize", handler);
+        window.removeEventListener("scroll", handler, true);
+      };
+    }
+  }, [open]);
+
   const handleLogoutClick = () => {
     setOpen(false);
     if (onRequestLogout) {
       onRequestLogout();
     }
   };
+
+  const menuItems = [
+    {
+      id: "quests",
+      label: "Quests",
+      icon: Zap,
+      color: "var(--warning)",
+      onClick: () => { navigate("/quests"); setOpen(false); },
+    },
+    {
+      id: "letters",
+      label: "Letters",
+      icon: RxLetterCaseCapitalize,
+      color: "var(--primary)",
+      onClick: () => { navigate("/letters"); setOpen(false); },
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: CgProfile,
+      color: "var(--info)",
+      onClick: () => { navigate("/profile"); setOpen(false); },
+    },
+    {
+      id: "help",
+      label: "Help",
+      icon: CircleHelp,
+      color: "var(--text-muted)",
+      onClick: () => { navigate("/help"); setOpen(false); },
+    },
+    {
+      id: "logout",
+      label: "Logout",
+      icon: LogOut,
+      color: "#e53935",
+      danger: true,
+      onClick: handleLogoutClick,
+    },
+  ];
 
   return (
     <nav className="h_bottom_nav d-lg-none">
@@ -61,67 +140,47 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
         </button>
       ))}
 
-      <div className="h_more_wrapper" ref={menuRef}>
+      <div className="h_more_wrapper">
         <button
+          ref={moreBtnRef}
           className={`h_bottom_nav_item ${open ? "h_bottom_nav_active" : ""}`}
           onClick={() => setOpen(!open)}
+          aria-expanded={open}
         >
           <GrMore size={26} />
           <span>More</span>
         </button>
-
-        {open && (
-          <div className="h_moZa re_menu">
-            <button
-              onClick={() => {
-                navigate("/quests");
-                setOpen(false);
-              }}
-            >
-              <Zap size={18} />
-              <span>Quests</span>
-            </button>
-
-            <button
-              onClick={() => {
-                navigate("/letters");
-                setOpen(false);
-              }}
-            >
-              <RxLetterCaseCapitalize size={18} />
-              <span>Letters</span>
-            </button>
-
-            <button
-              onClick={() => {
-                navigate("/profile");
-                setOpen(false);
-              }}
-            >
-              <CgProfile size={18} />
-              <span>Profile</span>
-            </button>
-
-            <button
-              onClick={() => {
-                navigate("/help");
-                setOpen(false);
-              }}
-            >
-              <CircleHelp size={18} />
-              <span>Help</span>
-            </button>
-
-            <button
-              className="logout"
-              onClick={handleLogoutClick}
-            >
-              <LogOut size={18} />
-              <span>Logout</span>
-            </button>
-          </div>
-        )}
       </div>
+
+      {open && typeof document !== "undefined" && createPortal(
+        <div
+          ref={menuRef}
+          className="h_more_menu"
+          style={{
+            position: "fixed",
+            left: `${menuPos.x}px`,
+            top: `${menuPos.y}px`,
+            width: `${menuPos.w}px`,
+            transform: "translateY(-100%)",
+            zIndex: 9999,
+          }}
+        >
+          <div className="h_more_menu_arrow" style={{ left: `${menuPos.arrowX}px` }} />
+          {menuItems.map(({ id, label, icon: Icon, color, danger, onClick }) => (
+            <button
+              key={id}
+              onClick={onClick}
+              className={`h_more_menu_item ${danger ? "danger" : ""}`}
+            >
+              <span className="h_more_menu_icon" style={{ background: danger ? "#fff2f2" : `${color}15` }}>
+                <Icon size={17} style={{ color }} />
+              </span>
+              <span className="h_more_menu_label">{label}</span>
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
     </nav>
   );
 };

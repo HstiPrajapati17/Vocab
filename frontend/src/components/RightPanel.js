@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ProgressBar } from 'react-bootstrap';
 import { Flame, Heart, Star, Trophy, Zap, Shield, BookOpen, Gem } from 'lucide-react';
 
@@ -30,15 +31,121 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
   // Hover states
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
+  const [tooltipSize, setTooltipSize] = useState({ w: 280, h: 120 });
+  const closeTimeoutRef = useRef(null);
+  const tooltipRef = useRef(null);
+  const lastTriggerRect = useRef(null);
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const measureTooltip = () => {
+    if (tooltipRef.current) {
+      const r = tooltipRef.current.getBoundingClientRect();
+      const w = r.width || 280;
+      const h = r.height || 120;
+      if (Math.abs(w - tooltipSize.w) > 1 || Math.abs(h - tooltipSize.h) > 1) {
+        setTooltipSize({ w, h });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (hoveredItem && tooltipRef.current) {
+      const t = setTimeout(measureTooltip, 10);
+      return () => clearTimeout(t);
+    }
+  }, [hoveredItem]);
+
+  const computePositionFromRect = (rect, tw, th) => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const gap = 12;
+    const margin = 12;
+
+    const elementCenterX = rect.left + rect.width / 2;
+    let x = elementCenterX - tw / 2;
+
+    if (x < margin) x = margin;
+    if (x + tw > vw - margin) {
+      x = vw - margin - tw;
+    }
+
+    let y = rect.bottom + gap;
+    if (y + th > vh - margin) {
+      y = rect.top - gap - th;
+      if (y < margin) {
+        y = vh - margin - th;
+      }
+    }
+
+    return { x, y };
+  };
+
+  const recalcPositionNow = () => {
+    if (hoveredItem && lastTriggerRect.current) {
+      const rect = lastTriggerRect.current;
+      const pos = computePositionFromRect(rect, tooltipSize.w, tooltipSize.h);
+      setHoverPosition(pos);
+    }
+  };
 
   const handleMouseEnter = (item, event) => {
+    clearCloseTimeout();
+    if (event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      lastTriggerRect.current = rect;
+    }
     setHoveredItem(item);
-    setHoverPosition({ x: event.clientX, y: event.clientY });
+    requestAnimationFrame(() => {
+      if (lastTriggerRect.current) {
+        const pos = computePositionFromRect(lastTriggerRect.current, tooltipSize.w, tooltipSize.h);
+        setHoverPosition(pos);
+      }
+    });
   };
 
+  useEffect(() => {
+    if (hoveredItem && lastTriggerRect.current) {
+      const pos = computePositionFromRect(lastTriggerRect.current, tooltipSize.w, tooltipSize.h);
+      setHoverPosition(pos);
+    }
+  }, [tooltipSize, hoveredItem]);
+
   const handleMouseLeave = () => {
-    setHoveredItem(null);
+    clearCloseTimeout();
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredItem(null);
+    }, 200);
   };
+
+  const handleTooltipMouseEnter = () => {
+    clearCloseTimeout();
+  };
+
+  const handleTooltipMouseLeave = () => {
+    handleMouseLeave();
+  };
+
+  useEffect(() => {
+    return () => clearCloseTimeout();
+  }, []);
+
+  useEffect(() => {
+    const handleScrollOrResize = () => {
+      recalcPositionNow();
+    };
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    return () => {
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [hoveredItem, tooltipSize]);
 
   return (
     <aside className="h_right_panel">
@@ -80,16 +187,19 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
         </div>
       </div>
 
-      {/* Hover Tooltip */}
-      {hoveredItem && (
+      {/* Hover Tooltip - mounted at document.body via Portal */}
+      {hoveredItem && typeof document !== 'undefined' && createPortal(
         <div 
+          ref={tooltipRef}
           className="h_rp_tooltip"
           style={{
             position: 'fixed',
-            left: `${hoverPosition.x + 10}px`,
-            top: `${hoverPosition.y + 10}px`,
-            zIndex: 1000
+            left: `${hoverPosition.x}px`,
+            top: `${hoverPosition.y}px`,
+            zIndex: 9999
           }}
+          onMouseEnter={handleTooltipMouseEnter}
+          onMouseLeave={handleTooltipMouseLeave}
         >
           {hoveredItem === 'language' && (
             <div className="h_rp_tooltip_content">
@@ -113,7 +223,10 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
             <div className="h_rp_tooltip_content">
               <h6 className="fw-bold mb-1">Hearts</h6>
               <p className="small text-muted mb-0">You have {user?.hearts ?? 5} hearts</p>
-              <button className="h_rp_tooltip_link mt-2">GO TO SHOP</button>
+              <button 
+                className="h_rp_tooltip_link mt-2"
+                onClick={() => { clearCloseTimeout(); setHoveredItem(null); navigate('/shop'); }}
+              >GO TO SHOP</button>
             </div>
           )}
           {hoveredItem === 'leaderboard-locked' && (
@@ -123,12 +236,22 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
             </div>
           )}
           {hoveredItem === 'leaderboard-unlocked' && (
-            <div className="h_rp_tooltip_content">
+            <div 
+              className="h_rp_tooltip_content h_rp_tooltip_clickable"
+              onClick={() => { clearCloseTimeout(); setHoveredItem(null); navigate('/leaderboard'); }}
+            >
               <h6 className="fw-bold mb-1">Leaderboard</h6>
               <p className="small text-muted mb-0">Tap to see your rank this week</p>
             </div>
           )}
-        </div>
+          {hoveredItem === 'course' && (
+            <div className="h_rp_tooltip_content">
+              <h6 className="fw-bold mb-1">{activeLang} Course</h6>
+              <p className="small text-muted mb-0">{meta.learners} learners · {progress}% complete</p>
+            </div>
+          )}
+        </div>,
+        document.body
       )}
 
       {/* Language preview when selecting courses */}

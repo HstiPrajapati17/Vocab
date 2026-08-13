@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { updateUser } from '../api';
 import { useApp } from '../App';
+import '../style/profile_style.css';
 
 const allAchievements = [
   { icon: '🔥', label: '7-Day Streak',  desc: '7 days in a row',         check: u => (u.streak||0)>=7, accent: '#f2a541' },
@@ -92,16 +93,6 @@ const Profile = () => {
     <div className="hprof_page">
       <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleImageUpload} />
 
-      {/* HERO / COVER SECTION */}
-      <div className="hprof_hero">
-        <div className="hprof_hero_bg">
-          <div className="hprof_hero_blob hprof_blob_1" />
-          <div className="hprof_hero_blob hprof_blob_2" />
-          <div className="hprof_hero_blob hprof_blob_3" />
-          <div className="hprof_hero_grid" />
-        </div>
-      </div>
-
       {/* MAIN PROFILE CARD */}
       <motion.div
         initial={{ y: 40, opacity: 0 }}
@@ -128,11 +119,6 @@ const Profile = () => {
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Level indicator badge */}
-            <div className="hprof_level_badge">
-              <span className="hprof_level_num">{levelProgress}%</span>
             </div>
           </div>
 

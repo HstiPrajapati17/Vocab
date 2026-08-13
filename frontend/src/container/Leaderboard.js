@@ -152,7 +152,7 @@ const Leaderboard = () => {
                     <div className="h_pod_xp">{entry.xp} XP</div>
                     <div className="h_pod_rank_badge">
                       {getRankBadge(entry.rank)}
-                    </div>
+                    </div> 
                   </div>
                 );
               })}

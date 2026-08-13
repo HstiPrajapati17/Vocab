@@ -48,13 +48,9 @@ const SettingsPage = () => {
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'es', name: 'Spanish', flag: '🇪🇸' },
     { code: 'fr', name: 'French', flag: '🇫🇷' },
     { code: 'de', name: 'German', flag: '🇩🇪' },
-    { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
-    { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-    { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
-    { code: 'gu', name: 'Gujarati', flag: '🇮🇳' }
+    { code: 'pl', name: 'Polish', flag: '🇵🇱' },
   ];
 
   const SettingCard = ({ icon: Icon, title, description, children }) => (

@@ -6,9 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
-  Target,
   BookOpen,
-  Zap,
   Trophy,
   Lock,
   TrendingUp,
@@ -79,20 +77,6 @@ const CircleProgress = ({ value, color, size = 80, stroke = 8 }) => {
   );
 };
 
-/* ── Stat Card (top overview) ── */
-const StatCard = ({ icon: Icon, label, value, sub, accent, glow }) => (
-  <div className={`ins_stat_card ins_stat_accent_${accent}`} style={{ "--glow": glow }}>
-    <div className="ins_stat_icon_wrap">
-      <Icon size={20} className="ins_stat_icon" />
-    </div>
-    <div className="ins_stat_body">
-      <p className="ins_stat_value">{value}</p>
-      <p className="ins_stat_label">{label}</p>
-      {sub && <p className="ins_stat_sub">{sub}</p>}
-    </div>
-  </div>
-);
-
 /* ── Streak bar node ── */
 const StreakNode = ({ isPracticed, isToday, isPast, day }) => {
   const stateClass = isPracticed
@@ -106,8 +90,8 @@ const StreakNode = ({ isPracticed, isToday, isPast, day }) => {
   return (
     <div className={`ins_snode ${stateClass}`}>
       <div className="ins_snode_bar">
-        {isPracticed && <Flame size={14} className="ins_snode_fire" />}
-        {isToday && !isPracticed && <Sparkles size={14} className="ins_snode_spark" />}
+        {isPracticed && <Flame size={20} className="ins_snode_fire" />}
+        {isToday && !isPracticed && <Sparkles size={20} className="ins_snode_spark" />}
       </div>
       <span className={`ins_snode_day ${isToday ? "ins_snode_day_today" : ""}`}>{day}</span>
     </div>
@@ -337,77 +321,9 @@ const Insights = () => {
     calMonth === today.getMonth() &&
     calYear === today.getFullYear();
 
-  const statsCards = [
-    {
-      icon: Zap,
-      label: "Total XP",
-      value: xp.toLocaleString(),
-      sub: `Level ${level} · ${levelProgress}%`,
-      accent: "primary",
-      glow: "rgba(47,133,90,0.35)",
-    },
-    {
-      icon: Flame,
-      label: "Day Streak",
-      value: `${streak}d`,
-      sub: daysToGoal > 0 ? `${daysToGoal}d to goal` : "Goal hit! 🎯",
-      accent: "accent",
-      glow: "rgba(242,165,65,0.4)",
-    },
-    {
-      icon: BookOpen,
-      label: "Lessons Done",
-      value: completedCount || 0,
-      sub: `${Math.min(4, unlockedCount)}/4 badges`,
-      accent: "blue",
-      glow: "rgba(91,106,191,0.35)",
-    },
-    {
-      icon: Target,
-      label: "Avg Score",
-      value: completedCount > 0 ? "76%" : "—",
-      sub: completedCount > 0 ? "Keep it up!" : "Start practicing",
-      accent: "purple",
-      glow: "rgba(147,92,180,0.35)",
-    },
-  ];
-
   return (
     <div className="ins_page">
-      {/* ── HEADER ── */}
-      <div className="ins_header">
-        <div className="ins_header_left">
-          <span className="ins_header_eyebrow">
-            <Sparkles size={14} />
-            Your Progress
-          </span>
-          <h1 className="ins_page_title">
-            Hello, <span className="ins_title_accent">{user?.name?.split(" ")[0] || "Learner"}</span> ✨
-          </h1>
-          <p className="ins_header_sub">
-            {streak >= 7
-              ? "You're absolutely on fire this week! Keep shining bright. 🔥"
-              : streak > 0
-              ? `${streak} day${streak > 1 ? "s" : ""} of consistent learning — amazing momentum!`
-              : "Today is the perfect day to start your learning journey. Let's go!"}
-          </p>
-        </div>
-        <div className="ins_header_right">
-          <div className="ins_streak_pill">
-            <Flame size={18} className="ins_icon_fire" />
-            <span className="ins_streak_pill_count">{streak}</span>
-            <span className="ins_streak_pill_label">day streak</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── STATS OVERVIEW GRID ── */}
-      <div className="ins_stats_grid">
-        {statsCards.map((s) => (
-          <StatCard key={s.label} {...s} />
-        ))}
-      </div>
-
+     
       {/* ── LEVEL PROGRESS BANNER ── */}
       <div className="ins_level_banner">
         <div className="ins_level_left">
