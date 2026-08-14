@@ -5,7 +5,6 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Star,
   BookOpen,
   Trophy,
   Lock,
@@ -323,34 +322,6 @@ const Insights = () => {
 
   return (
     <div className="ins_page">
-     
-      {/* ── LEVEL PROGRESS BANNER ── */}
-      <div className="ins_level_banner">
-        <div className="ins_level_left">
-          <div className="ins_level_badge">
-            <Star size={20} className="ins_level_star" />
-          </div>
-          <div className="ins_level_info">
-            <div className="ins_level_top">
-              <p className="ins_level_current">Level {level}</p>
-              <p className="ins_level_next">Next: Level {level + 1}</p>
-            </div>
-            <div className="ins_level_progress_wrap">
-              <div className="ins_level_progress">
-                <div
-                  className="ins_level_progress_fill"
-                  style={{ width: `${levelProgress}%` }}
-                />
-              </div>
-              <span className="ins_level_progress_text">{xpInLevel} / 500 XP</span>
-            </div>
-          </div>
-        </div>
-        <div className="ins_level_right">
-          <p className="ins_level_remain">{xpToNext} XP</p>
-          <p className="ins_level_remain_label">to next level</p>
-        </div>
-      </div>
 
       {/* ── STREAK BANNER ── */}
       <div className="ins_streak_banner">

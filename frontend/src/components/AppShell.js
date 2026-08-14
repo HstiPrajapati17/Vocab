@@ -3,14 +3,36 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import RightPanel from './RightPanel';
 import BottomNav from './BottomNav';
-import { Modal, Button } from 'react-bootstrap';
-import { LogOut } from 'lucide-react';
+ import { Modal, Button } from 'react-bootstrap';
+import { LogOut, CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useApp } from '../App';
+
+const Toast = ({ toast }) => {
+  if (!toast) return null;
+  const kinds = {
+    success: { icon: CheckCircle2, color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+    error:   { icon: XCircle,     color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+    warn:    { icon: AlertTriangle, color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+    info:    { icon: Info,         color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+  };
+  const k = kinds[toast.kind] || kinds.info;
+  const Icon = k.icon;
+  return (
+    <div
+      key={toast.id}
+      className="h_global_toast"
+      style={{ background: k.bg, borderColor: k.border, color: k.color }}
+    >
+      <Icon size={18} style={{ flexShrink: 0 }} />
+      <span className="h_global_toast_msg" style={{ color: 'var(--text)' }}>{toast.message}</span>
+    </div>
+  );
+};
 
 const AppShell = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, handleLogout, previewLanguage, lessonStats } = useApp();
+  const { user, handleLogout, previewLanguage, lessonStats, toast } = useApp();
   const currentPage = location.pathname.replace('/', '') || 'dashboard';
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -221,6 +243,8 @@ const AppShell = ({ children }) => {
           }
         }
       `}</style>
+
+      <Toast toast={toast} />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   CircleHelp,
   LogOut,
   BarChart2,
+  ShoppingCart,
 } from "lucide-react";
 import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { CgProfile } from "react-icons/cg";
@@ -50,21 +51,6 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
   };
 
   useEffect(() => {
-    const handleClick = (e) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target) &&
-        moreBtnRef.current &&
-        !moreBtnRef.current.contains(e.target)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  useEffect(() => {
     if (open) {
       calcMenuPosition();
       const t = setTimeout(calcMenuPosition, 10);
@@ -100,6 +86,13 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
       icon: RxLetterCaseCapitalize,
       color: "var(--primary)",
       onClick: () => { navigate("/letters"); setOpen(false); },
+    },
+    {
+      id: "shop",
+      label: "Shop",
+      icon: ShoppingCart,
+      color: "var(--success)",
+      onClick: () => { navigate("/shop"); setOpen(false); },
     },
     {
       id: "profile",

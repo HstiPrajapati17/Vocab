@@ -20,7 +20,6 @@ const Leaderboard = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeLeague, setActiveLeague] = useState("Silver");
-  const [activeTab, setActiveTab] = useState("weekly");
 
   const lessonsNeeded = Math.max(0, 3 - (user?.completedLessons?.length || 0));
   const unlocked = lessonsNeeded === 0;
@@ -115,23 +114,6 @@ const Leaderboard = () => {
         ))}
       </div>
 
-      <Nav variant="tabs" className="h_lb_tabs mb-4">
-        {["weekly", "monthly", "alltime"].map((tab) => (
-          <Nav.Item key={tab}>
-            <Nav.Link
-              className={`h_lb_tab ${activeTab === tab ? "h_lb_tab_active" : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "weekly"
-                ? "This Week"
-                : tab === "monthly"
-                  ? "Monthly"
-                  : "All Time"}
-            </Nav.Link>
-          </Nav.Item>
-        ))}
-      </Nav>
-
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" variant="success" />
@@ -168,7 +150,7 @@ const Leaderboard = () => {
                     ${entry.isYou ? "h_lb_you_row" : ""}
                     ${entry.rank <= 3 ? "h_lb_top3" : ""}`}
                 >
-                  <div style={{ minWidth: 32 }}>{getRankBadge(entry.rank)}</div>
+                  <div style={{ minWidth: 22 }}>{getRankBadge(entry.rank)}</div>
                   <div className="h_lb_avatar">{entry.avatar}</div>
                   <div className="flex-grow-1">
                     <div className="h_lb_name">

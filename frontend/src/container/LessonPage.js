@@ -10,7 +10,7 @@ import { useApp } from '../App';
 const LessonPage = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
-  const { user, refreshUser } = useApp();
+  const { user, refreshUser, consumeHeart, completeLesson, addXP, showToast, refillHearts } = useApp();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
@@ -22,6 +22,12 @@ const LessonPage = () => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [earnedXP, setEarnedXP] = useState(0);
+
+  useEffect(() => {
+    if (typeof user?.hearts === 'number' && !showResult) {
+      setHearts(user.hearts);
+    }
+  }, [user?.hearts, showResult]);
 
   useEffect(() => {
     const id = parseInt(lessonId) || 1;
@@ -54,9 +60,20 @@ const LessonPage = () => {
     setShowFeedback(true);
     if (correct) {
       setScore(s => s + 1);
-      setEarnedXP(xp => xp + 10);
+      const base = 10;
+      let bonus = 1;
+      if (user?.powerups?.xpBoostActiveUntil) {
+        if (new Date(user.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
+      }
+      const gained = base * bonus;
+      setEarnedXP(xp => xp + gained);
+      addXP(base);
+      if (bonus === 2) {
+        showToast(`+${gained} XP (2× Boost!) ⚡`, 'success');
+      }
     } else {
-      setHearts(h => Math.max(0, h - 1));
+      const lost = consumeHeart();
+      setHearts(h => Math.max(0, h - (lost ? 1 : 0)));
     }
   };
 
@@ -85,12 +102,15 @@ const LessonPage = () => {
     const lessonIdNum = parseInt(lessonId);
     if (completedLessons.includes(lessonIdNum)) return;
 
+    completeLesson(lessonIdNum, earnedXP + 10, 2);
+
     const updates = {
       completedLessons: [...completedLessons, lessonIdNum],
       xp: (user.xp || 0) + earnedXP + 10,
       streak: (user.streak || 0) + (user.streak === 0 ? 1 : 0),
       hearts,
       activeLesson: lessonIdNum + 1,
+      gems: (user.gems || 0) + 2,
     };
 
     try {
@@ -148,9 +168,16 @@ const LessonPage = () => {
             <Heart size={64} style={{ color: 'var(--danger)' }} />
           </div>
           <h3 className="fw-bold mb-2">Out of Hearts!</h3>
-          <p className="text-muted mb-4">Try again to keep practicing!</p>
+          <p className="text-muted mb-4">Buy refills from the Shop or come back later to keep practicing.</p>
           <Button className="h_btn_get_started me-2 mb-2" onClick={() => navigate('/dashboard')}>Back to Learn</Button>
-          <Button variant="outline-secondary" className="h_btn_outline mb-2" onClick={resetLesson}>Try Again</Button>
+          <Button
+            variant="success"
+            className="me-2 mb-2"
+            onClick={() => { refillHearts(); setTimeout(() => setHearts(u => (user?.maxHearts || 5)), 50); }}
+          >
+            Refill for 💎15
+          </Button>
+          <Button variant="outline-secondary" className="h_btn_outline mb-2" onClick={() => navigate('/shop')}>Open Shop</Button>
         </div>
       </div>
     );

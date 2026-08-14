@@ -12,9 +12,10 @@ import {
   FaChartBar, 
   FaUser, 
   FaEnvelope, 
-  FaTrash, 
   FaSignOutAlt 
 } from 'react-icons/fa';
+import { GrPowerReset } from 'react-icons/gr';
+import { MdAutoDelete } from 'react-icons/md';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -212,7 +213,7 @@ const SettingsPage = () => {
           <h2 className="section-title section-danger">Danger Zone</h2>
           
           <SettingCard 
-            icon={FaTrash}
+            icon={GrPowerReset}
             title="Reset All Progress"
             description="This will delete all your learning progress"
           >
@@ -222,12 +223,12 @@ const SettingsPage = () => {
           </SettingCard>
 
           <SettingCard 
-            icon={FaSignOutAlt}
-            title="Logout"
-            description="Sign out of your account"
+            icon={MdAutoDelete}
+            title="Delete Account"
+            description="Permanently delete your account and all data"
           >
             <button className="settings-button settings-button-danger">
-              Logout
+              Delete Account
             </button>
           </SettingCard>
         </div>
