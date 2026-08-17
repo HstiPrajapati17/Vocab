@@ -13,6 +13,8 @@ import {
 import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { CgProfile } from "react-icons/cg";
 import { GrMore } from "react-icons/gr";
+import { IoMdSettings } from "react-icons/io";
+import { FcSettings } from "react-icons/fc";
 
 const items = [
   { id: "dashboard",   icon: Home,      label: "Learn"    },
@@ -100,6 +102,13 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
       icon: CgProfile,
       color: "var(--info)",
       onClick: () => { navigate("/profile"); setOpen(false); },
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: FcSettings,
+      color: "var(--info)",
+      onClick: () => { navigate("/settings"); setOpen(false); },
     },
     {
       id: "help",

@@ -2502,15 +2502,17 @@ body {
   .h_instructions_modal .modal-lg {
     max-width: 95% !important;
   }
+  .h_instruction_icon {
+    margin-bottom: 12px;
+  }
+}
 
+@media (max-width: 576px) {
   .h_instruction_item {
     flex-direction: column;
     align-items: center;
     text-align: center;
-  }
-
-  .h_instruction_icon {
-    margin-bottom: 12px;
+    gap: 0px;
   }
 }
 
@@ -3417,7 +3419,7 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
+  padding: 4px 14px;
   border-radius: 14px;
   font-size: 0.9rem;
   font-weight: 700;
@@ -3426,6 +3428,7 @@ body {
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .h_more_menu_item + .h_more_menu_item {
@@ -3490,7 +3493,6 @@ body {
     border-radius: 20px;
   }
   .h_more_menu_item {
-    padding: 11px 12px;
     font-size: 0.85rem;
     gap: 12px;
   }
@@ -3516,7 +3518,6 @@ body {
     border-radius: 18px;
   }
   .h_more_menu_item {
-    padding: 10px 11px;
     font-size: 0.82rem;
     gap: 10px;
   }
@@ -4030,10 +4031,12 @@ body {
   .h_guidebook_btn span {
     display: none;
   }
-
   .h_section_back {
     width: 28px;
     height: 28px;
+  }
+  .h_section_banner { 
+    top: 14px;
   }
 }
 
