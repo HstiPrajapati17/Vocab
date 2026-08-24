@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { Spinner } from 'react-bootstrap';
 import { useApp } from '../App';
 import {
   Flame,
@@ -12,116 +13,19 @@ import {
   Gem,
   Plus,
 } from 'lucide-react';
+import { getShopItems } from '../api';
 
-const POWERUPS = [
-  {
-    id: 'streak_freeze',
-    icon: Snowflake,
-    emoji: '❄️',
-    title: 'Streak Freeze',
-    tagline: 'Protect your streak',
-    desc: 'If you miss a day, one freeze keeps your streak alive. Stack multiple!',
-    price: 10,
-    currency: 'gem',
-    rarity: 'common',
-    color: '#3b82f6',
-    accent: '#dbeafe',
-    quantity: 1,
-  },
-  {
-    id: 'xp_boost_15',
-    icon: Zap,
-    emoji: '⚡',
-    title: 'XP Boost · 15 min',
-    tagline: 'Double XP rush',
-    desc: 'Earn 2× XP from every lesson you complete during the next 15 minutes.',
-    price: 18,
-    currency: 'gem',
-    rarity: 'rare',
-    color: '#f59e0b',
-    accent: '#fef3c7',
-    minutes: 15,
-  },
-  {
-    id: 'refill_hearts',
-    icon: Heart,
-    emoji: '❤️',
-    title: 'Refill Hearts',
-    tagline: 'Full tank',
-    desc: 'Restore all your hearts to the max right now. Instant energy to play!',
-    price: 15,
-    currency: 'gem',
-    rarity: 'common',
-    color: '#ef4444',
-    accent: '#fee2e2',
-  },
-];
+const ICON_MAP = {
+  Snowflake,
+  Zap,
+  Heart,
+  Gem,
+  Sparkles,
+  Gift,
+  Shield,
+};
 
-const GEM_PACKS = [
-  {
-    id: 'gem_pack_small',
-    icon: Gem,
-    emoji: '💎',
-    title: 'Gem Stash',
-    tagline: 'Kickstart',
-    desc: '50 gems to grab a few power-ups when you need them.',
-    price: 4.99,
-    currency: 'usd',
-    rarity: 'common',
-    color: '#06b6d4',
-    accent: '#cffafe',
-    quantity: 50,
-    tag: 'BEST VALUE',
-  },
-  {
-    id: 'gem_pack_medium',
-    icon: Sparkles,
-    emoji: '✨',
-    title: 'Treasure Pile',
-    tagline: 'Popular',
-    desc: '180 gems — unbeatable for stocking up on boosts & freezes.',
-    price: 9.99,
-    currency: 'usd',
-    rarity: 'rare',
-    color: '#8b5cf6',
-    accent: '#ede9fe',
-    quantity: 180,
-    tag: 'POPULAR',
-  },
-  {
-    id: 'gem_pack_large',
-    icon: Gift,
-    emoji: '🎁',
-    title: 'Gem Fortress',
-    tagline: 'Premium',
-    desc: '500 gems — never run out of refills, freezes & boosts again.',
-    price: 19.99,
-    currency: 'usd',
-    rarity: 'epic',
-    color: '#ec4899',
-    accent: '#fce7f3',
-    quantity: 500,
-    tag: 'PREMIUM',
-  },
-];
-
-const HEART_PACKS = [
-  {
-    id: 'hearts_pack_10',
-    icon: Shield,
-    emoji: '💖',
-    title: 'Heart Forever',
-    tagline: 'Permanent upgrade',
-    desc: 'Raise your max hearts by +5 and gain an instant 10 hearts refill.',
-    price: 80,
-    currency: 'gem',
-    rarity: 'epic',
-    color: '#f43f5e',
-    accent: '#ffe4e6',
-    quantity: 10,
-    bonusMax: 5,
-  },
-];
+const getIcon = (key) => ICON_MAP[key] || Heart;
 
 const RarityBadge = ({ rarity }) => {
   const map = {
@@ -157,12 +61,27 @@ const CountdownTimer = ({ target }) => {
 const Shop = () => {
   const { user, buyShopItem, showToast, addGems } = useApp();
   const [confirmItem, setConfirmItem] = useState(null);
+  const [allShopItems, setAllShopItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const gems = user?.gems || 0;
   const hearts = user?.hearts || 0;
   const maxHearts = user?.maxHearts || 5;
   const streakFreeze = user?.powerups?.streakFreeze || 0;
   const xpBoostActiveUntil = user?.powerups?.xpBoostActiveUntil || null;
   const xpBoostActive = xpBoostActiveUntil && new Date(xpBoostActiveUntil) > new Date();
+
+  useEffect(() => {
+    getShopItems()
+      .then((items) => {
+        setAllShopItems(Array.isArray(items) ? items : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const POWERUPS = useMemo(() => allShopItems.filter(i => i.category === 'powerup'), [allShopItems]).map(i => ({ ...i, icon: getIcon(i.iconKey) }));
+  const GEM_PACKS = useMemo(() => allShopItems.filter(i => i.category === 'gem'), [allShopItems]).map(i => ({ ...i, icon: getIcon(i.iconKey) }));
+  const HEART_PACKS = useMemo(() => allShopItems.filter(i => i.category === 'heart'), [allShopItems]).map(i => ({ ...i, icon: getIcon(i.iconKey) }));
 
   const ownedCountMap = useMemo(() => ({
     streak_freeze: streakFreeze,
@@ -264,6 +183,17 @@ const Shop = () => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="h_shop_page">
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="success" />
+          <p className="text-muted mt-2">Loading shop…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h_shop_page">

@@ -1,20 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ProgressBar } from 'react-bootstrap';
+import { ProgressBar, Spinner } from 'react-bootstrap';
 import { Lock, Gift } from 'lucide-react';
 import { useApp } from '../App';
+import { getQuests } from '../api';
 import gold from '../assets/gold.png';
-
-const quests = [
-  { id: 1, title: 'Earn 10 XP', icon: '⚡', target: 10, current: 0, reward: 'Chest', locked: false },
-  { id: 2, title: 'Complete 1 lesson', icon: '📚', target: 1, current: 0, reward: 'Gems', locked: false },
-  { id: 3, title: 'Maintain streak', icon: '🔥', target: 1, current: 0, reward: 'XP Boost', locked: true },
-];
 
 const Quests = () => {
   const navigate = useNavigate();
   const { user } = useApp();
   const todayXP = user?.xp % 100 || 0;
+  const [quests, setQuests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getQuests()
+      .then((data) => {
+        setQuests(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h_quests_page">
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="success" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h_quests_page">

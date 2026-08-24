@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button, Modal, Spinner } from 'react-bootstrap';
 import {
   BookOpen,
   Clock,
@@ -12,83 +12,54 @@ import {
   Filter,
 } from 'lucide-react';
 import '../style/info_pages.css';
+import {
+  getBlogPosts,
+  getBlogFilters,
+  getFeaturedPost,
+  getBlogHeroStats,
+} from '../api';
+
+const ICON_MAP = {
+  BookOpen,
+  TrendingUp,
+  Clock,
+};
+
+const getStatIcon = (key) => ICON_MAP[key] || BookOpen;
 
 const Blog = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [featuredPost, setFeaturedPost] = useState(null);
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [filters, setFilters] = useState([]);
+  const [heroStats, setHeroStats] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const featuredPost = {
-    title: '10 Tips to Master Spanish Vocabulary',
-    excerpt:
-      'Discover effective strategies to expand your Spanish vocabulary and remember words for longer.',
-    author: 'Maria Garcia',
-    date: 'June 15, 2024',
-    category: 'Learning Tips',
-    image:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&auto=format&fit=crop&q=80',
-    readTime: '8 min read',
-  };
-
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'The Science of Learning',
-      excerpt:
-        'Learn how your brain processes new languages and optimise your routine.',
-      author: 'Dr. James Wilson',
-      date: 'June 10, 2024',
-      category: 'Research',
-      image:
-        'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80',
-      readTime: '12 min',
-    },
-    {
-      id: 2,
-      title: 'German Grammar Made Simple',
-      excerpt:
-        'Break complex German grammar rules into easy-to-understand concepts.',
-      author: 'Hans Mueller',
-      date: 'June 5, 2024',
-      category: 'German',
-      image:
-        'https://images.unsplash.com/photo-1527866959252-deab85ef7d1b?w=600&auto=format&fit=crop&q=80',
-      readTime: '10 min',
-    },
-    {
-      id: 3,
-      title: 'French Pronunciation Guide',
-      excerpt:
-        'Master the tricky sounds of French with our comprehensive guide.',
-      author: 'Sophie Martin',
-      date: 'May 28, 2024',
-      category: 'French',
-      image:
-        'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&auto=format&fit=crop&q=80',
-      readTime: '15 min',
-    },
-    {
-      id: 4,
-      title: 'Stay Motivated: Building Habits',
-      excerpt:
-        'Create sustainable habits that keep you motivated throughout your journey.',
-      author: 'Alex Chen',
-      date: 'May 20, 2024',
-      category: 'Motivation',
-      image:
-        'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600&auto=format&fit=crop&q=80',
-      readTime: '7 min',
-    },
-  ];
-
-  const filters = [
-    'All',
-    'Learning Tips',
-    'Research',
-    'German',
-    'French',
-    'Motivation',
-  ];
+  useEffect(() => {
+    Promise.all([
+      getBlogPosts(),
+      getBlogFilters(),
+      getFeaturedPost(),
+      getBlogHeroStats(),
+    ])
+      .then(([posts, filts, feat, stats]) => {
+        setBlogPosts(Array.isArray(posts) ? posts : []);
+        setFilters(Array.isArray(filts) ? filts.map(f => f.name) : []);
+        setFeaturedPost(feat || null);
+        setHeroStats(
+          Array.isArray(stats)
+            ? stats.map((s) => ({
+                ...s,
+                icon: React.createElement(getStatIcon(s.iconKey), { size: 20 }),
+              }))
+            : [],
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const filteredPosts =
     selectedFilter === "All"
@@ -96,6 +67,17 @@ const Blog = () => {
       : blogPosts.filter(
         (post) => post.category === selectedFilter
       );
+
+  if (loading) {
+    return (
+      <div className="blog-page-unique">
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="success" />
+          <p className="text-muted mt-2">Loading blog…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="blog-page-unique">
@@ -145,29 +127,15 @@ const Blog = () => {
                 </div>
 
                 <div className="blog-hero-stats">
-
-                  <div className="blog-stat">
-                    <BookOpen size={20} />
-                    <div>
-                      <h4>50+</h4>
-                      <p>Articles</p>
+                  {heroStats.map((s, i) => (
+                    <div className="blog-stat" key={i}>
+                      {s.icon}
+                      <div>
+                        <h4>{s.value}</h4>
+                        <p>{s.label}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="blog-stat">
-                    <TrendingUp size={20} />
-                    <div>
-                      <h4>10K+</h4>
-                      <p>Readers</p>
-                    </div>
-                  </div>
-                  <div className="blog-stat">
-                    <Clock size={20} />
-                    <div>
-                      <h4>Weekly</h4>
-                      <p>Updates</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </Col>
@@ -271,11 +239,11 @@ const Blog = () => {
                       <div className="blog-card-footer">
                         <div className="blog-actions">
                           <span className="blog-action">
-                            <Heart size={14} /> 156
+                            <Heart size={14} /> {post.likes ?? 0}
                           </span>
 
                           <span className="blog-action">
-                            <MessageCircle size={14} /> 28
+                            <MessageCircle size={14} /> {post.comments ?? 0}
                           </span>
                         </div>
 

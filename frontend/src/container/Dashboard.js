@@ -12,47 +12,10 @@ import {
   X,
 } from "lucide-react";
 import { useApp } from "../App";
-import { getLessons } from "../api";
+import { getLessons, getUnits } from "../api";
 import InstructionsModal from "../components/InstructionsModal";
 import { FaAnglesLeft } from "react-icons/fa6";
 import { LuBookOpenText } from "react-icons/lu";
-
-/* ── unit metadata ── */
-const unitMeta = [
-  {
-    id: 1,
-    section: "Section 1, Unit 1",
-    sectionLabel: "Section 1",
-    title: "Basics: Greetings & Introductions",
-    description:
-      "I can greet people and introduce myself in everyday situations.",
-    color: "var(--primary)",
-    emoji: "👋",
-    unitCount: 5,
-  },
-  {
-    id: 2,
-    section: "Section 1, Unit 2",
-    sectionLabel: "Section 2",
-    title: "Phrases: Daily Conversations",
-    description:
-      "I can participate in short, simple conversations about familiar topics.",
-    color: "#7c87a3",
-    emoji: "💬",
-    unitCount: 4,
-  },
-  {
-    id: 3,
-    section: "Section 2, Unit 1",
-    sectionLabel: "Section 3",
-    title: "Travel: Compare Experiences",
-    description:
-      "I am able to discuss travel plans, compare experiences and give opinions.",
-    color: "#5f6982",
-    emoji: "✈️",
-    unitCount: 3,
-  },
-];
 
 const pathIcons = [Star, Dumbbell, Trophy, Star, Lock];
 
@@ -205,6 +168,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, handleLessonStats } = useApp();
   const [lessons, setLessons] = useState([]);
+  const [unitMeta, setUnitMeta] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showSections, setShowSections] = useState(false);
@@ -212,9 +176,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    getLessons(user?.language || "English")
-      .then((data) => {
-        setLessons(data);
+    Promise.all([
+      getLessons(user?.language || "English"),
+      getUnits(),
+    ])
+      .then(([lessonsData, unitsData]) => {
+        setLessons(lessonsData);
+        setUnitMeta(Array.isArray(unitsData) ? unitsData : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));

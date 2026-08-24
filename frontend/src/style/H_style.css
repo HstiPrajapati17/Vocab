@@ -7178,7 +7178,7 @@ body.modal-open {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    overflow-x: hidden !important;
+    /* overflow-x: hidden !important; */
   }
   .h_shell_body {
     width: 100% !important;
@@ -7190,7 +7190,7 @@ body.modal-open {
     max-width: 100% !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
-    overflow-x: hidden !important;
+    /* overflow-x: hidden !important; */
   }
   .modal-backdrop {
     width: 100% !important;
@@ -7212,7 +7212,7 @@ body.modal-open {
   }
 }
 
-/* ===== INSIGHTS PAGE ===== */
+/* =================== INSIGHTS PAGE =================== */
 
 /* ── Page wrapper ── */
 .ins_page {
@@ -7224,36 +7224,6 @@ body.modal-open {
   flex-direction: column;
   gap: clamp(16px, 2.5vw, 24px);
 }
-
-/* ── Level Progress Banner ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ── Streak Banner ── */
 .ins_streak_banner {
@@ -8120,6 +8090,12 @@ body.modal-open {
    RESPONSIVE BREAKPOINTS
    ============================================================ */
 
+@media (max-width: 1024px) {
+  .ins_skills_row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 991.98px) {
   .ins_empty_state   { grid-template-columns: repeat(2, 1fr); }
   .ins_skills_row    { grid-template-columns: repeat(2, 1fr); }
@@ -8142,6 +8118,8 @@ body.modal-open {
   .ins_lesson_row { padding: 12px; gap: 12px; }
   .ins_lesson_emoji_wrap { width: 46px; height: 46px; min-width: 46px; }
   .ins_lesson_emoji { font-size: 1.4rem; }
+  .ins_cal_close { padding: 6px 10px; }
+  .ins_calendar_header { gap: 0px; }
 }
 
 @media (max-width: 479.98px) {

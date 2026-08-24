@@ -84,3 +84,177 @@ export const updateLeaderboard = async (userId, xp, streak) => {
     });
   }
 };
+
+// ===== ACHIEVEMENTS =====
+
+export const getAchievements = async () => {
+  const res = await fetch(`${BASE_URL}/achievements`);
+  return res.json();
+};
+
+// ===== USER ACTIVITY =====
+
+export const getUserActivity = async (userId) => {
+  const res = await fetch(`${BASE_URL}/userActivity?userId=${userId}`);
+  const data = await res.json();
+  return data.length > 0 ? data[0] : null;
+};
+
+// ===== LEVEL THRESHOLDS =====
+
+export const getLevelThresholds = async () => {
+  const res = await fetch(`${BASE_URL}/levelThresholds`);
+  return res.json();
+};
+
+// ===== LESSON PROGRESS =====
+
+export const getLessonProgress = async (userId) => {
+  const res = await fetch(`${BASE_URL}/lessonProgress?userId=${userId}`);
+  return res.json();
+};
+
+// ===== SINGLE LESSON =====
+
+export const getLessonById = async (lessonId) => {
+  const res = await fetch(`${BASE_URL}/lessons/${lessonId}`);
+  return res.json();
+};
+
+// ===== LANGUAGES =====
+
+export const getLanguages = async () => {
+  const res = await fetch(`${BASE_URL}/languages`);
+  return res.json();
+};
+
+// ===== HOME PAGE DATA =====
+
+export const getHomeFeatures = async () => {
+  const res = await fetch(`${BASE_URL}/homeFeatures`);
+  return res.json();
+};
+
+export const getHomeSteps = async () => {
+  const res = await fetch(`${BASE_URL}/homeSteps`);
+  return res.json();
+};
+
+export const getHomeStats = async () => {
+  const res = await fetch(`${BASE_URL}/homeStats`);
+  return res.json();
+};
+
+// ===== QUESTS =====
+
+export const getQuests = async () => {
+  const res = await fetch(`${BASE_URL}/quests`);
+  return res.json();
+};
+
+// ===== SHOP ITEMS =====
+
+export const getShopItems = async () => {
+  const res = await fetch(`${BASE_URL}/shopItems`);
+  return res.json();
+};
+
+// ===== LEAGUES =====
+
+export const getLeagues = async () => {
+  const res = await fetch(`${BASE_URL}/leagues`);
+  return res.json();
+};
+
+// ===== BLOG =====
+
+export const getBlogPosts = async () => {
+  const res = await fetch(`${BASE_URL}/blogPosts`);
+  return res.json();
+};
+
+export const getBlogFilters = async () => {
+  const res = await fetch(`${BASE_URL}/blogFilters`);
+  return res.json();
+};
+
+export const getFeaturedPost = async () => {
+  const res = await fetch(`${BASE_URL}/featuredPost`);
+  return res.json();
+};
+
+export const getBlogHeroStats = async () => {
+  const res = await fetch(`${BASE_URL}/blogHeroStats`);
+  return res.json();
+};
+
+// ===== UNITS (Dashboard) =====
+
+export const getUnits = async () => {
+  const res = await fetch(`${BASE_URL}/units`);
+  return res.json();
+};
+
+// ===== ALPHABETS =====
+
+export const getAlphabets = async () => {
+  const res = await fetch(`${BASE_URL}/alphabets`);
+  return res.json();
+};
+
+export const getAlphabetByLanguage = async (language) => {
+  const res = await fetch(`${BASE_URL}/alphabets?language=${encodeURIComponent(language)}`);
+  const data = await res.json();
+  return data.length > 0 ? data[0] : null;
+};
+
+// ===== ABOUT US =====
+
+export const getTeamMembers = async () => {
+  const res = await fetch(`${BASE_URL}/teamMembers`);
+  return res.json();
+};
+
+export const getAboutFeatures = async () => {
+  const res = await fetch(`${BASE_URL}/aboutFeatures`);
+  return res.json();
+};
+
+export const getAboutStats = async () => {
+  const res = await fetch(`${BASE_URL}/aboutStats`);
+  return res.json();
+};
+
+export const getTimeline = async () => {
+  const res = await fetch(`${BASE_URL}/timeline`);
+  return res.json();
+};
+
+// ===== LANGUAGE SELECT / ONBOARDING =====
+
+export const getLevels = async () => {
+  const res = await fetch(`${BASE_URL}/levels`);
+  return res.json();
+};
+
+export const getDailyGoals = async () => {
+  const res = await fetch(`${BASE_URL}/dailyGoals`);
+  return res.json();
+};
+
+// ===== INSIGHTS =====
+
+export const getInsightSkills = async () => {
+  const res = await fetch(`${BASE_URL}/insightSkills`);
+  return res.json();
+};
+
+export const getInsightAchievements = async () => {
+  const res = await fetch(`${BASE_URL}/insightAchievements`);
+  return res.json();
+};
+
+export const getLessonMeta = async () => {
+  const res = await fetch(`${BASE_URL}/lessonMeta`);
+  return res.json();
+};

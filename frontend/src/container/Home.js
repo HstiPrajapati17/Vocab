@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Row, Col, Button, Navbar } from "react-bootstrap";
+import { Container, Row, Col, Button, Navbar, Spinner } from "react-bootstrap";
 import {
   Globe,
   Star,
@@ -18,82 +18,76 @@ import flag_1 from "../assets/USFlag.webp";
 import flag_2 from "../assets/FranceFlag.png";
 import flag_3 from "../assets/GermanyFlag.jpg";
 import flag_4 from "../assets/PolandFlag.png";
+import {
+  getLanguages,
+  getHomeFeatures,
+  getHomeSteps,
+  getHomeStats,
+} from "../api";
 
-const languages = [
-  {
-    flag: flag_1,
-    name: "English",
-    learners: "1.5B",
-    native: "English",
-    color: "#4A90D9",
-  },
-  {
-    flag: flag_2,
-    name: "French",
-    learners: "18M",
-    native: "Français",
-    color: "#E8334A",
-  },
-  {
-    flag: flag_3,
-    name: "German",
-    learners: "12M",
-    native: "Deutsch",
-    color: "#F5A623",
-  },
-  {
-    flag: flag_4,
-    name: "Polish",
-    learners: "8M",
-    native: "Polski",
-    color: "#C0392B",
-  },
-];
+const ICON_MAP = {
+  Star: Star,
+  Flame: Flame,
+  Trophy: Trophy,
+  Globe: Globe,
+  Users: Users,
+  BookOpen: BookOpen,
+  Award: Award,
+};
 
-const features = [
-  {
-    icon: <Star size={24} />,
-    title: "Earn XP & Rewards",
-    desc: "Complete lessons to earn experience points, unlock achievements and climb the leaderboard.",
-    accent: "var(--accent)",
-  },
-  {
-    icon: <Flame size={24} />,
-    title: "Daily Streaks",
-    desc: "Build a habit by maintaining your daily learning streak. Miss a day and it resets!",
-    accent: "var(--warning)",
-  },
-  {
-    icon: <Trophy size={24} />,
-    title: "Compete & Win",
-    desc: "Join weekly leagues, compete with friends and earn top ranks on the global leaderboard.",
-    accent: "var(--gold)",
-  },
-  {
-    icon: <Globe size={24} />,
-    title: "30+ Languages",
-    desc: "Choose from a wide variety of languages with structured paths from beginner to advanced.",
-    accent: "var(--primary)",
-  },
-];
+const FLAG_MAP = {
+  "USFlag.webp": flag_1,
+  "FranceFlag.png": flag_2,
+  "GermanyFlag.jpg": flag_3,
+  "PolandFlag.png": flag_4,
+};
 
-const steps = [
-  { icon: "✨", text: "Create your free account" },
-  { icon: "🌍", text: "Pick a language you want to learn" },
-  { icon: "🎯", text: "Set your daily goal" },
-  { icon: "📚", text: "Complete bite-sized lessons" },
-  { icon: "🏆", text: "Track your progress and earn rewards" },
-];
-
-const stats = [
-  { value: "500M+", label: "Learners", icon: <Users size={20} /> },
-  { value: "30+", label: "Languages", icon: <Globe size={20} /> },
-  { value: "100M", label: "Daily Lessons", icon: <BookOpen size={20} /> },
-  { value: "#1", label: "Education App", icon: <Award size={20} /> },
-];
+const getIcon = (key) => ICON_MAP[key] || Star;
 
 const Home = () => {
   const navigate = useNavigate();
+  const [languages, setLanguages] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [steps, setSteps] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      getLanguages(),
+      getHomeFeatures(),
+      getHomeSteps(),
+      getHomeStats(),
+    ])
+      .then(([lang, feat, stp, stat]) => {
+        setLanguages(
+          lang.map((l) => ({ ...l, flag: FLAG_MAP[l.flagImg] || flag_1 })),
+        );
+        setFeatures(
+          feat.map((f) => ({ ...f, icon: React.createElement(getIcon(f.iconKey), { size: 24 }) })),
+        );
+        setSteps(stp);
+        setStats(
+          stat.map((s) => ({
+            ...s,
+            icon: React.createElement(getIcon(s.iconKey), { size: 20 }),
+          })),
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="hp_page">
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="success" />
+          <p className="text-muted mt-2">Loading…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hp_page">

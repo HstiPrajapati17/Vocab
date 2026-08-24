@@ -1,49 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Spinner } from 'react-bootstrap';
 import { Check, Search } from 'lucide-react';
 import { useApp } from '../App';
-import { updateUser } from '../api';
+import { updateUser, getLanguages } from '../api';
 import flag_1 from "../assets/USFlag.webp";
 import flag_2 from "../assets/FranceFlag.png";
 import flag_3 from "../assets/GermanyFlag.jpg";
 import flag_4 from "../assets/PolandFlag.png";
 
-const allLanguages = [
-  {
-    flag: flag_1,
-    name: "English",
-    learners: "1.5B",
-    native: "English",
-    color: "#4A90D9",
-  },
-  {
-    flag: flag_2,
-    name: "French",
-    learners: "321M",
-    native: "Français",
-    color: "#6C63FF",
-  },
-  {
-    flag: flag_3,
-    name: "German",
-    learners: "135M",
-    native: "Deutsch",
-    color: "#FFC107",
-  },
-  {
-    flag: flag_4,
-    name: "Polish",
-    learners: "45M",
-    native: "Polski",
-    color: "#E91E63",
-  },
-];
+const FLAG_MAP = {
+  "USFlag.webp": flag_1,
+  "FranceFlag.png": flag_2,
+  "GermanyFlag.jpg": flag_3,
+  "PolandFlag.png": flag_4,
+};
+
 const Courses = () => {
   const navigate = useNavigate();
   const { user, refreshUser, setPreviewLanguage } = useApp();
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(null);
+  const [allLanguages, setAllLanguages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getLanguages()
+      .then((langs) => {
+        setAllLanguages(
+          langs.map((l) => ({ ...l, flag: FLAG_MAP[l.flagImg] || flag_1 })),
+        );
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const filtered = allLanguages.filter(l =>
     l.name.toLowerCase().includes(search.toLowerCase())

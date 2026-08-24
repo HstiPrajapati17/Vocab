@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Spinner } from 'react-bootstrap';
 import {
   FaFire, FaStar, FaMedal, FaEdit, FaCheck,
   FaChartBar, FaBook, FaCamera, FaTrash,
@@ -8,22 +9,69 @@ import {
   FaBullseye, FaClock, FaCrown, FaGem,
   FaRocket, FaTrophy, FaAward
 } from 'react-icons/fa';
-import { updateUser } from '../api';
+import {
+  updateUser,
+  getAchievements,
+  getUserActivity,
+  getLevelThresholds,
+  getLessonProgress,
+  getLessons,
+} from '../api';
 import { useApp } from '../App';
 import '../style/profile_style.css';
 
-const allAchievements = [
-  { icon: '🔥', label: '7-Day Streak',  desc: '7 days in a row',         check: u => (u.streak||0)>=7, accent: '#f2a541' },
-  { icon: '⭐', label: 'First Lesson',  desc: 'Complete first lesson',    check: u => (u.completedLessons||[]).length>=1, accent: '#2f855a' },
-  { icon: '💎', label: '100 XP Club',   desc: 'Earn 100 XP total',        check: u => (u.xp||0)>=100, accent: '#c4973b' },
-  { icon: '🏆', label: 'Top 10',        desc: 'Reach top 10',             check: () => false, accent: '#c45c5c' },
-  { icon: '🌟', label: 'Perfect Score', desc: 'Get 100% on a lesson',     check: () => false, accent: '#6b7fd4' },
-  { icon: '📚', label: '10 Lessons',    desc: 'Complete 10 lessons',      check: u => (u.completedLessons||[]).length>=10, accent: '#2f855a' },
-  { icon: '🚀', label: 'Level Up',      desc: 'Advance to intermediate',  check: u => u.level==='Intermediate'||u.level==='Advanced', accent: '#f2a541' },
-  { icon: '🎯', label: 'Goal Setter',   desc: 'Set a daily goal',         check: u => !!u.dailyGoal, accent: '#c4973b' },
-];
+const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const LEVEL_ORDER = ['Beginner', 'Intermediate', 'Advanced', 'Fluent', 'Master'];
+
+const checkAchievement = (criteria, user, progressRecords = []) => {
+  if (!criteria || !user) return false;
+
+  if (criteria === 'dailyGoal') return !!user.dailyGoal && user.dailyGoal !== '';
+
+  const streak = Number(user.streak) || 0;
+  const xp = Number(user.xp) || 0;
+  const completedCount = (user.completedLessons || []).length;
+  const levelIdx = LEVEL_ORDER.indexOf(user.level || 'Beginner');
+  const perfectScores = progressRecords.filter(p => Number(p.score) >= 100).length;
+
+  if (criteria.startsWith('streak>=')) {
+    const n = Number(criteria.split('>=')[1]) || 0;
+    return streak >= n;
+  }
+  if (criteria.startsWith('completedLessons>=')) {
+    const n = Number(criteria.split('>=')[1]) || 0;
+    return completedCount >= n;
+  }
+  if (criteria.startsWith('xp>=')) {
+    const n = Number(criteria.split('>=')[1]) || 0;
+    return xp >= n;
+  }
+  if (criteria.startsWith('level>=')) {
+    const target = criteria.split('>=')[1];
+    const targetIdx = LEVEL_ORDER.indexOf(target);
+    return targetIdx >= 0 && levelIdx >= targetIdx;
+  }
+  if (criteria.startsWith('perfectScore>=')) {
+    const n = Number(criteria.split('>=')[1]) || 0;
+    return perfectScores >= n;
+  }
+  if (criteria.startsWith('leaderboard<=')) {
+    return false;
+  }
+  if (criteria.startsWith('oneDayLessons>=')) {
+    const n = Number(criteria.split('>=')[1]) || 0;
+    const byDay = {};
+    progressRecords.forEach(p => {
+      if (!p.completedAt) return;
+      const d = new Date(p.completedAt).toDateString();
+      byDay[d] = (byDay[d] || 0) + 1;
+    });
+    return Math.max(0, ...Object.values(byDay)) >= n;
+  }
+
+  return false;
+};
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -35,6 +83,15 @@ const Profile = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = React.useRef(null);
 
+  const [loading, setLoading] = useState(true);
+  const [allAchievements, setAllAchievements] = useState([]);
+  const [thresholds, setThresholds] = useState([]);
+  const [lessonsMap, setLessonsMap] = useState({});
+  const [progressRecords, setProgressRecords] = useState([]);
+  const [weeklyXP, setWeeklyXP] = useState(
+    weekDays.map(day => ({ day, xp: 0 }))
+  );
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }, []);
@@ -43,22 +100,85 @@ const Profile = () => {
     setDisplayName(user?.name || 'Learner');
     if (user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('data:')) {
       setSelectedImage(user.avatar);
-    } else { setSelectedImage(null); }
+    } else {
+      setSelectedImage(null);
+    }
   }, [user]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let mounted = true;
+    setLoading(true);
+
+    const loadAll = async () => {
+      try {
+        const [achievementsRes, activityRes, thresholdsRes, progressRes, lessonsRes] = await Promise.all([
+          getAchievements(),
+          getUserActivity(user.id),
+          getLevelThresholds(),
+          getLessonProgress(user.id),
+          getLessons(user.language || 'English'),
+        ]);
+
+        if (!mounted) return;
+
+        setAllAchievements(Array.isArray(achievementsRes) ? achievementsRes : []);
+        setThresholds(Array.isArray(thresholdsRes) ? thresholdsRes : []);
+        setProgressRecords(Array.isArray(progressRes) ? progressRes : []);
+
+        const lMap = {};
+        (Array.isArray(lessonsRes) ? lessonsRes : []).forEach(l => { lMap[l.id] = l; });
+        setLessonsMap(lMap);
+
+        if (activityRes && Array.isArray(activityRes.week) && activityRes.week.length > 0) {
+          setWeeklyXP(
+            weekDays.map(d => {
+              const found = activityRes.week.find(w => w.day === d);
+              return { day: d, xp: found ? Number(found.xp) || 0 : 0 };
+            })
+          );
+        } else {
+          const streakDays = Number(user.streak) || 0;
+          setWeeklyXP(
+            weekDays.map((d, i) => ({
+              day: d,
+              xp: i < Math.min(streakDays, 7) ? 20 + Math.floor((user.xp || 0) / 10) % 60 : 0,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error('Profile data load failed:', e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadAll();
+    return () => { mounted = false; };
+  }, [user?.id, user?.language, user?.streak, user?.xp]);
 
   const getInitial = n => n?.trim()?.charAt(0)?.toUpperCase() || 'L';
   const completedLessons = user?.completedLessons || [];
-  const maxXP = 500;
   const currentXP = user?.xp || 0;
-  const levelProgress = Math.min(Math.round((currentXP / maxXP) * 100), 100);
-  const xpToNext = maxXP - currentXP;
-  const achievements = allAchievements.map(a => ({ ...a, earned: a.check(user) }));
-  const earnedCount = achievements.filter(a => a.earned).length;
-  const activityData = weekDays.map((day, i) => ({
-    day, xp: i < (user?.streak || 0) ? Math.floor(Math.random() * 80) + 20 : 0,
+
+  const levelConfig = thresholds.find(t => t.level === (user?.level || 'Beginner'));
+  const maxXP = levelConfig ? Number(levelConfig.maxXP) - Number(levelConfig.minXP) : 500;
+  const xpInLevel = levelConfig
+    ? Math.max(0, currentXP - Number(levelConfig.minXP))
+    : currentXP;
+  const levelProgress = maxXP > 0 ? Math.min(Math.round((xpInLevel / maxXP) * 100), 100) : 0;
+  const xpToNext = Math.max(0, maxXP - xpInLevel);
+
+  const achievements = allAchievements.map(a => ({
+    ...a,
+    earned: checkAchievement(a.criteria, user, progressRecords),
   }));
-  const maxBarXP = Math.max(...activityData.map(d => d.xp), 1);
-  const joinedDate = user?.joinedDate ? new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently joined';
+  const earnedCount = achievements.filter(a => a.earned).length;
+
+  const maxBarXP = Math.max(...weeklyXP.map(d => d.xp), 1);
+  const joinedDate = user?.joinedDate
+    ? new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'Recently joined';
 
   const handleSaveName = async () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
@@ -88,6 +208,25 @@ const Profile = () => {
   };
 
   const league = getLeagueBadge();
+
+  const formatDate = (iso) => {
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' +
+        d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    } catch { return 'Completed'; }
+  };
+
+  if (loading) {
+    return (
+      <div className="hprof_page">
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="success" />
+          <p className="mt-3 text-muted">Loading profile…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hprof_page">
@@ -196,7 +335,7 @@ const Profile = () => {
                 <span className="hprof_level_text">Level: <strong>{user?.level || 'Beginner'}</strong></span>
               </div>
               <div className="hprof_level_xp">
-                <strong>{currentXP}</strong> / {maxXP} XP
+                <strong>{xpInLevel}</strong> / {maxXP} XP
               </div>
             </div>
             <div className="hprof_progress_track">
@@ -300,7 +439,7 @@ const Profile = () => {
             <div className="hprof_info_icon"><FaClock size={13} /></div>
             <div>
               <div className="hprof_info_label">Achievements</div>
-              <div className="hprof_info_value">{earnedCount} / {achievements.length}</div>
+              <div className="hprof_info_value">{earnedCount} / {achievements.length || 0}</div>
             </div>
           </div>
         </motion.div>
@@ -350,7 +489,7 @@ const Profile = () => {
 
                   <div className="hprof_chart_wrap">
                     <div className="hprof_chart">
-                      {activityData.map((d, i) => (
+                      {weeklyXP.map((d, i) => (
                         <div key={i} className="hprof_chart_col">
                           {d.xp > 0 && <span className="hprof_chart_val">{d.xp}</span>}
                           <div
@@ -393,37 +532,45 @@ const Profile = () => {
                   <div className="hprof_section_head">
                     <h4 className="hprof_section_title">Your Achievements</h4>
                     <span className="hprof_section_subtitle">
-                      {earnedCount} earned · {achievements.length - earnedCount} to go
+                      {earnedCount} earned · {Math.max(0, achievements.length - earnedCount)} to go
                     </span>
                   </div>
 
-                  <div className="hprof_ach_grid">
-                    {achievements.map((a, i) => (
-                      <motion.div
-                        key={i}
-                        whileHover={a.earned ? { y: -4, scale: 1.02 } : {}}
-                        transition={{ duration: 0.2 }}
-                        className={`hprof_ach_card ${a.earned ? '' : 'hprof_ach_locked'}`}
-                        style={{ '--ach-accent': a.accent }}
-                      >
-                        <div className={`hprof_ach_icon_wrap ${a.earned ? 'hprof_ach_unlocked_bg' : 'hprof_ach_locked_bg'}`}>
-                          <span className="hprof_ach_icon">{a.icon}</span>
-                          {a.earned && <span className="hprof_ach_check"><FaCheck size={8} /></span>}
-                        </div>
-                        <div className="hprof_ach_label">{a.label}</div>
-                        <div className="hprof_ach_desc">{a.desc}</div>
-                        {a.earned ? (
-                          <span className="hprof_ach_status hprof_ach_earned">
-                            <FaCheck size={9} /> Unlocked
-                          </span>
-                        ) : (
-                          <span className="hprof_ach_status hprof_ach_locked_text">
-                            🔒 Locked
-                          </span>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
+                  {achievements.length === 0 ? (
+                    <div className="hprof_empty_state">
+                      <div className="hprof_empty_icon">🏅</div>
+                      <h5>No achievements yet</h5>
+                      <p>Achievements will appear once configured.</p>
+                    </div>
+                  ) : (
+                    <div className="hprof_ach_grid">
+                      {achievements.map((a, i) => (
+                        <motion.div
+                          key={a.id || i}
+                          whileHover={a.earned ? { y: -4, scale: 1.02 } : {}}
+                          transition={{ duration: 0.2 }}
+                          className={`hprof_ach_card ${a.earned ? '' : 'hprof_ach_locked'}`}
+                          style={{ '--ach-accent': a.accent || '#999' }}
+                        >
+                          <div className={`hprof_ach_icon_wrap ${a.earned ? 'hprof_ach_unlocked_bg' : 'hprof_ach_locked_bg'}`}>
+                            <span className="hprof_ach_icon">{a.icon || '🏆'}</span>
+                            {a.earned && <span className="hprof_ach_check"><FaCheck size={8} /></span>}
+                          </div>
+                          <div className="hprof_ach_label">{a.label}</div>
+                          <div className="hprof_ach_desc">{a.desc}</div>
+                          {a.earned ? (
+                            <span className="hprof_ach_status hprof_ach_earned">
+                              <FaCheck size={9} /> Unlocked
+                            </span>
+                          ) : (
+                            <span className="hprof_ach_status hprof_ach_locked_text">
+                              🔒 Locked
+                            </span>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
 
@@ -456,27 +603,41 @@ const Profile = () => {
                     </motion.div>
                   ) : (
                     <div className="hprof_history_list">
-                      {completedLessons.slice().reverse().map((id, i) => (
-                        <motion.div
-                          key={`${id}-${i}`}
-                          initial={{ opacity: 0, x: -12 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.04 }}
-                          whileHover={{ x: 4, backgroundColor: 'var(--primary-soft)' }}
-                          className="hprof_history_row"
-                        >
-                          <div className="hprof_history_icon">
-                            <FaBook size={14} />
-                          </div>
-                          <div className="hprof_history_meta">
-                            <div className="hprof_history_title">Lesson {id}</div>
-                            <div className="hprof_history_sub">
-                              <FaCalendar size={10} /> Completed · +10 XP earned
+                      {completedLessons.slice().reverse().map((id, i) => {
+                        const lesson = lessonsMap[id];
+                        const record = progressRecords.find(p => Number(p.lessonId) === Number(id));
+                        const xpEarned = record?.xpEarned || lesson?.xp || 10;
+                        const completedAt = record?.completedAt;
+                        const score = record?.score;
+
+                        return (
+                          <motion.div
+                            key={`${id}-${i}`}
+                            initial={{ opacity: 0, x: -12 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.04 }}
+                            whileHover={{ x: 4, backgroundColor: 'var(--primary-soft)' }}
+                            className="hprof_history_row"
+                          >
+                            <div className="hprof_history_icon">
+                              {lesson?.icon ? <span style={{ fontSize: 18 }}>{lesson.icon}</span> : <FaBook size={14} />}
                             </div>
-                          </div>
-                          <div className="hprof_history_badge">+10 XP</div>
-                        </motion.div>
-                      ))}
+                            <div className="hprof_history_meta">
+                              <div className="hprof_history_title">
+                                {lesson?.title ? `${lesson.title}` : `Lesson ${id}`}
+                              </div>
+                              <div className="hprof_history_sub">
+                                <FaCalendar size={10} />{' '}
+                                {completedAt ? formatDate(completedAt) : 'Completed'}
+                                {typeof score === 'number' && (
+                                  <span className="ms-2">· Score: {score}%</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="hprof_history_badge">+{xpEarned} XP</div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
                   )}
                 </motion.div>

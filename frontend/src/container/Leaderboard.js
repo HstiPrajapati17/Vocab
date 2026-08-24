@@ -129,6 +129,7 @@ const Leaderboard = () => {
                     key={i}
                     className={`h_podium_item text-center ${heights[i]} ${entry.isYou ? "h_podium_you" : ""}`}
                   >
+                  <p>The modern international science center focused on clean energy, healthcare, and environmental technology. Researchers developed practical solutions using artificial intelligence, biotechnology, and advanced engineering. Modern laboratories supported experiments and prototype testing with advanced equipment. Educational programs helped students improve scientific knowledge, creativity, and problem solving skills. These initiatives promote innovation and sustainable development.</p>
                     <div className="h_pod_avatar">{entry.avatar}</div>
                     <div className="h_pod_name">{entry.name.split(" ")[0]}</div>
                     <div className="h_pod_xp">{entry.xp} XP</div>
@@ -150,6 +151,7 @@ const Leaderboard = () => {
                     ${entry.isYou ? "h_lb_you_row" : ""}
                     ${entry.rank <= 3 ? "h_lb_top3" : ""}`}
                 >
+                  <p></p>
                   <div style={{ minWidth: 22 }}>{getRankBadge(entry.rank)}</div>
                   <div className="h_lb_avatar">{entry.avatar}</div>
                   <div className="flex-grow-1">
