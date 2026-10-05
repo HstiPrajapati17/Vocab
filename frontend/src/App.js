@@ -373,7 +373,7 @@ const ProtectedRoute = ({ children }) => {
  */
 const PublicLayout = ({ children }) => {
   const navigate     = useNavigate();
-  const { user }     = useApp();
+  const { user, handleLogout } = useApp();
   const location     = useLocation();
   const currentPage  = location.pathname.replace('/', '') || 'home';
 
@@ -382,6 +382,7 @@ const PublicLayout = ({ children }) => {
       <Navbar
         navigate={navigate}
         isLoggedIn={!!user}
+        onLogout={handleLogout}
         user={user}
         currentPage={currentPage}
       />
@@ -393,16 +394,16 @@ const PublicLayout = ({ children }) => {
 };
 
 /**
- * ShellLayout – sidebar + right-panel layout for authenticated app pages.
- */
+  ShellLayout – sidebar + right-panel layout for authenticated app pages.
+ **/
 const ShellLayout = ({ children }) => (
   <AppShell>{children}</AppShell>
 );
 
 /**
- * LessonLayout – truly fullscreen, no extra chrome.
- * The lesson page uses position:fixed overlays so we just render it bare.
- */
+  LessonLayout – truly fullscreen, no extra chrome.
+  The lesson page uses position:fixed overlays so we just render it bare.
+ **/
 const LessonLayout = ({ children }) => <>{children}</>;
 
 /* ─────────────────────────── App ──────────────────────────────── */
