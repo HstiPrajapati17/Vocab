@@ -46,7 +46,7 @@ const AppShell = ({ children }) => {
     try {
       setIsLoggingOut(true);
       await Promise.resolve(handleLogout?.());
-      navigate('/signin', { replace: true });
+      navigate('/login', { replace: true });
       setShowLogoutModal(false);
     } catch (error) {
       console.error('Logout failed:', error);

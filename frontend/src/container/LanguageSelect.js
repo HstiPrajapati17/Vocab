@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Form, Alert } from 'react-bootstrap';
 import { Search, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useApp } from '../App';
-import { registerUser } from '../api';
+import { registerUser, updateUser, getUserByEmail } from '../api';
 
 const allLanguages = [
-  { flag: '�🇸', name: 'English', native: 'English' },
+  { flag: '🇺🇸', name: 'English', native: 'English' },
   { flag: '🇫🇷', name: 'French', native: 'Français' },
   { flag: '🇩🇪', name: 'German', native: 'Deutsch' },
   { flag: '🇵🇱', name: 'Polish', native: 'Polski' },
@@ -25,19 +25,31 @@ const goals = [
   { label: 'Intense', xp: 50, icon: '🔥' },
 ];
 
-// Step 1: Pick language
-// Step 2: Pick level
-// Step 3: Pick daily goal → register
+// A "real server id" means a numeric value (or a pure numeric string like "5").
+// Temp localStorage-only ids follow the u_<timestamp> pattern and do NOT exist
+// on the server — treating them as "existing user" causes PATCH /users/u_123 → 404.
+const isRealServerId = (id) => {
+  if (id == null) return false;
+  if (typeof id === 'number') return Number.isFinite(id);
+  return /^\d+$/.test(String(id));
+};
+
 const LanguageSelect = () => {
   const navigate = useNavigate();
   const { user, handleLanguageSelected } = useApp();
+
   const [search, setSearch] = useState('');
-  const [selectedLang, setSelectedLang] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState(null);
-  const [selectedGoal, setSelectedGoal] = useState(null);
+  const [selectedLang, setSelectedLang] = useState(
+    user ? (allLanguages.find(l => l.name === user.language) || null) : null
+  );
+  const [selectedLevel, setSelectedLevel] = useState(user?.level || null);
+  const [selectedGoal, setSelectedGoal] = useState(user?.dailyGoal || null);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Existing user ONLY when we have a real numeric server id.
+  const isExistingUser = isRealServerId(user?.id);
 
   const filtered = allLanguages.filter(l =>
     l.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -49,18 +61,58 @@ const LanguageSelect = () => {
     setLoading(true);
     setError('');
     try {
-      const newUser = await registerUser(
-        user.name,
-        user.email,
-        user.password,
-        selectedLang.name,
-        selectedLevel,
-        selectedGoal
-      );
-      handleLanguageSelected(newUser);
+      let updatedUser;
+      if (isExistingUser) {
+        // Existing logged-in user — PATCH their language/level/goal in db.json
+        updatedUser = await updateUser(user.id, {
+          language: selectedLang.name,
+          level: selectedLevel,
+          dailyGoal: selectedGoal,
+          // Reset lesson progress when switching language
+          completedLessons: [],
+          activeLesson: 1,
+        });
+      } else {
+        // New user path — but email may already exist on server if a prior
+        // signup POST succeeded but the session id was lost (temp-id case).
+        const patchWithSelections = {
+          language: selectedLang.name,
+          level: selectedLevel,
+          dailyGoal: selectedGoal,
+          completedLessons: [],
+          activeLesson: 1,
+        };
+        try {
+          updatedUser = await registerUser(
+            user.name,
+            user.email,
+            user.password,
+            selectedLang.name,
+            selectedLevel,
+            selectedGoal
+          );
+        } catch (registerErr) {
+          const msg = registerErr?.message || '';
+          const isDuplicateEmail =
+            /already.*registered|email.*exist|duplicate.*email/i.test(msg);
+          if (isDuplicateEmail && user.email) {
+            // Abandoned earlier signup attempt — recover the real server row
+            // and patch it with the selections instead of re-registering.
+            const existing = await getUserByEmail(user.email);
+            if (!existing) throw registerErr;
+            updatedUser = await updateUser(existing.id, {
+              ...patchWithSelections,
+              email: user.email,
+            });
+          } else {
+            throw registerErr;
+          }
+        }
+      }
+      handleLanguageSelected(updatedUser);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Registration failed. Try a different email.');
+      setError(err.message || 'Failed to save. Please try again.');
       setLoading(false);
     }
   };
@@ -209,7 +261,9 @@ const LanguageSelect = () => {
               onClick={handleFinish}
               disabled={loading || !selectedGoal}
             >
-              {loading ? 'Creating account...' : 'Start Learning!'}
+              {loading
+                ? (isExistingUser ? 'Saving...' : 'Creating account...')
+                : (isExistingUser ? 'Save Changes' : 'Start Learning!')}
             </Button>
           )}
         </div>

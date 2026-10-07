@@ -1,6 +1,6 @@
 .settings-page {
   min-height: 100vh;
-  padding: clamp(1rem, 3vw, 1.5rem);
+  /* padding: clamp(1rem, 3vw, 1.5rem); */
   font-family: "Fredoka", sans-serif;
   position: relative;
   overflow-x: hidden;

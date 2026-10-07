@@ -1,4 +1,12 @@
-import React, { useEffect, useCallback, createContext, useContext, useState } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,6 +18,8 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './style/H_style.css';
+
+import { getUser, getUserByEmail } from './api';
 
 import Navbar    from './components/Navbar';
 import AppShell  from './components/AppShell';
@@ -45,6 +55,7 @@ const normalizeUser = (raw) => {
     id: base.id || `u_${Date.now()}`,
     name: base.name || 'Learner',
     email: base.email || '',
+    avatar: base.avatar ?? null,
     language: base.language || 'English',
     dailyGoal: base.dailyGoal || 'Regular',
     level: base.level || 'Beginner',
@@ -53,269 +64,323 @@ const normalizeUser = (raw) => {
     hearts: Number.isFinite(base.hearts) ? Number(base.hearts) : 5,
     maxHearts: Number(base.maxHearts) || 5,
     gems: Number(base.gems) || 0,
-    completedLessons: Array.isArray(base.completedLessons) ? base.completedLessons : [],
+    completedLessons: (Array.isArray(base.completedLessons) ? base.completedLessons : [])
+      .map((id) => Number(id))
+      .filter((n) => Number.isFinite(n)),
     powerups: {
       streakFreeze: Number(base.powerups?.streakFreeze) || 0,
       xpBoostMinutes: Number(base.powerups?.xpBoostMinutes) || 0,
       xpBoostActiveUntil: base.powerups?.xpBoostActiveUntil || null,
       ...(base.powerups || {}),
     },
-    createdAt: base.createdAt || new Date().toISOString(),
+    joinedDate: base.joinedDate || base.createdAt || null,
+    createdAt: base.createdAt || base.joinedDate || new Date().toISOString(),
     lastActive: base.lastActive || new Date().toISOString(),
   };
 };
 
-const persistUser = (u) => {
-  const n = normalizeUser(u);
-  if (n) localStorage.setItem('linguaUser', JSON.stringify(n));
-  return n;
+/** Save normalized user to localStorage (never store avatar — too large). */
+const saveToStorage = (normalized) => {
+  if (!normalized) { localStorage.removeItem('linguaUser'); return; }
+  try {
+    localStorage.setItem('linguaUser', JSON.stringify({ ...normalized, avatar: null }));
+  } catch {
+    try {
+      const { id, name, email, language, xp, streak, hearts, maxHearts,
+              gems, level, dailyGoal, completedLessons, joinedDate,
+              createdAt, lastActive, powerups } = normalized;
+      localStorage.setItem('linguaUser', JSON.stringify({
+        id, name, email, language, xp, streak, hearts, maxHearts,
+        gems, level, dailyGoal, completedLessons, joinedDate,
+        createdAt, lastActive, powerups,
+      }));
+    } catch { /* give up */ }
+  }
 };
 
+/* ─────────────────────────── Provider ─────────────────────────── */
 const AppProvider = ({ children }) => {
-  const [user,            setUserState]      = useState(null);
+  // ── raw state ──────────────────────────────────────────────────
+  const [user,            setUserRaw]         = useState(null);
   const [previewLanguage, setPreviewLanguage] = useState(null);
   const [lessonStats,     setLessonStats]     = useState({ total: 0, completed: 0 });
   const [toast,           setToast]           = useState(null);
-  const toastTimer = React.useRef(null);
+  const toastTimerRef = useRef(null);
 
-  const setUser = (next) => {
-    const n = normalizeUser(next);
-    setUserState(n);
-    if (n) localStorage.setItem('linguaUser', JSON.stringify(n));
-    else localStorage.removeItem('linguaUser');
-  };
+  // ── stable setUser ─────────────────────────────────────────────
+  // All callers go through this. It normalizes the incoming value,
+  // persists to localStorage, and commits to React state.
+  // Using useCallback with empty deps so the reference never changes
+  // — this is safe because setUserRaw (from useState) is always stable.
+  const setUser = useCallback((next) => {
+    setUserRaw((prev) => {
+      const value = typeof next === 'function' ? next(prev) : next;
+      const n = normalizeUser(value);
+      saveToStorage(n);
+      return n;
+    });
+  }, []); // setUserRaw is stable, so no deps needed
 
-  // Restore session on mount + normalize legacy user shape
+  // ── restore session on mount ───────────────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem('linguaUser');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setUser(normalizeUser(parsed));
-      } catch {
-        localStorage.removeItem('linguaUser');
-      }
+    if (!saved) return;
+    let parsed = null;
+    try {
+      parsed = JSON.parse(saved);
+    } catch {
+      localStorage.removeItem('linguaUser');
+      return;
     }
+
+    const normalized = normalizeUser(parsed);
+
+    // If there's no id or email at all, session is unusable.
+    if (!normalized || (!normalized.id && !normalized.email)) {
+      localStorage.removeItem('linguaUser');
+      return;
+    }
+
+    // Apply localStorage data immediately so UI renders without flash
+    setUserRaw(normalized);
+
+    // Re-fetch from backend to restore avatar, correct id and server-side state.
+    // If server lookup fails → session is out of sync (stale id, deleted user,
+    // db reset etc.) → kill the corrupt session immediately so we never try
+    // to PATCH a non-existent /users/{id} later (which causes the 404 toast).
+    if (normalized?.id || normalized?.email) {
+      const id = normalized.id;
+      const email = normalized.email;
+      const tryFetch = id
+        ? getUser(id).catch(() => (email ? getUserByEmail(email) : Promise.reject()))
+        : (email ? getUserByEmail(email) : Promise.reject());
+
+      tryFetch
+        .then((fresh) => {
+          if (!fresh) return Promise.reject(new Error('empty'));
+          const n = normalizeUser(fresh);
+          saveToStorage(n);
+          setUserRaw(n);
+        })
+        .catch(() => {
+          localStorage.removeItem('linguaUser');
+          setUserRaw(null);
+          setPreviewLanguage(null);
+          // if running inside <Router> (already rendered) would redirect here
+          // via navigation — but for now just clear state so protected routes
+          // bounce the user to /login.
+        });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── toast helper ───────────────────────────────────────────────
+  const showToast = useCallback((message, kind = 'success') => {
+    setToast({ message, kind, id: Date.now() });
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2600);
   }, []);
 
-  const showToast = (message, kind = 'success') => {
-    setToast({ message, kind, id: Date.now() });
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2600);
-  };
-
-  const addGems = (amount, reason) => {
+  // ── economy helpers (all use functional updaters → no stale closure) ──
+  const addGems = useCallback((amount, reason) => {
     setUser((prev) => {
       if (!prev) return prev;
-      const next = { ...prev, gems: Math.max(0, prev.gems + Number(amount || 0)) };
-      return persistUser(next);
+      return { ...prev, gems: Math.max(0, prev.gems + Number(amount || 0)) };
     });
     if (amount > 0) showToast(`+${amount} 💎 ${reason ? '· ' + reason : ''}`, 'success');
-  };
+  }, [setUser, showToast]);
 
-  const addXP = (amount) => {
+  const addXP = useCallback((amount) => {
     setUser((prev) => {
       if (!prev) return prev;
       let bonus = 1;
-      if (prev.powerups?.xpBoostActiveUntil) {
-        if (new Date(prev.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
-      }
-      const finalXP = Math.round(Number(amount || 0) * bonus);
-      return persistUser({ ...prev, xp: prev.xp + finalXP });
+      if (prev.powerups?.xpBoostActiveUntil &&
+          new Date(prev.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
+      return { ...prev, xp: prev.xp + Math.round(Number(amount || 0) * bonus) };
     });
-  };
+  }, [setUser]);
 
-  const consumeHeart = () => {
+  const consumeHeart = useCallback(() => {
     let ok = false;
     setUser((prev) => {
-      if (!prev) return prev;
-      if (prev.hearts <= 0) return prev;
+      if (!prev || prev.hearts <= 0) return prev;
       ok = true;
-      return persistUser({ ...prev, hearts: prev.hearts - 1 });
+      return { ...prev, hearts: prev.hearts - 1 };
     });
     return ok;
-  };
+  }, [setUser]);
 
-  const refillHearts = () => {
+  const refillHearts = useCallback(() => {
     setUser((prev) => {
       if (!prev) return prev;
-      return persistUser({ ...prev, hearts: prev.maxHearts || 5 });
+      return { ...prev, hearts: prev.maxHearts || 5 };
     });
     showToast('All hearts restored ❤️', 'success');
-  };
+  }, [setUser, showToast]);
 
-  const awardHearts = (n) => {
+  const awardHearts = useCallback((n) => {
     setUser((prev) => {
       if (!prev) return prev;
       const max = prev.maxHearts || 5;
-      return persistUser({ ...prev, hearts: Math.min(max, prev.hearts + Number(n || 0)) });
+      return { ...prev, hearts: Math.min(max, prev.hearts + Number(n || 0)) };
     });
-  };
+  }, [setUser]);
 
-  const activateXpBoost = (minutes) => {
+  const activateXpBoost = useCallback((minutes) => {
     setUser((prev) => {
       if (!prev) return prev;
       const now = new Date();
       const existingEnd = prev.powerups?.xpBoostActiveUntil
-        ? new Date(prev.powerups.xpBoostActiveUntil)
-        : now;
-      const end = new Date(Math.max(now.getTime(), existingEnd.getTime()) + minutes * 60 * 1000);
-      return persistUser({
+        ? new Date(prev.powerups.xpBoostActiveUntil) : now;
+      const end = new Date(
+        Math.max(now.getTime(), existingEnd.getTime()) + minutes * 60 * 1000
+      );
+      return {
         ...prev,
         powerups: {
           ...prev.powerups,
           xpBoostActiveUntil: end.toISOString(),
           xpBoostMinutes: (prev.powerups?.xpBoostMinutes || 0) + minutes,
         },
-      });
+      };
     });
     showToast(`XP Boost activated for ${minutes} min ⚡`, 'success');
-  };
+  }, [setUser, showToast]);
 
-  const addStreakFreeze = (count = 1) => {
+  const addStreakFreeze = useCallback((count = 1) => {
     setUser((prev) => {
       if (!prev) return prev;
-      return persistUser({
+      return {
         ...prev,
-        powerups: {
-          ...prev.powerups,
-          streakFreeze: (prev.powerups?.streakFreeze || 0) + count,
-        },
-      });
+        powerups: { ...prev.powerups, streakFreeze: (prev.powerups?.streakFreeze || 0) + count },
+      };
     });
     showToast(`+${count} Streak Freeze ❄️`, 'success');
-  };
+  }, [setUser, showToast]);
 
-  const consumeStreakFreeze = () => {
+  const consumeStreakFreeze = useCallback(() => {
     let used = false;
     setUser((prev) => {
-      if (!prev) return prev;
-      if (!prev.powerups?.streakFreeze || prev.powerups.streakFreeze <= 0) return prev;
+      if (!prev || !prev.powerups?.streakFreeze || prev.powerups.streakFreeze <= 0) return prev;
       used = true;
-      return persistUser({
+      return {
         ...prev,
         powerups: { ...prev.powerups, streakFreeze: prev.powerups.streakFreeze - 1 },
-      });
+      };
     });
     return used;
-  };
+  }, [setUser]);
 
-  const buyShopItem = (item) => {
+  const buyShopItem = useCallback((item) => {
     let success = false;
     let reason = '';
     setUser((prev) => {
       if (!prev) return prev;
-      const price = Number(item?.price) || 0;
+      const price    = Number(item?.price) || 0;
       const currency = item?.currency || 'gem';
-      const avail = currency === 'gem' ? prev.gems : prev.xp;
-      if (avail < price) {
-        reason = `Not enough ${currency === 'gem' ? 'gems' : 'XP'}`;
-        return prev;
-      }
-      const baseNext = currency === 'gem'
+      const avail    = currency === 'gem' ? prev.gems : prev.xp;
+      if (avail < price) { reason = `Not enough ${currency === 'gem' ? 'gems' : 'XP'}`; return prev; }
+      const base = currency === 'gem'
         ? { ...prev, gems: prev.gems - price }
         : { ...prev, xp: prev.xp - price };
-
-      let next = baseNext;
+      let next = base;
       switch (item?.id) {
         case 'streak_freeze':
-          next = {
-            ...next,
-            powerups: {
-              ...next.powerups,
-              streakFreeze: (next.powerups?.streakFreeze || 0) + (item?.quantity || 1),
-            },
-          };
+          next = { ...next, powerups: { ...next.powerups,
+            streakFreeze: (next.powerups?.streakFreeze || 0) + (item?.quantity || 1) } };
           break;
         case 'xp_boost_15':
         case 'xp_boost_30': {
           const mins = item?.id === 'xp_boost_30' ? 30 : 15;
-          const now = new Date();
+          const now  = new Date();
           const existingEnd = next.powerups?.xpBoostActiveUntil
-            ? new Date(next.powerups.xpBoostActiveUntil)
-            : now;
+            ? new Date(next.powerups.xpBoostActiveUntil) : now;
           const end = new Date(Math.max(now.getTime(), existingEnd.getTime()) + mins * 60 * 1000);
-          next = {
-            ...next,
-            powerups: {
-              ...next.powerups,
-              xpBoostActiveUntil: end.toISOString(),
-              xpBoostMinutes: (next.powerups?.xpBoostMinutes || 0) + mins,
-            },
-          };
+          next = { ...next, powerups: { ...next.powerups,
+            xpBoostActiveUntil: end.toISOString(),
+            xpBoostMinutes: (next.powerups?.xpBoostMinutes || 0) + mins } };
           break;
         }
         case 'refill_hearts':
           next = { ...next, hearts: next.maxHearts || 5 };
           break;
         case 'hearts_pack_10':
-          next = {
-            ...next,
-            maxHearts: Math.max(next.maxHearts || 5, (next.maxHearts || 5) + (item?.bonusMax || 0)),
-            hearts: (next.hearts || 0) + (item?.quantity || 0),
-          };
+          next = { ...next,
+            maxHearts: (next.maxHearts || 5) + (item?.bonusMax || 0),
+            hearts: (next.hearts || 0) + (item?.quantity || 0) };
           break;
         case 'gem_pack_small':
         case 'gem_pack_medium':
         case 'gem_pack_large':
           next = { ...next, gems: next.gems + (item?.quantity || 0) };
           break;
-        default:
-          break;
+        default: break;
       }
       success = true;
-      return persistUser(next);
+      return next;
     });
-    if (success) {
-      showToast(`Purchased: ${item?.title} ✨`, 'success');
-    } else if (reason) {
-      showToast(reason, 'error');
-    }
+    if (success) showToast(`Purchased: ${item?.title} ✨`, 'success');
+    else if (reason) showToast(reason, 'error');
     return success;
-  };
+  }, [setUser, showToast]);
 
-  const completeLesson = (lessonId, xpEarned = 10, gemReward = 2) => {
+  const completeLesson = useCallback((lessonId, xpEarned = 10, gemReward = 2) => {
     setUser((prev) => {
       if (!prev) return prev;
       const already = prev.completedLessons.includes(lessonId);
-      const bonus = prev.powerups?.xpBoostActiveUntil
-        && new Date(prev.powerups.xpBoostActiveUntil) > new Date() ? 2 : 1;
-      const finalXP = already ? 0 : Math.round(xpEarned * bonus);
-      const finalGems = already ? 0 : gemReward;
-      const streak = already ? prev.streak : prev.streak;
-      return persistUser({
+      const bonus = (prev.powerups?.xpBoostActiveUntil &&
+        new Date(prev.powerups.xpBoostActiveUntil) > new Date()) ? 2 : 1;
+      return {
         ...prev,
-        xp: prev.xp + finalXP,
-        gems: prev.gems + finalGems,
-        streak,
+        xp:   prev.xp + (already ? 0 : Math.round(xpEarned * bonus)),
+        gems: prev.gems + (already ? 0 : gemReward),
         completedLessons: already
           ? prev.completedLessons
           : [...prev.completedLessons, lessonId],
         lastActive: new Date().toISOString(),
-      });
+      };
     });
-  };
+  }, [setUser]);
 
-  const handleLogin = (userData) => setUser(normalizeUser(userData));
-  const handleSignupComplete = (partialUser) => setUser(normalizeUser(partialUser));
-  const handleLanguageSelected = (updatedUser) => setUser(updatedUser);
+  // ── auth helpers ───────────────────────────────────────────────
+  const handleLogin = useCallback((userData) => {
+    setUser(normalizeUser(userData));
+  }, [setUser]);
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleSignupComplete = useCallback((partialUser) => {
+    setUser(normalizeUser(partialUser));
+  }, [setUser]);
+
+  const handleLanguageSelected = useCallback((updatedUser) => {
+    setUser(normalizeUser(updatedUser));
+  }, [setUser]);
+
+  const handleLogout = useCallback(() => {
+    setUserRaw(null);
     setPreviewLanguage(null);
     localStorage.removeItem('linguaUser');
-  };
+  }, []);
 
-  const refreshUser = (updatedUser) => {
-    setUser(updatedUser);
-    setPreviewLanguage(null);
-  };
+  // ── refreshUser ────────────────────────────────────────────────
+  // Pass full updated user object (from PATCH response) → apply directly.
+  // Pass bare id string/number → re-fetch from backend.
+  const refreshUser = useCallback((updatedUserOrId) => {
+    if (updatedUserOrId && typeof updatedUserOrId === 'object') {
+      setUser(normalizeUser(updatedUserOrId));
+    } else if (updatedUserOrId) {
+      getUser(updatedUserOrId)
+        .then((fresh) => setUser(normalizeUser(fresh)))
+        .catch(() => {});
+    }
+  }, [setUser]);
 
+  // ── lesson stats ───────────────────────────────────────────────
   const handleLessonStats = useCallback((stats) => {
     setLessonStats(stats);
   }, []);
 
-  const value = React.useMemo(() => ({
+  // ── context value (memoized) ───────────────────────────────────
+  // Functions are all stable useCallbacks — only state values in deps.
+  const value = useMemo(() => ({
     user, setUser,
     previewLanguage, setPreviewLanguage,
     lessonStats, handleLessonStats,
@@ -324,7 +389,6 @@ const AppProvider = ({ children }) => {
     handleLanguageSelected,
     handleLogout,
     refreshUser,
-    // Economy
     addGems,
     addXP,
     completeLesson,
@@ -335,9 +399,15 @@ const AppProvider = ({ children }) => {
     addStreakFreeze,
     consumeStreakFreeze,
     buyShopItem,
-    // UI
     toast, showToast,
-  }), [user, previewLanguage, lessonStats, toast]);
+  }), [
+    user, previewLanguage, lessonStats, toast,
+    setUser, handleLessonStats, handleLogin, handleSignupComplete,
+    handleLanguageSelected, handleLogout, refreshUser,
+    addGems, addXP, completeLesson, consumeHeart, refillHearts,
+    awardHearts, activateXpBoost, addStreakFreeze, consumeStreakFreeze,
+    buyShopItem, showToast,
+  ]);
 
   return (
     <AppContext.Provider value={value}>
@@ -349,34 +419,25 @@ const AppProvider = ({ children }) => {
 const useApp = () => useContext(AppContext);
 
 /* ─────────────────────────── Route guards ─────────────────────── */
-
-/** Redirect logged-in users away from auth pages */
 const PublicRoute = ({ children }) => {
   const { user } = useApp();
   return user ? <Navigate to="/dashboard" replace /> : children;
 };
 
-/** Redirect guests to /login, preserving the intended destination */
 const ProtectedRoute = ({ children }) => {
   const { user } = useApp();
   const location = useLocation();
   return user
-    ? children 
+    ? children
     : <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 /* ─────────────────────────── Layouts ──────────────────────────── */
-
-/**
- * PublicLayout – wraps marketing / info pages with the public Navbar.
- * Renders {children} properly (was broken before – always rendered <Home>).
- */
 const PublicLayout = ({ children }) => {
-  const navigate     = useNavigate();
+  const navigate    = useNavigate();
   const { user, handleLogout } = useApp();
-  const location     = useLocation();
-  const currentPage  = location.pathname.replace('/', '') || 'home';
-
+  const location    = useLocation();
+  const currentPage = location.pathname.replace('/', '') || 'home';
   return (
     <>
       <Navbar
@@ -393,17 +454,8 @@ const PublicLayout = ({ children }) => {
   );
 };
 
-/**
-  ShellLayout – sidebar + right-panel layout for authenticated app pages.
- **/
-const ShellLayout = ({ children }) => (
-  <AppShell>{children}</AppShell>
-);
+const ShellLayout = ({ children }) => <AppShell>{children}</AppShell>;
 
-/**
-  LessonLayout – truly fullscreen, no extra chrome.
-  The lesson page uses position:fixed overlays so we just render it bare.
- **/
 const LessonLayout = ({ children }) => <>{children}</>;
 
 /* ─────────────────────────── App ──────────────────────────────── */
@@ -413,15 +465,14 @@ function App() {
       <AppProvider>
         <div className="h_app_wrapper">
           <Routes>
-
             {/* ── Public / auth routes ── */}
             <Route path="/"        element={<PublicRoute><PublicLayout><Home /></PublicLayout></PublicRoute>} />
             <Route path="/login"   element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/signup"  element={<PublicRoute><Signup /></PublicRoute>} />
-            <Route path="/onboarding"     element={<Onboarding />} />
+            <Route path="/onboarding"      element={<Onboarding />} />
             <Route path="/language-select" element={<LanguageSelect />} />
 
-            {/* ── Info / marketing pages (navbar, no shell) ── */}
+            {/* ── Info / marketing pages ── */}
             <Route path="/about"   element={<PublicLayout><AboutUs /></PublicLayout>} />
             <Route path="/terms"   element={<PublicLayout><Terms /></PublicLayout>} />
             <Route path="/privacy" element={<PublicLayout><Privacy /></PublicLayout>} />
@@ -457,14 +508,13 @@ function App() {
               <ProtectedRoute><ShellLayout><Insights /></ShellLayout></ProtectedRoute>
             } />
 
-            {/* ── Fullscreen lesson (no navbar, no shell) ── */}
+            {/* ── Fullscreen lesson ── */}
             <Route path="/lesson/:lessonId" element={
               <ProtectedRoute><LessonLayout><LessonPage /></LessonLayout></ProtectedRoute>
             } />
 
-            {/* ── 404 / catch-all → Home ── */}
+            {/* ── 404 ── */}
             <Route path="*" element={<PublicLayout><Home /></PublicLayout>} />
-
           </Routes>
         </div>
       </AppProvider>

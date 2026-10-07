@@ -176,6 +176,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     setLoading(true);
+    setLessons([]);   // clear stale lessons immediately so old language doesn't flash
     Promise.all([
       getLessons(user?.language || "English"),
       getUnits(),
@@ -215,12 +216,12 @@ const Dashboard = () => {
 
   const unitGroups = unitMeta.map((unit) => ({
     ...unit,
-    lessons: lessons.filter((l) => l.unitId === unit.id),
+    lessons: lessons.filter((l) => Number(l.unitId) === Number(unit.id)),
   }));
 
   // Which unit is currently active (has the active lesson)
   const activeUnit =
-    unitGroups.find((u) => u.lessons.some((l) => l.id === activeLesson)) ||
+    unitGroups.find((u) => u.lessons.some((l) => Number(l.id) === activeLesson)) ||
     unitGroups[0];
 
   // Scroll to a unit when jumping from the panel

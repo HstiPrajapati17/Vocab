@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, Navbar } from 'react-bootstrap';
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useApp } from '../App';
+import { registerUser } from '../api';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -29,10 +30,22 @@ const Signup = () => {
     }
     setLoading(true);
     try {
-      handleSignupComplete({ name: form.name, email: form.email, password: form.password });
+      // 1) Actually POST the new user to the server FIRST so we get the real
+      //    numeric id. Without this, LanguageSelect sees a temp id (u_XXXX)
+      //    and tries to PATCH /users/u_XXXX which always returns 404.
+      const createdUser = await registerUser(
+        form.name,
+        form.email,
+        form.password,
+        null,   // language   → set in next step (/language-select)
+        null,   // level      → set in next step
+        null    // dailyGoal  → set in next step
+      );
+      // 2) Now put the SERVER-returned user (with real numeric id) into context.
+      handleSignupComplete(createdUser);
       navigate('/language-select');
     } catch (err) {
-      setError(err.message);
+      setError(err?.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }

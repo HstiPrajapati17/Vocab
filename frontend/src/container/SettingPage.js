@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../App';
 import '../style/SettingsPage.css';
+import { updateUser } from '../api';
 import { 
   FaGlobe, 
   FaPalette, 
@@ -19,9 +20,9 @@ import { MdAutoDelete } from 'react-icons/md';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user, refreshUser } = useApp();
   const [settings, setSettings] = useState({
-    language: 'English',
+    language: user?.language || 'English',
     notifications: true,
     darkMode: false,
     soundEffects: true,
@@ -33,17 +34,34 @@ const SettingsPage = () => {
   useEffect(() => {
     const savedSettings = localStorage.getItem('vocabSettings');
     if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+      const parsed = JSON.parse(savedSettings);
+      // Merge but prefer the user's actual language from the app context
+      setSettings(prev => ({
+        ...parsed,
+        language: user?.language || parsed.language || 'English',
+      }));
+    } else if (user?.language) {
+      setSettings(prev => ({ ...prev, language: user.language }));
     }
-  }, []);
+  }, [user?.language]);
 
-  const handleSettingChange = (key, value) => {
+  const handleSettingChange = async (key, value) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
     localStorage.setItem('vocabSettings', JSON.stringify(newSettings));
     
     if (key === 'darkMode') {
       document.body.classList.toggle('dark-mode', value);
+    }
+
+    // Persist language changes to the backend and update the app context
+    if (key === 'language' && user?.id) {
+      try {
+        const updated = await updateUser(user.id, { language: value });
+        refreshUser(updated);
+      } catch (err) {
+        console.error('Failed to update language:', err);
+      }
     }
   };
 

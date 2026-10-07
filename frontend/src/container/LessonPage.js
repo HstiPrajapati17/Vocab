@@ -18,9 +18,11 @@ const LessonPage = () => {
   const [answered, setAnswered] = useState(false);
   const [hearts, setHearts] = useState(user?.hearts ?? 5);
   const [score, setScore] = useState(0);
+  const scoreRef = React.useRef(0);
   const [showResult, setShowResult] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const earnedXPRef = React.useRef(0);
   const [earnedXP, setEarnedXP] = useState(0);
 
   useEffect(() => {
@@ -59,13 +61,15 @@ const LessonPage = () => {
     setAnswered(true);
     setShowFeedback(true);
     if (correct) {
-      setScore(s => s + 1);
+      scoreRef.current += 1;
+      setScore(scoreRef.current);
       const base = 10;
       let bonus = 1;
       if (user?.powerups?.xpBoostActiveUntil) {
         if (new Date(user.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
       }
       const gained = base * bonus;
+      earnedXPRef.current += gained;
       setEarnedXP(xp => xp + gained);
       addXP(base);
       if (bonus === 2) {
@@ -77,13 +81,49 @@ const LessonPage = () => {
     }
   };
 
+  const saveProgress = async (finalScore) => {
+    if (!user?.id) return;
+    const passed = finalScore >= Math.ceil(questions.length * 0.6);
+    if (!passed) return;
+
+    const lessonIdNum = parseInt(lessonId);
+    const completedLessons = (user.completedLessons || []).map(id => parseInt(id));
+    if (completedLessons.includes(lessonIdNum)) return;
+
+    // user.xp already reflects all per-question addXP() calls (local state).
+    // Only add the 10 XP completion bonus that hasn't been counted yet.
+    const completionBonus = 10;
+    const newXP = (user.xp || 0) + completionBonus;
+    const newStreak = (user.streak || 0) + 1;
+    const newCompletedLessons = [...completedLessons, lessonIdNum];
+
+    const updates = {
+      completedLessons: newCompletedLessons,
+      xp: newXP,
+      streak: newStreak,
+      hearts,
+      gems: (user.gems || 0) + 2,
+    };
+
+    try {
+      const updatedUser = await updateUser(user.id, updates);
+      await updateLeaderboard(user.id, updates.xp, updates.streak);
+      // refreshUser is now synchronous — applies PATCH response directly to state
+      refreshUser(updatedUser);
+    } catch (err) {
+      console.error('Failed to save progress:', err);
+      // Optimistic fallback: update context locally without backend
+      completeLesson(lessonIdNum, completionBonus, 2);
+    }
+  };
+
   const handleNext = () => {
     setShowFeedback(false);
     setSelected(null);
     setAnswered(false);
     if (current + 1 >= questions.length) {
       setShowResult(true);
-      saveProgress();
+      saveProgress(scoreRef.current);
     } else {
       setCurrent(c => c + 1);
     }
@@ -94,40 +134,14 @@ const LessonPage = () => {
     handleNext();
   };
 
-  const saveProgress = async () => {
-    if (!user?.id) return;
-    const passed = score >= Math.ceil(questions.length * 0.6);
-    if (!passed) return;
-    const completedLessons = (user.completedLessons || []).map(id => parseInt(id));
-    const lessonIdNum = parseInt(lessonId);
-    if (completedLessons.includes(lessonIdNum)) return;
-
-    completeLesson(lessonIdNum, earnedXP + 10, 2);
-
-    const updates = {
-      completedLessons: [...completedLessons, lessonIdNum],
-      xp: (user.xp || 0) + earnedXP + 10,
-      streak: (user.streak || 0) + (user.streak === 0 ? 1 : 0),
-      hearts,
-      activeLesson: lessonIdNum + 1,
-      gems: (user.gems || 0) + 2,
-    };
-
-    try {
-      const updatedUser = await updateUser(user.id, updates);
-      await updateLeaderboard(user.id, updates.xp, updates.streak);
-      refreshUser(updatedUser);
-    } catch (err) {
-      console.error('Failed to save progress:', err);
-    }
-  };
-
   const resetLesson = () => {
     setCurrent(0);
     setSelected(null);
     setAnswered(false);
     setScore(0);
+    scoreRef.current = 0;
     setEarnedXP(0);
+    earnedXPRef.current = 0;
     setShowResult(false);
     setHearts(5);
     setShowFeedback(false);
@@ -352,4 +366,3 @@ const LessonPage = () => {
   );
 };
 export default LessonPage;
-

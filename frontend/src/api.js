@@ -40,12 +40,58 @@ export const registerUser = async (name, email, password, language, level, daily
   return res.json();
 };
 
+const cleanId = (id) => {
+  if (id == null) return '';
+  if (typeof id === 'number') return id;
+  const s = String(id).trim();
+  if (/^\d+$/.test(s)) return Number(s);
+  return s;
+};
+
+export const getUser = async (userId) => {
+  const id = cleanId(userId);
+  if (!id) throw new Error('getUser called without a valid id');
+  const res = await fetch(`${BASE_URL}/users/${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error(`getUser failed: ${res.status}`);
+  return res.json();
+};
+
+export const getUserByEmail = async (email) => {
+  if (!email) throw new Error('getUserByEmail called without email');
+  const res = await fetch(`${BASE_URL}/users?email=${encodeURIComponent(String(email).trim())}`);
+  if (!res.ok) throw new Error(`getUserByEmail failed: ${res.status}`);
+  const list = await res.json();
+  return Array.isArray(list) && list.length > 0 ? list[0] : null;
+};
+
 export const updateUser = async (userId, updates) => {
-  const res = await fetch(`${BASE_URL}/users/${userId}`, {
+  let id = cleanId(userId);
+  if (!id) throw new Error('updateUser called without a valid id');
+
+  let res = await fetch(`${BASE_URL}/users/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   });
+
+  // ── 404 recovery: id may have drifted (localStorage vs server mismatch)
+  //    try to look up the real user record by email and retry on the real id
+  if (res.status === 404 && updates && typeof updates !== 'function') {
+    const email = updates.email || (userId && typeof userId === 'object' ? userId.email : null);
+    if (email) {
+      const found = await getUserByEmail(email).catch(() => null);
+      if (found && found.id) {
+        id = cleanId(found.id);
+        res = await fetch(`${BASE_URL}/users/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        });
+      }
+    }
+  }
+
+  if (!res.ok) throw new Error(`updateUser failed: ${res.status}`);
   return res.json();
 };
 

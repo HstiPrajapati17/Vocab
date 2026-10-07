@@ -220,7 +220,6 @@ const SubscriptionStep = ({ onComplete }) => {
   );
 };
 
-
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);

@@ -1,7 +1,7 @@
 .hprof_page {
   width: 100%;
   min-height: 100vh;
-  padding: 0 18px 80px;
+  /* padding: 0 18px 80px; */
   position: relative;
   box-sizing: border-box;
   background: var(--bg);
@@ -428,7 +428,6 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 2px;
 }
 .hprof_info_value {
   font-size: 0.92rem;
@@ -847,10 +846,18 @@
     RESPONSIVE
    ============================================================== */
 
+@media (max-width: 1024px) and (min-width: 768px) {
+  .hprof_info_item { flex-direction: column; }
+  .hprof_info_content { text-align: center; }
+}
+
+@media (max-width: 1024px) {
+  .hprof_ach_grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 991.98px) {
   .hprof_stats_grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .hprof_stat_value { font-size: 1.35rem; }
-  .hprof_ach_grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 767.98px) {
@@ -869,13 +876,13 @@
 }
 
 @media (max-width: 575.98px) {
-  .hprof_page { padding: 0 14px 80px; }
-  .hprof_profile_card { margin-top: -70px; padding: 20px 16px 16px; border-radius: 24px; }
+  /* .hprof_page { padding: 0 14px 80px; } */
+  .hprof_profile_card { border-radius: 24px; }
   .hprof_header { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
   .hprof_avatar_section { margin: 0 auto; }
   .hprof_avatar { width: 84px; height: 84px; font-size: 2rem; }
   .hprof_info_section { width: 100%; padding-top: 0; }
-  .hprof_name_row { flex-direction: column; gap: 8px; }
+  .hprof_name_row {justify-content: center; gap: 8px; }
   .hprof_name { font-size: 1.35rem; justify-content: center; }
   .hprof_email { margin-bottom: 10px; }
   .hprof_badges_row { justify-content: center; }
@@ -888,7 +895,7 @@
   .hprof_stat_icon { font-size: 1.35rem; margin-bottom: 6px; }
   .hprof_stat_value { font-size: 1.25rem; }
   .hprof_stat_label { font-size: 0.65rem; }
-  .hprof_info_bar { margin-top: 18px; padding: 10px 8px; flex-wrap: wrap; gap: 4px; }
+  .hprof_info_bar { margin-top: 18px; padding: 10px 8px; flex-wrap: wrap; gap: 4px; flex-direction: column; }
   .hprof_info_item { padding: 8px 10px; }
   .hprof_info_divider { display: none; }
   .hprof_tabs_card { margin-top: 18px; border-radius: 20px; }
@@ -917,8 +924,8 @@
 }
 
 @media (max-width: 479.98px) {
-  .hprof_page { padding: 0 12px 70px; }
-  .hprof_profile_card { margin-top: -60px; padding: 18px 14px 14px; border-radius: 20px; }
+  /* .hprof_page { padding: 0 12px 70px; } */
+  .hprof_profile_card { border-radius: 20px; }
   .hprof_avatar { width: 76px; height: 76px; font-size: 1.85rem; }
   .hprof_avatar_actions { bottom: 0; right: 0; }
   .hprof_avatar_btn { width: 26px; height: 26px; }
@@ -975,8 +982,8 @@
 }
 
 @media (max-width: 375px) {
-  .hprof_page { padding: 0 10px 70px; }
-  .hprof_profile_card { margin-top: -52px; padding: 16px 12px 12px; border-radius: 18px; }
+  .hprof_page { padding: 0 0 70px; }
+  .hprof_profile_card { border-radius: 18px; }
   .hprof_avatar { width: 68px; height: 68px; font-size: 1.65rem; }
   .hprof_avatar_ring { padding: 3px; }
   .hprof_name { font-size: 1.15rem; }
@@ -985,7 +992,7 @@
   .hprof_badges_row { gap: 6px; }
   .hprof_badge { font-size: 0.65rem; padding: 4px 9px; }
   .hprof_stats_grid { grid-template-columns: repeat(2, 1fr); }
-  .hprof_info_item { flex-direction: column; align-items: flex-start; text-align: left; gap: 4px; }
+  .hprof_info_item { align-items: flex-start; text-align: left; gap: 12px; }
   .hprof_tab_btn { padding: 7px 8px; font-size: 0.68rem; }
   .hprof_summary_card { flex-direction: column; text-align: center; }
   .hprof_sum_icon { margin: 0 auto; }
@@ -995,7 +1002,7 @@
 }
 
 @media (max-width: 320px) {
-  .hprof_page { padding: 0 8px 60px; }
+  .hprof_page { padding: 0 0 60px; }
   .hprof_profile_card { padding: 14px 10px 10px; }
   .hprof_avatar { width: 62px; height: 62px; font-size: 1.5rem; }
   .hprof_name { font-size: 1.05rem; }
