@@ -32,6 +32,10 @@
 .hprof_avatar_section {
   position: relative;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 .hprof_avatar_ring {
   position: relative;
@@ -62,28 +66,65 @@
 }
 .hprof_avatar_actions {
   position: absolute;
-  bottom: 2px; right: 2px;
-  display: flex;
-  gap: 4px;
+  bottom: 4px;
+  right: 4px;
+  z-index: 2;
 }
 .hprof_avatar_btn {
-  width: 28px; height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--bg-white);
+  border: 3px solid var(--bg-white);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-weight: 700;
   color: #fff;
+  font-size: 0;
+  line-height: 1;
+  appearance: none;
   transition: all var(--transition);
   padding: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(20, 40, 30, 0.28);
 }
-.hprof_cam_btn { background: var(--primary); }
+.hprof_avatar_btn svg {
+  display: block;
+  flex-shrink: 0;
+  color: #fff;
+}
+.hprof_avatar_btn:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 2px;
+}
+.hprof_cam_btn { background: #238354; }
 .hprof_cam_btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
-.hprof_del_btn { background: var(--danger); }
-.hprof_del_btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
+.hprof_remove_photo_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(214, 83, 83, 0.32);
+  border-radius: var(--radius-full);
+  background: rgba(214, 83, 83, 0.07);
+  color: #bd4141;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.hprof_remove_photo_btn:hover {
+  background: rgba(214, 83, 83, 0.13);
+  border-color: rgba(214, 83, 83, 0.55);
+  color: #a92f2f;
+}
+.hprof_remove_photo_btn:focus-visible {
+  outline: 2px solid #bd4141;
+  outline-offset: 2px;
+}
 
 .hprof_info_section {
   flex: 1;
@@ -928,7 +969,12 @@
   .hprof_profile_card { border-radius: 20px; }
   .hprof_avatar { width: 76px; height: 76px; font-size: 1.85rem; }
   .hprof_avatar_actions { bottom: 0; right: 0; }
-  .hprof_avatar_btn { width: 26px; height: 26px; }
+  .hprof_avatar_btn {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+  }
+  .hprof_remove_photo_btn { padding: 6px 9px; font-size: 0.68rem; }
   .hprof_name { font-size: 1.25rem; }
   .hprof_edit_btn { padding: 6px 12px; font-size: 0.74rem; }
   .hprof_email { font-size: 0.82rem; }

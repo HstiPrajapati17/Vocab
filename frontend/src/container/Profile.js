@@ -286,17 +286,18 @@ const Profile = () => {
               </div>
               {editing && (
                 <div className="hprof_avatar_actions">
-                  <button type="button" className="hprof_avatar_btn hprof_cam_btn" onClick={handleCameraClick} title="Change photo">
-                    <FaCamera size={11} />
+                  <button type="button" className="hprof_avatar_btn hprof_cam_btn" onClick={handleCameraClick} title="Change photo" aria-label="Change profile photo">
+                    <FaCamera size={12} />
                   </button>
-                  {selectedImage && (
-                    <button type="button" className="hprof_avatar_btn hprof_del_btn" onClick={handleRemoveImage} title="Remove photo">
-                      <FaTrash size={9} />
-                    </button>
-                  )}
                 </div>
               )}
             </div>
+            {editing && selectedImage && (
+              <button type="button" className="hprof_remove_photo_btn" onClick={handleRemoveImage}>
+                <FaTrash size={12} />
+                <span>Remove photo</span>
+              </button>
+            )}
           </div>
 
           <div className="hprof_info_section">

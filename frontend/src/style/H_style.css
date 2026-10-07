@@ -4903,15 +4903,18 @@ body {
 }
 
 /* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+    .h_shop_grid_3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 992px) {
   .h_shop_hero_content {
     grid-template-columns: 1fr;
   }
   .h_shop_stats {
     grid-template-columns: repeat(4, 1fr);
-  }
-  .h_shop_grid_3 {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
