@@ -4,21 +4,11 @@ import { Row, Col, Spinner, Alert } from 'react-bootstrap';
 import { Check, Search } from 'lucide-react';
 import { useApp } from '../App';
 import { updateUser, getLanguages } from '../api';
-import flag_1 from '../assets/USFlag.webp';
-import flag_2 from '../assets/FranceFlag.png';
-import flag_3 from '../assets/GermanyFlag.jpg';
-import flag_4 from '../assets/PolandFlag.png';
-
-const FLAG_MAP = {
-  'USFlag.webp':     flag_1,
-  'FranceFlag.png':  flag_2,
-  'GermanyFlag.jpg': flag_3,
-  'PolandFlag.png':  flag_4,
-};
+import { getLanguageFlag } from '../utils/languageFlags';
 
 const Courses = () => {
   const navigate = useNavigate();
-  const { user, setUser, setPreviewLanguage, showToast } = useApp();
+  const { user, setUser, showToast } = useApp();
 
   const [search,       setSearch]       = useState('');
   const [savingId,     setSavingId]     = useState(null);
@@ -29,7 +19,7 @@ const Courses = () => {
   const userRef = useRef(user);
   useEffect(() => { userRef.current = user; }, [user]);
 
-  const selectedLang = user?.language || '';
+  const selectedLang = user?.language?.toLowerCase() || '';
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +27,11 @@ const Courses = () => {
     getLanguages()
       .then((langs) => {
         if (cancelled) return;
-        setAllLanguages(langs.map((l) => ({ ...l, flag: FLAG_MAP[l.flagImg] || flag_1 })));
+        console.info('Languages received from backend:', langs.map(({ id, name, image }) => ({ id, name, image })));
+        setAllLanguages(langs.map((language) => ({
+          ...language,
+          flag: getLanguageFlag(language.name, language.flagImg || language.image),
+        })));
       })
       .catch(() => {
         if (!cancelled) setError('Failed to load languages. Please refresh.');
@@ -62,7 +56,7 @@ const Courses = () => {
       return;
     }
 
-    if (lang.name === currentUser.language) {
+    if (lang.name.toLowerCase() === currentUser.language?.toLowerCase()) {
       showToast(`${lang.name} is already your active language`, 'info');
       return;
     }
@@ -72,18 +66,11 @@ const Courses = () => {
 
     try {
       const updated = await updateUser(currentUser.id, {
-        email:            currentUser.email,
-        language:         lang.name,
-        activeLesson:     1,
-        completedLessons: [],
+        language: lang.name,
       });
 
       setUser(updated);
-      setPreviewLanguage(null);
-      showToast(`Language changed to ${lang.name} 🎉`, 'success');
-
-      await new Promise((r) => setTimeout(r, 450));
-      navigate('/dashboard', { replace: true });
+      // showToast(`Language changed to ${lang.name} 🎉`, 'success');
     } catch (err) {
       console.error('Language switch failed:', err);
       const msg = err?.message || 'Unknown error';
@@ -106,9 +93,10 @@ const Courses = () => {
 
       setError(`Could not switch language: ${msg}`);
       showToast(`Language change failed: ${msg}`, 'error');
+    } finally {
       setSavingId(null);
     }
-  }, [setUser, setPreviewLanguage, showToast, navigate]);
+  }, [setUser, showToast, navigate]);
 
   return (
     <div className="h_courses_page">
@@ -118,7 +106,9 @@ const Courses = () => {
             Courses for {user?.language || 'English'} Speakers
           </h1>
           <p className="text-muted small mb-0">
-            Select a language — your learning path updates instantly
+            {loading
+              ? 'Loading languages from backend…'
+              : `Backend languages (${allLanguages.length}): ${allLanguages.map((language) => language.name).join(', ') || 'none found'}`}
           </p>
         </div>
         <div className="h_courses_speak">
@@ -159,7 +149,7 @@ const Courses = () => {
             </Col>
           ) : (
             filtered.map((lang) => {
-              const isActive = selectedLang === lang.name;
+              const isActive = selectedLang === lang.name.toLowerCase();
               const isTargetSaving = savingId === lang.id;
               const anySaving = savingId !== null;
 
@@ -201,12 +191,12 @@ const Courses = () => {
                         <div className="h_course_content">
                           <h5>{lang.name}</h5>
                           <p>{lang.native}</p>
-                          <span
+                          {/* <span
                             className="h_course_badge"
                             style={{ backgroundColor: lang.color }}
                           >
                             {lang.learners} Speakers
-                          </span>
+                          </span> */}
                         </div>
                       </>
                     )}

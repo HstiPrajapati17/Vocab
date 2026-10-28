@@ -16,11 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "../style/onboarding_style.css";
 
 import bird_img from "../assets/logo-bird.png";
-import us_flag from "../assets/USFlag.webp";
-import germany_flag from "../assets/GermanyFlag.jpg";
-import france_flag from "../assets/FranceFlag.png";
-import poland_flag from "../assets/PolandFlag.png";
-import ohter_img from "../assets/more.jpg";
+import { getLanguageFlag } from "../utils/languageFlags";
 
 import { BsArrowRightCircleFill } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -243,18 +239,18 @@ const Onboarding = () => {
   }, []);
 
   const defaultLanguages = [
-    { id: "en", name: "English", flag: us_flag },
-    { id: "de", name: "German", flag: germany_flag },
-    { id: "fr", name: "French", flag: france_flag },
-    { id: "ps", name: "Polish", flag: poland_flag },
+    { id: "en", name: "English", flag: getLanguageFlag("English") },
+    { id: "de", name: "German", flag: getLanguageFlag("German") },
+    { id: "fr", name: "French", flag: getLanguageFlag("French") },
+    { id: "ps", name: "Polish", flag: getLanguageFlag("Polish") },
   ];
 
   const defaultNativeLanguages = [
-    { id: "en", name: "English", flag: us_flag },
-    { id: "de", name: "German", flag: germany_flag },
-    { id: "fr", name: "French", flag: france_flag },
-    { id: "ps", name: "Polish", flag: poland_flag },
-    { id: "ot", name: "Other", flag: ohter_img },
+    { id: "en", name: "English", flag: getLanguageFlag("English") },
+    { id: "de", name: "German", flag: getLanguageFlag("German") },
+    { id: "fr", name: "French", flag: getLanguageFlag("French") },
+    { id: "ps", name: "Polish", flag: getLanguageFlag("Polish") },
+    { id: "ot", name: "Other", flag: getLanguageFlag("Other") },
   ];
 
   const defaultEnglishLevels = [
@@ -310,12 +306,11 @@ const Onboarding = () => {
     { id: "60", name: "1 hr", badge: "Dedicated" },
   ];
 
-  const FLAG_OPTIONS = { English: us_flag, French: france_flag, German: germany_flag, Polish: poland_flag, Other: ohter_img };
   const languages = remoteOptions?.languages?.length
-    ? remoteOptions.languages.map((item) => ({ id: item.id || item.name, name: item.name, flag: FLAG_OPTIONS[item.name] || us_flag }))
+    ? remoteOptions.languages.map((item) => ({ id: item.id || item.name, name: item.name, flag: getLanguageFlag(item.name, item.flagImg) }))
     : defaultLanguages;
   const Nativelanguages = remoteOptions?.nativeLanguages?.length
-    ? remoteOptions.nativeLanguages.map((item) => ({ id: item.id || item.name, name: item.name, flag: FLAG_OPTIONS[item.name] || ohter_img }))
+    ? remoteOptions.nativeLanguages.map((item) => ({ id: item.id || item.name, name: item.name, flag: getLanguageFlag(item.name, item.flagImg) }))
     : defaultNativeLanguages;
   const englishLevels = remoteOptions?.levels?.length
     ? remoteOptions.levels.map((item) => ({ id: item.id || item.name, name: item.name || item.label, desc: item.desc || item.description || 'Choose your current level', icon: item.icon || '??' }))

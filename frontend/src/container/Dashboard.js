@@ -190,14 +190,14 @@ const Dashboard = () => {
   }, [user?.language]);
 
   useEffect(() => {
-    const completed = user?.completedLessons?.length || 0;
+    const completed = lessons.filter((lesson) => lesson.isCompleted).length;
     handleLessonStats?.({ total: lessons.length, completed });
-  }, [lessons.length, user?.completedLessons, handleLessonStats]);
+  }, [lessons, handleLessonStats]);
 
   const completedLessons = useMemo(() => {
-    const ids = (user?.completedLessons || []).map((item) => String(item?.journeyLessonId || item?.lessonId || item));
+    const ids = lessons.filter((lesson) => lesson.isCompleted).map((lesson) => String(lesson.id));
     return new Set(ids);
-  }, [user?.completedLessons]);
+  }, [lessons]);
 
   const activeLesson = useMemo(() => {
     if (!lessons.length) return 1;
@@ -218,6 +218,7 @@ const Dashboard = () => {
     ...unit,
     lessons: lessons.filter((l) => String(l.unitId) === String(unit.id)),
   }));
+  const lessonNumbers = new Map(lessons.map((lesson, index) => [String(lesson.id), index + 1]));
 
   // Which unit is currently active (has the active lesson)
   const activeUnit =
@@ -319,6 +320,9 @@ const Dashboard = () => {
                       >
                         <IconComp size={isActive ? 28 : 24} strokeWidth={2.5} />
                       </button>
+                      <span className="h_learn_node_title">
+                        Lesson {lessonNumbers.get(lessonId)}
+                      </span>
                     </div>
                     {idx < unit.lessons.length - 1 && (
                       <div

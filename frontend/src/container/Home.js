@@ -12,10 +12,7 @@ import {
   CheckCircle,
   Award,
 } from "lucide-react";
-import flag_1 from "../assets/USFlag.webp";
-import flag_2 from "../assets/FranceFlag.png";
-import flag_3 from "../assets/GermanyFlag.jpg";
-import flag_4 from "../assets/PolandFlag.png";
+import { getLanguageFlag } from "../utils/languageFlags";
 import {
   getLanguages,
   getHomeFeatures,
@@ -31,13 +28,6 @@ const ICON_MAP = {
   Users: Users,
   BookOpen: BookOpen,
   Award: Award,
-};
-
-const FLAG_MAP = {
-  "USFlag.webp": flag_1,
-  "FranceFlag.png": flag_2,
-  "GermanyFlag.jpg": flag_3,
-  "PolandFlag.png": flag_4,
 };
 
 const getIcon = (key) => ICON_MAP[key] || Star;
@@ -59,7 +49,10 @@ const Home = () => {
     ])
       .then(([lang, feat, stp, stat]) => {
         setLanguages(
-          lang.map((l) => ({ ...l, flag: FLAG_MAP[l.flagImg] || flag_1 })),
+        lang.map((language) => ({
+          ...language,
+          flag: getLanguageFlag(language.name, language.flagImg || language.image),
+        })),
         );
         setFeatures(
           feat.map((f) => ({ ...f, icon: React.createElement(getIcon(f.iconKey), { size: 24 }) })),

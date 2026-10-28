@@ -19,7 +19,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './style/H_style.css';
 
-import { getUser, getUserByEmail, logoutUser } from './api';
+import { getUser, getUserByEmail, logoutUser, updateUser } from './api';
 
 import Navbar    from './components/Navbar';
 import AppShell  from './components/AppShell';
@@ -98,6 +98,7 @@ const AppProvider = ({ children }) => {
   const [lessonStats,     setLessonStats]     = useState({ total: 0, completed: 0 });
   const [toast,           setToast]           = useState(null);
   const toastTimerRef = useRef(null);
+  const heartRefillTimerRef = useRef(null);
 
   // ── stable setUser ─────────────────────────────────────────────
   // All callers go through this. It normalizes the incoming value,
@@ -171,6 +172,52 @@ const AppProvider = ({ children }) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     toastTimerRef.current = setTimeout(() => setToast(null), 2600);
   }, []);
+
+  useEffect(() => {
+    if (heartRefillTimerRef.current) {
+      clearTimeout(heartRefillTimerRef.current);
+      heartRefillTimerRef.current = null;
+    }
+
+    if (!user?.id || user.hearts > 0) {
+      if (user?.id) localStorage.removeItem(`heartRefillAt:${user.id}`);
+      return undefined;
+    }
+
+    const storageKey = `heartRefillAt:${user.id}`;
+    let refillAt = Number(localStorage.getItem(storageKey));
+    if (!Number.isFinite(refillAt) || refillAt <= 0) {
+      refillAt = Date.now() + 60_000;
+      localStorage.setItem(storageKey, String(refillAt));
+    }
+
+    const refillHearts = async () => {
+      try {
+        const updatedUser = await updateUser(user.id, { hearts: 5 });
+        localStorage.removeItem(storageKey);
+        setUser(normalizeUser(updatedUser));
+        showToast('Your hearts are full again!', 'success');
+      } catch (error) {
+        console.error('Could not refill hearts:', error);
+        showToast('Could not refill hearts. We will retry in one minute.', 'error');
+        const nextRefillAt = Date.now() + 60_000;
+        localStorage.setItem(storageKey, String(nextRefillAt));
+        heartRefillTimerRef.current = setTimeout(refillHearts, 60_000);
+      }
+    };
+
+    heartRefillTimerRef.current = setTimeout(
+      refillHearts,
+      Math.max(0, refillAt - Date.now())
+    );
+
+    return () => {
+      if (heartRefillTimerRef.current) {
+        clearTimeout(heartRefillTimerRef.current);
+        heartRefillTimerRef.current = null;
+      }
+    };
+  }, [user?.id, user?.hearts, setUser, showToast]);
 
   const consumeHeart = useCallback(() => {
     let ok = false;

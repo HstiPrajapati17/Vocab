@@ -5,6 +5,11 @@ const CompletedQuestionSchema = new mongoose.Schema({
     type: String,
     required: [true, "Question ID is required"],
   },
+  languageToLearn: {
+    type: String,
+    trim: true,
+    default: null,
+  },
   journeyLessonId: {
     type: String,
   },
@@ -26,6 +31,11 @@ const CompletedLessonSchema = new mongoose.Schema({
   journeyLessonId: {
     type: String,
     required: [true, "Journey Lesson ID is required"],
+  },
+  languageToLearn: {
+    type: String,
+    trim: true,
+    default: null,
   },
   status: {
     type: String,

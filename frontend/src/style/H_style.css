@@ -3357,6 +3357,21 @@ body {
   align-items: center;
 }
 
+.h_learn_node_title {
+  max-width: 150px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.h_learn_node_active + .h_learn_node_title,
+.h_learn_node_done + .h_learn_node_title {
+  color: var(--text);
+}
+
 .h_start_label {
   position: absolute;
   top: -28px;

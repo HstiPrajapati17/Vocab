@@ -140,6 +140,7 @@ export const updateProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+    const previousAvatarUrl = user.avatarUrl;
 
     if (name) user.name = name.trim();
     if (phone) user.phone = phone.trim();
@@ -163,9 +164,6 @@ export const updateProfile = async (req, res) => {
     }
 
     if (req.file) {
-      if (user.avatarUrl) {
-        await deleteFileFromS3(user.avatarUrl);
-      }
       const uploadResult = await uploadFile(req.file);
       user.avatarUrl = uploadResult.url;
     }
@@ -189,6 +187,9 @@ export const updateProfile = async (req, res) => {
     }
 
     await user.save();
+    if (previousAvatarUrl && previousAvatarUrl !== user.avatarUrl) {
+      await deleteFileFromS3(previousAvatarUrl);
+    }
 
     return res.status(200).json({
       success: true,
@@ -646,12 +647,21 @@ export const getInsights = async (req, res) => {
 export const recordCompletedLesson = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { journeyLessonId, lessonId, status = "completed", score } = req.body;
+    const {
+      journeyLessonId,
+      lessonId,
+      status = "completed",
+      score,
+      languageToLearn = req.user?.onboarding?.languageToLearn,
+    } = req.body;
 
     const targetLessonId = journeyLessonId || lessonId;
 
-    if (!targetLessonId) {
-      return res.status(400).json({ success: false, message: "Journey Lesson ID is required" });
+    if (!targetLessonId || !languageToLearn) {
+      return res.status(400).json({
+        success: false,
+        message: "Journey Lesson ID and learning language are required",
+      });
     }
 
     let analytics = await AnalyticsModel.findOne({ userId });
@@ -676,6 +686,7 @@ export const recordCompletedLesson = async (req, res) => {
         allLessonQuestions.forEach((q) => {
           const cq = (analytics.completedQuestions || []).find(
             (item) => item.questionId?.toString() === q._id.toString()
+              && item.languageToLearn?.trim().toLowerCase() === languageToLearn.trim().toLowerCase()
           );
           if (cq) {
             totalScoreSum += cq.score || 0;
@@ -687,13 +698,15 @@ export const recordCompletedLesson = async (req, res) => {
       }
     }
 
-    const existingLesson = analytics.completedLessons.find(
-      (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === targetLessonId.toString()
+    const existingLesson = analytics.completedLessons.find((cl) =>
+      (cl.journeyLessonId || cl.lessonId)?.toString() === targetLessonId.toString()
+      && cl.languageToLearn?.toLowerCase() === languageToLearn.toLowerCase()
     );
 
     if (!existingLesson) {
       analytics.completedLessons.push({
         journeyLessonId: targetLessonId,
+        languageToLearn,
         status,
         score: calculatedScore,
         completedAt: new Date(),

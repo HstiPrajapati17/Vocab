@@ -81,13 +81,15 @@ export const updateUser = async (_userId, updates = {}) => {
   delete body.language; delete body.level; delete body.dailyGoal;
   if (Object.keys(onboarding).length) body.onboarding = onboarding;
   if (Object.keys(body).length) {
-    if (typeof body.avatarUrl === 'string' && body.avatarUrl.startsWith('data:')) {
-      const blob = await (await fetch(body.avatarUrl)).blob();
+    const avatarIsDataUrl = typeof body.avatarUrl === 'string' && body.avatarUrl.startsWith('data:');
+    const avatarIsBlob = typeof Blob !== 'undefined' && body.avatarUrl instanceof Blob;
+    if (avatarIsDataUrl || avatarIsBlob) {
+      const blob = avatarIsDataUrl ? await (await fetch(body.avatarUrl)).blob() : body.avatarUrl;
       const form = new FormData();
       for (const [key, value] of Object.entries(body)) {
         if (key !== 'avatarUrl') form.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
       }
-      form.append('avatar', blob, 'profile-image.png');
+      form.append('avatar', blob, 'profile-image.jpg');
       await request('/user/updateProfile', { method: 'PATCH', body: form });
     } else {
       await request('/user/updateProfile', { method: 'PATCH', body: JSON.stringify(body) });
@@ -141,14 +143,36 @@ export const getLessons = async () => {
   })));
 };
 export const getLessonById = async (lessonId) => (await getLessons()).find((item) => String(item.id) === String(lessonId)) || null;
-export const getQuestionsByLesson = async (lessonId) => resultOf(await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`));
-export const recordLessonCompletion = async (_userId, { lessonId, score, hearts }) => {
+export const getQuestionsByLesson = async (lessonId) => {
+  const questions = resultOf(await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`));
+  if (!Array.isArray(questions)) return [];
+  return questions.slice(0, 1).map((question) => {
+    const options = Array.isArray(question.options) ? question.options : [];
+    const correct = Number.isInteger(question.correct)
+      ? question.correct
+      : options.findIndex((option) => String(option).trim().toLowerCase() === String(question.rightAnswer || '').trim().toLowerCase());
+    return {
+      ...question,
+      question: question.question || question.text || question.translation || '',
+      options,
+      correct,
+    };
+  });
+};
+export const recordLessonCompletion = async (_userId, { lessonId, score, hearts, language }) => {
   const fresh = await getUser();
-  const lessonAlreadyDone = (fresh.completedLessons || []).some((item) => String(item?.journeyLessonId || item?.lessonId || item) === String(lessonId));
-  await request('/user/updateAnalytics', { method: 'PATCH', body: JSON.stringify({ journeyLessonId: lessonId, status: 'completed', score }) });
+  const activeLanguage = language || fresh.onboarding?.languageToLearn || fresh.language;
+  await request('/user/updateAnalytics', {
+    method: 'PATCH',
+    body: JSON.stringify({
+      journeyLessonId: lessonId,
+      languageToLearn: activeLanguage,
+      status: 'completed',
+      score,
+    }),
+  });
   return updateUser(fresh.id || fresh._id, {
     hearts: hearts ?? fresh.hearts,
-    completedLessons: lessonAlreadyDone ? fresh.completedLessons : [...(fresh.completedLessons || []), lessonId],
   });
 };
 

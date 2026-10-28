@@ -18,6 +18,21 @@ import {
 } from "../utils/Response.utils.js";
 import mongoose from "mongoose";
 
+const progressMatchesLanguage = (record, language) =>
+  record.languageToLearn?.trim().toLowerCase() === language?.trim().toLowerCase();
+
+const tagLegacyProgress = async (analytics, language) => {
+  if (!analytics || !language) return;
+  let changed = false;
+  for (const record of [...(analytics.completedLessons || []), ...(analytics.completedQuestions || [])]) {
+    if (!record.languageToLearn) {
+      record.languageToLearn = language;
+      changed = true;
+    }
+  }
+  if (changed) await analytics.save();
+};
+
 export class JourneyController {
 
 
@@ -847,12 +862,10 @@ export class JourneyController {
   static async mapAndHealQuestion(q, langKey, languageToLearn) {
     let qData = q.toObject ? q.toObject() : q;
 
-
-    if (qData.type !== "speaking") {
+    if (!langKey) {
       return qData;
     }
-
-    if (!langKey) {
+    if (langKey === "english") {
       return qData;
     }
 
@@ -1116,14 +1129,16 @@ export class JourneyController {
       const languageToLearn = targetUser?.onboarding?.languageToLearn;
       const langKey = languageToLearn ? languageToLearn.toLowerCase().trim() : null;
       const analytics = await AnalyticsModel.findOne({ userId: targetUserId });
+      await tagLegacyProgress(analytics, languageToLearn);
 
       const completedLessonIdSet = new Set(
         (analytics?.completedLessons || [])
-          .filter((cl) => cl.status === "completed")
+          .filter((cl) => cl.status === "completed" && progressMatchesLanguage(cl, languageToLearn))
           .map((cl) => (cl.journeyLessonId || cl.lessonId)?.toString())
       );
       const completedQIdSet = new Set(
         (analytics?.completedQuestions || [])
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1173,16 +1188,20 @@ export class JourneyController {
       const languageToLearn = targetUser?.onboarding?.languageToLearn;
       const langKey = languageToLearn ? languageToLearn.toLowerCase().trim() : null;
       const analytics = await AnalyticsModel.findOne({ userId: targetUserId });
+      await tagLegacyProgress(analytics, languageToLearn);
 
       const lessonIdStr = (question.journeyLessonId?._id || question.journeyLessonId)?.toString();
       const isLessonDone = analytics
         ? analytics.completedLessons.some(
-            (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === lessonIdStr && cl.status === "completed"
+            (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === lessonIdStr
+              && cl.status === "completed"
+              && progressMatchesLanguage(cl, languageToLearn)
           )
         : false;
 
       const completedQIdSet = new Set(
         (analytics?.completedQuestions || [])
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1218,9 +1237,11 @@ export class JourneyController {
 
       const topics = await JourneyTopicModel.find().sort({ topicNumber: 1, createdAt: 1 });
       const analytics = await AnalyticsModel.findOne({ userId: targetUserId });
+      await tagLegacyProgress(analytics, languageToLearn);
 
       const completedQIdSet = new Set(
         (analytics?.completedQuestions || [])
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1243,7 +1264,9 @@ export class JourneyController {
           const isLessonAlreadyCompleted = analytics
             ? analytics.completedLessons.some((cl) => {
                 const targetId = cl.journeyLessonId || cl.lessonId;
-                return targetId?.toString() === lesson._id.toString() && cl.status === "completed";
+                return targetId?.toString() === lesson._id.toString()
+                  && cl.status === "completed"
+                  && progressMatchesLanguage(cl, languageToLearn);
               })
             : false;
 
@@ -1326,9 +1349,11 @@ export class JourneyController {
       const analytics = await AnalyticsModel.findOne({ userId: targetUserId });
       const languageToLearn = targetUser?.onboarding?.languageToLearn;
       const langKey = languageToLearn ? languageToLearn.toLowerCase().trim() : null;
+      await tagLegacyProgress(analytics, languageToLearn);
 
       const completedQIdSet = new Set(
         (analytics?.completedQuestions || [])
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1339,7 +1364,9 @@ export class JourneyController {
         const isLessonDoneInAnalytics = analytics
           ? analytics.completedLessons.some((cl) => {
               const targetId = cl.journeyLessonId || cl.lessonId;
-              return targetId?.toString() === mapped._id.toString() && cl.status === "completed";
+              return targetId?.toString() === mapped._id.toString()
+                && cl.status === "completed"
+                && progressMatchesLanguage(cl, languageToLearn);
             })
           : false;
 
@@ -1387,16 +1414,20 @@ export class JourneyController {
       const analytics = await AnalyticsModel.findOne({ userId: targetUserId });
       const languageToLearn = targetUser?.onboarding?.languageToLearn;
       const langKey = languageToLearn ? languageToLearn.toLowerCase().trim() : null;
+      await tagLegacyProgress(analytics, languageToLearn);
 
       const isLessonAlreadyCompleted = analytics
         ? analytics.completedLessons.some((cl) => {
             const targetId = cl.journeyLessonId || cl.lessonId;
-            return targetId?.toString() === lessonId.toString() && cl.status === "completed";
+            return targetId?.toString() === lessonId.toString()
+              && cl.status === "completed"
+              && progressMatchesLanguage(cl, languageToLearn);
           })
         : false;
 
       const completedQIdSet = new Set(
         (analytics?.completedQuestions || [])
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1499,11 +1530,15 @@ export class JourneyController {
 
       const passingScore = 70;
       const isCorrect = score >= passingScore;
+      if (!languageToLearn) {
+        return sendBadRequestResponse(res, "Please choose a learning language before answering questions.");
+      }
 
       let analytics = await AnalyticsModel.findOne({ userId: req.user._id });
       if (!analytics) {
         analytics = new AnalyticsModel({ userId: req.user._id });
       }
+      await tagLegacyProgress(analytics, languageToLearn);
 
       if (!analytics.completedQuestions) {
         analytics.completedQuestions = [];
@@ -1514,10 +1549,12 @@ export class JourneyController {
 
       const existingQ = analytics.completedQuestions.find(
         (cq) => cq.questionId?.toString() === qIdStr
+          && progressMatchesLanguage(cq, languageToLearn)
       );
       if (!existingQ) {
         analytics.completedQuestions.push({
           questionId: qIdStr,
+          languageToLearn,
           journeyLessonId: lessonIdStr,
           isCorrect,
           score,
@@ -1537,6 +1574,7 @@ export class JourneyController {
 
       const completedQIdSet = new Set(
         analytics.completedQuestions
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1550,12 +1588,14 @@ export class JourneyController {
       if (shouldComplete) {
         const existingLesson = analytics.completedLessons.find(
           (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === lessonIdStr
+            && progressMatchesLanguage(cl, languageToLearn)
         );
 
         let totalScoreSum = 0;
         allLessonQuestions.forEach((q) => {
           const cq = analytics.completedQuestions.find(
             (item) => item.questionId?.toString() === q._id.toString()
+              && progressMatchesLanguage(item, languageToLearn)
           );
           if (cq) {
             totalScoreSum += cq.score || 0;
@@ -1570,6 +1610,7 @@ export class JourneyController {
         if (!existingLesson) {
           analytics.completedLessons.push({
             journeyLessonId: question.journeyLessonId,
+            languageToLearn,
             status: "completed",
             score: lessonScore,
             completedAt: new Date(),
@@ -1632,11 +1673,16 @@ export class JourneyController {
 
       const targetRightAnswer = question.rightAnswer;
       const isCorrect = targetRightAnswer.trim().toLowerCase() === String(answer).trim().toLowerCase();
+      const languageToLearn = req.user?.onboarding?.languageToLearn;
+      if (!languageToLearn) {
+        return sendBadRequestResponse(res, "Please choose a learning language before answering questions.");
+      }
 
       let analytics = await AnalyticsModel.findOne({ userId: req.user._id });
       if (!analytics) {
         analytics = new AnalyticsModel({ userId: req.user._id });
       }
+      await tagLegacyProgress(analytics, languageToLearn);
 
       if (!analytics.completedQuestions) {
         analytics.completedQuestions = [];
@@ -1647,10 +1693,12 @@ export class JourneyController {
 
       const existingQ = analytics.completedQuestions.find(
         (cq) => cq.questionId?.toString() === qIdStr
+          && progressMatchesLanguage(cq, languageToLearn)
       );
       if (!existingQ) {
         analytics.completedQuestions.push({
           questionId: qIdStr,
+          languageToLearn,
           journeyLessonId: lessonIdStr,
           isCorrect,
           score: isCorrect ? 100 : 0,
@@ -1670,6 +1718,7 @@ export class JourneyController {
 
       const completedQIdSet = new Set(
         analytics.completedQuestions
+          .filter((cq) => progressMatchesLanguage(cq, languageToLearn))
           .map((cq) => cq.questionId?.toString())
       );
 
@@ -1683,12 +1732,14 @@ export class JourneyController {
       if (shouldComplete) {
         const existingLesson = analytics.completedLessons.find(
           (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === lessonIdStr
+            && progressMatchesLanguage(cl, languageToLearn)
         );
 
         let totalScoreSum = 0;
         allLessonQuestions.forEach((q) => {
           const cq = analytics.completedQuestions.find(
             (item) => item.questionId?.toString() === q._id.toString()
+              && progressMatchesLanguage(item, languageToLearn)
           );
           if (cq) {
             totalScoreSum += cq.score || 0;
@@ -1705,6 +1756,7 @@ export class JourneyController {
         if (!existingLesson) {
           analytics.completedLessons.push({
             journeyLessonId: question.journeyLessonId,
+            languageToLearn,
             status: "completed",
             score: lessonScore,
             completedAt: new Date(),
@@ -1762,11 +1814,18 @@ export class JourneyController {
       }
 
       const lessonIdStr = lessonId.toString();
+      const languageToLearn = req.user?.onboarding?.languageToLearn;
+      if (!languageToLearn) {
+        return sendBadRequestResponse(res, "Please choose a learning language before resetting progress.");
+      }
+      await tagLegacyProgress(analytics, languageToLearn);
       const isLessonCompleted = (analytics.completedLessons || []).some(
         (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() === lessonIdStr
+          && progressMatchesLanguage(cl, languageToLearn)
       );
       const hasCompletedQuestions = (analytics.completedQuestions || []).some(
         (cq) => cq.journeyLessonId?.toString() === lessonIdStr
+          && progressMatchesLanguage(cq, languageToLearn)
       );
 
       if (!isLessonCompleted && !hasCompletedQuestions) {
@@ -1775,11 +1834,13 @@ export class JourneyController {
 
       analytics.completedLessons = (analytics.completedLessons || []).filter(
         (cl) => (cl.journeyLessonId || cl.lessonId)?.toString() !== lessonIdStr
+          || !progressMatchesLanguage(cl, languageToLearn)
       );
 
       if (analytics.completedQuestions) {
         analytics.completedQuestions = analytics.completedQuestions.filter(
           (cq) => cq.journeyLessonId?.toString() !== lessonIdStr
+            || !progressMatchesLanguage(cq, languageToLearn)
         );
       }
 
@@ -1788,7 +1849,9 @@ export class JourneyController {
         const allLessons = await JourneyLessonModel.find({ journeyTopicId: lesson.journeyTopicId });
         const allLessonIds = allLessons.map((l) => l._id.toString());
         const remainingCompleted = analytics.completedLessons
-          .filter((cl) => cl.status === "completed" && allLessonIds.includes((cl.journeyLessonId || cl.lessonId)?.toString()))
+          .filter((cl) => cl.status === "completed"
+            && progressMatchesLanguage(cl, languageToLearn)
+            && allLessonIds.includes((cl.journeyLessonId || cl.lessonId)?.toString()))
           .length;
 
         const topicRecord = (analytics.completedTopics || []).find((ct) => ct.topicId === journeyTopicIdStr);

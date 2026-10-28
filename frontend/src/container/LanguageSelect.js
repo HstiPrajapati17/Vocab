@@ -4,12 +4,13 @@ import { Container, Row, Col, Card, Button, Form, Alert } from 'react-bootstrap'
 import { Search, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useApp } from '../App';
 import { registerUser, updateUser, getUserByEmail } from '../api';
+import { getLanguageFlag } from '../utils/languageFlags';
 
 const allLanguages = [
-  { flag: '🇺🇸', name: 'English', native: 'English' },
-  { flag: '🇫🇷', name: 'French', native: 'Français' },
-  { flag: '🇩🇪', name: 'German', native: 'Deutsch' },
-  { flag: '🇵🇱', name: 'Polish', native: 'Polski' },
+  { name: 'English', native: 'English' },
+  { name: 'French', native: 'Français' },
+  { name: 'German', native: 'Deutsch' },
+  { name: 'Polish', native: 'Polski' },
 ];
 
 const levels = [
@@ -63,14 +64,11 @@ const LanguageSelect = () => {
     try {
       let updatedUser;
       if (isExistingUser) {
-        // Existing logged-in user — PATCH their language/level/goal in db.json
+        // Existing logged-in user — PATCH their language/level/goal.
         updatedUser = await updateUser(user.id, {
           language: selectedLang.name,
           level: selectedLevel,
           dailyGoal: selectedGoal,
-          // Reset lesson progress when switching language
-          completedLessons: [],
-          activeLesson: 1,
         });
       } else {
         // New user path — but email may already exist on server if a prior
@@ -79,8 +77,6 @@ const LanguageSelect = () => {
           language: selectedLang.name,
           level: selectedLevel,
           dailyGoal: selectedGoal,
-          completedLessons: [],
-          activeLesson: 1,
         };
         try {
           updatedUser = await registerUser(
@@ -178,7 +174,9 @@ const LanguageSelect = () => {
                     style={{ cursor: 'pointer' }}
                   >
                     <Card.Body className="p-3">
-                      <div className="h_lang_flag">{lang.flag}</div>
+                      <div className="h_lang_flag">
+                        <img src={getLanguageFlag(lang.name)} alt={`${lang.name} flag`} />
+                      </div>
                       <div className="h_lang_name">{lang.name}</div>
                       <div className="h_lang_native text-muted small">{lang.native}</div>
                       {selectedLang?.name === lang.name && (

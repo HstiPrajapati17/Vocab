@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, Col, Row } from 'react-bootstrap';
+import { Card, Col, Row, Spinner } from 'react-bootstrap';
 import { FaVolumeUp } from 'react-icons/fa';
 import { useApp } from '../App';
 import { getAlphabetByLanguage } from '../api';
@@ -8,10 +8,24 @@ export default function Letters() {
     const { user } = useApp();
     const [selectedLetter, setSelectedLetter] = useState(null);
     const [remoteAlphabet, setRemoteAlphabet] = useState(null);
+    const [alphabetLoading, setAlphabetLoading] = useState(true);
     useEffect(() => {
+        let active = true;
+        setSelectedLetter(null);
+        setRemoteAlphabet(null);
+        setAlphabetLoading(true);
         getAlphabetByLanguage(user?.language || 'English')
-            .then((data) => setRemoteAlphabet(Array.isArray(data?.letters) ? data.letters : null))
-            .catch(() => setRemoteAlphabet(null));
+            .then((data) => {
+                if (active) setRemoteAlphabet(Array.isArray(data?.letters) ? data.letters : null);
+            })
+            .catch((error) => {
+                console.error('Could not load alphabet:', error);
+                if (active) setRemoteAlphabet(null);
+            })
+            .finally(() => {
+                if (active) setAlphabetLoading(false);
+            });
+        return () => { active = false; };
     }, [user?.language]);
 
     // Language alphabets and pronunciation data
@@ -135,16 +149,121 @@ export default function Letters() {
             { letter: 'Y', pronunciation: 'igrek', example: 'Yeti' },
             { letter: 'Z', pronunciation: 'zed', example: 'Zegar (clock)' },
         ],
+
+        Italian: [
+            { letter: 'A', pronunciation: 'a', example: 'Amico (friend)' },
+            { letter: 'B', pronunciation: 'bi', example: 'Bambino (child)' },
+            { letter: 'C', pronunciation: 'ci', example: 'Casa (house)' },
+            { letter: 'D', pronunciation: 'di', example: 'Dado (die)' },
+            { letter: 'E', pronunciation: 'e', example: 'Elefante (elephant)' },
+            { letter: 'F', pronunciation: 'effe', example: 'Fiore (flower)' },
+            { letter: 'G', pronunciation: 'gi', example: 'Gatto (cat)' },
+            { letter: 'H', pronunciation: 'acca', example: 'Hotel (hotel)' },
+            { letter: 'I', pronunciation: 'i', example: 'Isola (island)' },
+            { letter: 'J', pronunciation: 'i lunga', example: 'Jolly (joker)' },
+            { letter: 'K', pronunciation: 'cappa', example: 'Kiwi (kiwi)' },
+            { letter: 'L', pronunciation: 'elle', example: 'Luna (moon)' },
+            { letter: 'M', pronunciation: 'emme', example: 'Mela (apple)' },
+            { letter: 'N', pronunciation: 'enne', example: 'Nave (ship)' },
+            { letter: 'O', pronunciation: 'o', example: 'Oca (goose)' },
+            { letter: 'P', pronunciation: 'pi', example: 'Pane (bread)' },
+            { letter: 'Q', pronunciation: 'cu', example: 'Quaderno (notebook)' },
+            { letter: 'R', pronunciation: 'erre', example: 'Rosa (rose)' },
+            { letter: 'S', pronunciation: 'esse', example: 'Sole (sun)' },
+            { letter: 'T', pronunciation: 'ti', example: 'Tavolo (table)' },
+            { letter: 'U', pronunciation: 'u', example: 'Uva (grape)' },
+            { letter: 'V', pronunciation: 'vi', example: 'Vaso (vase)' },
+            { letter: 'W', pronunciation: 'doppia vu', example: 'Walter (Walter)' },
+            { letter: 'X', pronunciation: 'ics', example: 'Xilofono (xylophone)' },
+            { letter: 'Y', pronunciation: 'ipsilon', example: 'Yoga (yoga)' },
+            { letter: 'Z', pronunciation: 'zeta', example: 'Zaino (backpack)' },
+        ],
+
+        Spanish: [
+            { letter: 'A', pronunciation: 'a', example: 'Amigo (friend)' },
+            { letter: 'B', pronunciation: 'be', example: 'Barco (boat)' },
+            { letter: 'C', pronunciation: 'ce', example: 'Casa (house)' },
+            { letter: 'D', pronunciation: 'de', example: 'Dedo (finger)' },
+            { letter: 'E', pronunciation: 'e', example: 'Elefante (elephant)' },
+            { letter: 'F', pronunciation: 'efe', example: 'Flor (flower)' },
+            { letter: 'G', pronunciation: 'ge', example: 'Gato (cat)' },
+            { letter: 'H', pronunciation: 'hache', example: 'Hola (hello)' },
+            { letter: 'I', pronunciation: 'i', example: 'Isla (island)' },
+            { letter: 'J', pronunciation: 'jota', example: 'Jirafa (giraffe)' },
+            { letter: 'K', pronunciation: 'ka', example: 'Koala (koala)' },
+            { letter: 'L', pronunciation: 'ele', example: 'Luna (moon)' },
+            { letter: 'M', pronunciation: 'eme', example: 'Mano (hand)' },
+            { letter: 'N', pronunciation: 'ene', example: 'Nube (cloud)' },
+            { letter: 'Ñ', pronunciation: 'eñe', example: 'Ñandú (rhea)' },
+            { letter: 'O', pronunciation: 'o', example: 'Oso (bear)' },
+            { letter: 'P', pronunciation: 'pe', example: 'Perro (dog)' },
+            { letter: 'Q', pronunciation: 'cu', example: 'Queso (cheese)' },
+            { letter: 'R', pronunciation: 'erre', example: 'Rosa (rose)' },
+            { letter: 'S', pronunciation: 'ese', example: 'Sol (sun)' },
+            { letter: 'T', pronunciation: 'te', example: 'Taza (cup)' },
+            { letter: 'U', pronunciation: 'u', example: 'Uva (grape)' },
+            { letter: 'V', pronunciation: 'uve', example: 'Vaca (cow)' },
+            { letter: 'W', pronunciation: 'uve doble', example: 'Wafle (waffle)' },
+            { letter: 'X', pronunciation: 'equis', example: 'Xilófono (xylophone)' },
+            { letter: 'Y', pronunciation: 'ye', example: 'Yogur (yogurt)' },
+            { letter: 'Z', pronunciation: 'zeta', example: 'Zapato (shoe)' },
+        ],
+
+        Portuguese: [
+            { letter: 'A', pronunciation: 'á', example: 'Amigo (friend)' },
+            { letter: 'B', pronunciation: 'bê', example: 'Bola (ball)' },
+            { letter: 'C', pronunciation: 'cê', example: 'Casa (house)' },
+            { letter: 'D', pronunciation: 'dê', example: 'Dado (die)' },
+            { letter: 'E', pronunciation: 'é', example: 'Escola (school)' },
+            { letter: 'F', pronunciation: 'éfe', example: 'Flor (flower)' },
+            { letter: 'G', pronunciation: 'gê', example: 'Gato (cat)' },
+            { letter: 'H', pronunciation: 'agá', example: 'Hoje (today)' },
+            { letter: 'I', pronunciation: 'i', example: 'Ilha (island)' },
+            { letter: 'J', pronunciation: 'jóta', example: 'Janela (window)' },
+            { letter: 'K', pronunciation: 'cá', example: 'Kiwi (kiwi)' },
+            { letter: 'L', pronunciation: 'éle', example: 'Lua (moon)' },
+            { letter: 'M', pronunciation: 'ême', example: 'Mão (hand)' },
+            { letter: 'N', pronunciation: 'êne', example: 'Navio (ship)' },
+            { letter: 'O', pronunciation: 'ó', example: 'Ovo (egg)' },
+            { letter: 'P', pronunciation: 'pê', example: 'Pato (duck)' },
+            { letter: 'Q', pronunciation: 'quê', example: 'Queijo (cheese)' },
+            { letter: 'R', pronunciation: 'érre', example: 'Rosa (rose)' },
+            { letter: 'S', pronunciation: 'ésse', example: 'Sol (sun)' },
+            { letter: 'T', pronunciation: 'tê', example: 'Tatu (armadillo)' },
+            { letter: 'U', pronunciation: 'u', example: 'Uva (grape)' },
+            { letter: 'V', pronunciation: 'vê', example: 'Vaca (cow)' },
+            { letter: 'W', pronunciation: 'dáblio', example: 'Web (web)' },
+            { letter: 'X', pronunciation: 'xis', example: 'Xícara (cup)' },
+            { letter: 'Y', pronunciation: 'ípsilon', example: 'Yoga (yoga)' },
+            { letter: 'Z', pronunciation: 'zê', example: 'Zebra (zebra)' },
+        ],
     };
 
-    const currentAlphabets = remoteAlphabet || languageAlphabets[user?.language] || languageAlphabets.English;
+    const activeLanguage = user?.language || 'English';
+    const localAlphabet = Object.entries(languageAlphabets)
+        .find(([language]) => language.toLowerCase() === activeLanguage.trim().toLowerCase())?.[1];
+    const currentAlphabets = remoteAlphabet?.length ? remoteAlphabet : localAlphabet || [];
+    const currentLetter = currentAlphabets[selectedLetter];
+    const speechLocales = {
+        English: 'en-US',
+        French: 'fr-FR',
+        German: 'de-DE',
+        Polish: 'pl-PL',
+        Spanish: 'es-ES',
+        Italian: 'it-IT',
+        Portuguese: 'pt-PT',
+        Vietnamese: 'vi-VN',
+        Chinese: 'zh-CN',
+        Japanese: 'ja-JP',
+        Korean: 'ko-KR',
+    };
 
     const speakLetter = (letter, pronunciation) => {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(`${letter} - ${pronunciation}`);
-            utterance.lang = user?.language === 'French' ? 'fr-FR' :
-                user?.language === 'German' ? 'de-DE' :
-                    user?.language === 'Polish' ? 'pl-PL' : 'en-US';
+            const language = Object.keys(speechLocales)
+                .find((name) => name.toLowerCase() === activeLanguage.trim().toLowerCase());
+            if (language) utterance.lang = speechLocales[language];
             utterance.rate = 0.8;
             window.speechSynthesis.speak(utterance);
         }
@@ -157,7 +276,20 @@ export default function Letters() {
                     <p className="text-muted small mb-0">Learn pronunciation and examples for each letter</p>
                 </div>
             </div>
-            <Row className="g-4">
+            {currentAlphabets.length === 0 && alphabetLoading ? (
+                <Card className="h_profile_card border-0 shadow-sm">
+                    <Card.Body className="p-4 d-flex align-items-center gap-2 text-muted">
+                        <Spinner animation="border" size="sm" />
+                        Loading alphabet…
+                    </Card.Body>
+                </Card>
+            ) : currentAlphabets.length === 0 ? (
+                <Card className="h_profile_card border-0 shadow-sm">
+                    <Card.Body className="p-4 text-muted">
+                        Alphabet and pronunciation content for {activeLanguage} is not available yet.
+                    </Card.Body>
+                </Card>
+            ) : <Row className="g-4">
                 {/* Alphabet Panel */}
                 <Col xl={12}>
                     <Card className="h_profile_card border-0 shadow-sm mb-4">
@@ -180,17 +312,17 @@ export default function Letters() {
                                     </button>
                                 ))}
                             </div> 
-                            {selectedLetter !== null && (
+                            {currentLetter && (
                                 <div className="h_alphabet_detail mt-3 p-3 bg-light rounded">
-                                    <div className="h_alphabet_detail_letter">{currentAlphabets[selectedLetter].letter}</div>
-                                    <div className="h_alphabet_detail_pronunciation">{currentAlphabets[selectedLetter].pronunciation}</div>
-                                    <div className="h_alphabet_detail_example">{currentAlphabets[selectedLetter].example}</div>
+                                    <div className="h_alphabet_detail_letter">{currentLetter.letter}</div>
+                                    <div className="h_alphabet_detail_pronunciation">{currentLetter.pronunciation}</div>
+                                    <div className="h_alphabet_detail_example">{currentLetter.example}</div>
                                 </div>
                             )}
                         </Card.Body>
                     </Card>
                 </Col>
-            </Row>
+            </Row>}
         </div >
     )
 }

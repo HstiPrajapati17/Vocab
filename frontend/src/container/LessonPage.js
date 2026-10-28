@@ -3,16 +3,19 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ProgressBar, Spinner } from 'react-bootstrap';
 import { Heart, CheckCircle, XCircle, X, RefreshCw } from 'lucide-react';
 
-import { getQuestionsByLesson, recordLessonCompletion, updateUser } from '../api';
+import { getLessons, getQuestionsByLesson, recordLessonCompletion, updateUser } from '../api';
 import { useApp } from '../App';
 // import '../style/lesson_image_styles.css';
 
 const LessonPage = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
-  const { user, refreshUser, consumeHeart, completeLesson, showToast } = useApp();
+  const { user, refreshUser, consumeHeart, showToast } = useApp();
   const [questions, setQuestions] = useState([]);
+  const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savingProgress, setSavingProgress] = useState(false);
+  const [progressSaved, setProgressSaved] = useState(false);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -30,18 +33,32 @@ const LessonPage = () => {
   }, [user?.hearts, showResult]);
 
   useEffect(() => {
-    const id = lessonId;
+    let active = true;
+    setQuestions([]);
+    setLessons([]);
+    setCurrent(0);
+    setSelected(null);
+    setAnswered(false);
+    setScore(0);
+    scoreRef.current = 0;
+    setShowResult(false);
+    setProgressSaved(false);
     setLoading(true);
-    getQuestionsByLesson(id)
-      .then(data => {
-        setQuestions(data);
-        setLoading(false);
+    Promise.all([getQuestionsByLesson(lessonId), getLessons()])
+      .then(([questionData, lessonData]) => {
+        if (!active) return;
+        setQuestions(questionData);
+        setLessons(lessonData);
       })
       .catch(err => {
         console.error('Error fetching questions:', err);
-        setLoading(false);
+        if (active) showToast('Could not load this lesson. Please try again.', 'error');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-  }, [lessonId]);
+    return () => { active = false; };
+  }, [lessonId, showToast]);
 
   const q = questions[current];
 
@@ -63,15 +80,26 @@ const LessonPage = () => {
       setScore(scoreRef.current);
     } else {
       const lost = consumeHeart();
-      setHearts(h => Math.max(0, h - (lost ? 1 : 0)));
+      const remainingHearts = Math.max(0, hearts - (lost ? 1 : 0));
+      setHearts(remainingHearts);
+      if (lost && user?.id) {
+        updateUser(user.id, { hearts: remainingHearts })
+          .then(refreshUser)
+          .catch((error) => {
+            console.error('Could not save remaining hearts:', error);
+            showToast('Could not save your heart balance. Please check your connection.', 'error');
+          });
+      }
     }
   };
 
   const saveProgress = async (finalScore) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      showToast('Please sign in again to save lesson progress.', 'error');
+      return false;
+    }
     const passed = finalScore >= Math.ceil(questions.length * 0.6);
-    const alreadyCompleted = (user.completedLessons || []).some((id) => String(id) === String(lessonId));
-    if (!passed || alreadyCompleted) {
+    if (!passed) {
       try {
         const attemptUpdates = { hearts, lastActive: new Date().toISOString() };
         const updatedUser = await updateUser(user.id, attemptUpdates);
@@ -79,7 +107,7 @@ const LessonPage = () => {
       } catch (error) {
         console.error('Could not save lesson attempt:', error);
       }
-      return;
+      return false;
     }
 
     try {
@@ -88,26 +116,56 @@ const LessonPage = () => {
         lessonId,
         score: totalScore,
         hearts,
+        language: user.onboarding?.languageToLearn || user.language,
       });
       // refreshUser is now synchronous — applies PATCH response directly to state
       refreshUser(updatedUser);
+      return true;
     } catch (err) {
       console.error('Failed to save progress:', err);
-      // Optimistic fallback: update context locally without backend
-      completeLesson(lessonId);
+      showToast('Could not save lesson progress. Please retry before continuing.', 'error');
+      return false;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setShowFeedback(false);
     setSelected(null);
     setAnswered(false);
     if (current + 1 >= questions.length) {
       setShowResult(true);
-      saveProgress(scoreRef.current);
+      setSavingProgress(true);
+      const saved = await saveProgress(scoreRef.current);
+      setProgressSaved(saved);
+      setSavingProgress(false);
     } else {
       setCurrent(c => c + 1);
     }
+  };
+
+  const continueAfterLesson = async () => {
+    const passed = score >= Math.ceil(questions.length * 0.6);
+    let hasSavedProgress = progressSaved;
+    if (passed && !progressSaved) {
+      setSavingProgress(true);
+      const saved = await saveProgress(scoreRef.current);
+      hasSavedProgress = saved;
+      setProgressSaved(saved);
+      setSavingProgress(false);
+      if (!saved) return;
+    }
+
+    if (hasSavedProgress) {
+      const currentIndex = lessons.findIndex((lesson) => String(lesson.id) === String(lessonId));
+      const nextLesson = currentIndex >= 0
+        ? lessons.slice(currentIndex + 1).find((lesson) => !lesson.isCompleted)
+        : null;
+      if (nextLesson) {
+        navigate(`/lesson/${nextLesson.id}`, { replace: true });
+        return;
+      }
+    }
+    navigate('/dashboard');
   };
 
   const handleSkip = () => {
@@ -122,7 +180,8 @@ const LessonPage = () => {
     setScore(0);
     scoreRef.current = 0;
     setShowResult(false);
-    setHearts(5);
+    setProgressSaved(false);
+    setHearts(user?.hearts ?? 5);
     setShowFeedback(false);
   };
 
@@ -161,7 +220,7 @@ const LessonPage = () => {
             <Heart size={64} style={{ color: 'var(--danger)' }} />
           </div>
           <h3 className="fw-bold mb-2">Out of Hearts!</h3>
-          <p className="text-muted mb-4">Come back later to continue practicing.</p>
+          <p className="text-muted mb-4">Your hearts will refill to 5 after one minute.</p>
           <Button className="h_btn_get_started me-2 mb-2" onClick={() => navigate('/dashboard')}>Back to Learn</Button>
         </div>
       </div>
@@ -171,6 +230,10 @@ const LessonPage = () => {
   if (showResult) {
     const passed = score >= Math.ceil(questions.length * 0.6);
     const accuracy = Math.round((score / questions.length) * 100);
+    const currentLessonIndex = lessons.findIndex((lesson) => String(lesson.id) === String(lessonId));
+    const nextLesson = currentLessonIndex >= 0
+      ? lessons.slice(currentLessonIndex + 1).find((lesson) => !lesson.isCompleted)
+      : null;
 
     return (
       <div className='container'>
@@ -231,8 +294,18 @@ const LessonPage = () => {
           <button className="hlp2_feedback_btn" onClick={resetLesson}>
             {passed ? 'Review Lesson' : 'Try Again'}
           </button>
-          <button className=" hlp2_feedback_btn" onClick={() => navigate('/dashboard')}>
-            Continue
+          <button
+            className=" hlp2_feedback_btn"
+            onClick={continueAfterLesson}
+            disabled={savingProgress}
+          >
+            {savingProgress
+              ? 'Saving…'
+              : passed && !progressSaved
+                ? 'Retry Save'
+                : nextLesson
+                  ? `Next: Lesson ${currentLessonIndex + 2 + lessons.slice(currentLessonIndex + 1).findIndex((lesson) => !lesson.isCompleted)}`
+                  : 'Back to Learn'}
           </button>
         </div>
       </div>

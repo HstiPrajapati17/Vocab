@@ -54,11 +54,12 @@ const checkAchievement = (criteria, user, progressRecords = []) => {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, refreshUser } = useApp();
+  const { user, refreshUser, showToast } = useApp();
   const [ activeTab, setActiveTab ] = useState('activity');
   const [ editing, setEditing ] = useState(false);
   const [ displayName, setDisplayName ] = useState(user?.name || 'Learner');
   const [ saving, setSaving ] = useState(false);
+  const [avatarSaving, setAvatarSaving] = useState(false);
   const [ selectedImage, setSelectedImage ] = useState(null);
   const fileInputRef = React.useRef(null);
 
@@ -74,11 +75,7 @@ const Profile = () => {
   useEffect(() => {
     if (editing) return; // don't overwrite live edits
     setDisplayName(user?.name || 'Learner');
-    if (user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('data:')) {
-      setSelectedImage(user.avatar);
-    } else {
-      setSelectedImage(null);
-    }
+    setSelectedImage(typeof user?.avatar === 'string' ? user.avatar : null);
   }, [user, editing]);
 
   useEffect(() => {
@@ -132,55 +129,89 @@ const Profile = () => {
     if (!displayName.trim() || !user?.id) { setEditing(false); return; }
     setSaving(true);
     try {
-      const updated = await updateUser(user.id, { name: displayName.trim(), avatar: selectedImage || null });
-      // refreshUser is now synchronous — state updates before setEditing(false)
+      const updated = await updateUser(user.id, { name: displayName.trim() });
       refreshUser(updated);
-    } catch (e) { console.error(e); }
-    finally { setSaving(false); setEditing(false); }
+      showToast('Profile updated successfully', 'success');
+      setEditing(false);
+    } catch (error) {
+      console.error('Profile update failed:', error);
+      showToast(error?.message || 'Could not update your profile', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleImageUpload = async e => {
-    const f = e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onloadend = () => {
-      // Compress image to max 200x200 and quality 0.7 to keep payload small
-      const img = new Image();
-      img.onload = async () => {
-        const canvas = document.createElement('canvas');
-        const MAX = 200;
-        let w = img.width, h = img.height;
-        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-        else { w = Math.round(w * MAX / h); h = MAX; }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        setSelectedImage(dataUrl);
-        if (user?.id) {
-          try {
-            const updated = await updateUser(user.id, { avatar: dataUrl });
-            refreshUser(updated);
-          } catch (err) {
-            console.error('Avatar save failed:', err);
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+    setAvatarSaving(true);
+    try {
+      const { blob, preview } = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 200;
+          let w = img.width, h = img.height;
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+          canvas.width = w;
+          canvas.height = h;
+          const context = canvas.getContext('2d');
+          if (!context) {
+            reject(new Error('Could not process the selected image'));
+            return;
           }
-        }
-      };
-      img.src = r.result;
-    };
-    r.readAsDataURL(f);
+          context.drawImage(img, 0, 0, w, h);
+          canvas.toBlob((result) => {
+            if (!result) {
+              reject(new Error('Could not process the selected image'));
+              return;
+            }
+            resolve({ blob: result, preview: canvas.toDataURL('image/jpeg', 0.7) });
+          }, 'image/jpeg', 0.7);
+        };
+        img.onerror = () => reject(new Error('Could not read the selected image'));
+        img.src = imageUrl;
+      });
+
+      if (!user?.id) throw new Error('Please sign in again before changing your photo');
+      setSelectedImage(preview);
+      const updated = await updateUser(user.id, { avatar: blob });
+      const savedAvatar = updated?.avatar || updated?.avatarUrl;
+      if (!savedAvatar) throw new Error('The server did not return the saved profile photo');
+      refreshUser(updated);
+      setSelectedImage(savedAvatar);
+      showToast('Profile photo saved', 'success');
+    } catch (error) {
+      console.error('Avatar save failed:', error);
+      setSelectedImage(typeof user?.avatar === 'string' ? user.avatar : null);
+      showToast(error?.message || 'Could not save your profile photo', 'error');
+    } finally {
+      URL.revokeObjectURL(imageUrl);
+      setAvatarSaving(false);
+      e.target.value = '';
+    }
   };
 
   const handleCameraClick = () => fileInputRef.current?.click();
 
   const handleRemoveImage = async () => {
+    if (!user?.id) return;
+    const previousImage = selectedImage;
     setSelectedImage(null);
-    if (user?.id) {
-      try {
-        const updated = await updateUser(user.id, { avatar: null });
-        refreshUser(updated);
-      } catch (err) {
-        console.error('Avatar remove failed:', err);
-      }
+    setAvatarSaving(true);
+    try {
+      const updated = await updateUser(user.id, { avatar: null });
+      refreshUser(updated);
+      showToast('Profile photo removed', 'success');
+    } catch (error) {
+      console.error('Avatar remove failed:', error);
+      setSelectedImage(previousImage);
+      showToast(error?.message || 'Could not remove your profile photo', 'error');
+    } finally {
+      setAvatarSaving(false);
     }
   };
 
@@ -223,14 +254,14 @@ const Profile = () => {
               </div>
               {editing && (
                 <div className="hprof_avatar_actions">
-                  <button type="button" className="hprof_avatar_btn hprof_cam_btn" onClick={handleCameraClick} title="Change photo" aria-label="Change profile photo">
+                  <button type="button" className="hprof_avatar_btn hprof_cam_btn" onClick={handleCameraClick} title="Change photo" aria-label="Change profile photo" disabled={avatarSaving}>
                     <FaCamera size={12} />
                   </button>
                 </div>
               )}
             </div>
             {editing && selectedImage && (
-              <button type="button" className="hprof_remove_photo_btn" onClick={handleRemoveImage}>
+              <button type="button" className="hprof_remove_photo_btn" onClick={handleRemoveImage} disabled={avatarSaving}>
                 <FaTrash size={12} />
                 <span>Remove photo</span>
               </button>
@@ -255,13 +286,13 @@ const Profile = () => {
                   maxLength={30}
                 />
                 <div className="hprof_edit_actions">
-                  <button className="hprof_save_btn" onClick={handleSaveName} disabled={saving}>
-                    <FaCheck size={12} /> {saving ? 'Saving…' : 'Save Changes'}
+                  <button className="hprof_save_btn" onClick={handleSaveName} disabled={saving || avatarSaving}>
+                    <FaCheck size={12} /> {saving ? 'Saving…' : avatarSaving ? 'Saving photo…' : 'Save Changes'}
                   </button>
                   <button className="hprof_cancel_btn" onClick={() => {
                     setEditing(false);
                     setDisplayName(user?.name || 'Learner');
-                    setSelectedImage(user?.avatar && typeof user.avatar === 'string' && user.avatar.startsWith('data:') ? user.avatar : null);
+                    setSelectedImage(typeof user?.avatar === 'string' ? user.avatar : null);
                   }}>
                     Cancel
                   </button>
