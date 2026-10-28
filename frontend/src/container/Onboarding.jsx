@@ -25,6 +25,7 @@ import ohter_img from "../assets/more.jpg";
 import { BsArrowRightCircleFill } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaSpinner } from "react-icons/fa";
+import { getOnboardingOptions } from "../api";
 
 /* ───────────────────────────────────────── Subscription Step ───────────────────────────────────────── */
 const plans = [
@@ -223,6 +224,7 @@ const SubscriptionStep = ({ onComplete }) => {
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [remoteOptions, setRemoteOptions] = useState(null);
   const [formData, setFormData] = useState({
     learningLanguage: "",
     englishLevel: "",
@@ -232,14 +234,22 @@ const Onboarding = () => {
     yourinterest: [],
   });
 
-  const languages = [
+  useEffect(() => {
+    let active = true;
+    getOnboardingOptions()
+      .then((options) => { if (active) setRemoteOptions(options); })
+      .catch((error) => console.error('Could not load onboarding options:', error));
+    return () => { active = false; };
+  }, []);
+
+  const defaultLanguages = [
     { id: "en", name: "English", flag: us_flag },
     { id: "de", name: "German", flag: germany_flag },
     { id: "fr", name: "French", flag: france_flag },
     { id: "ps", name: "Polish", flag: poland_flag },
   ];
 
-  const Nativelanguages = [
+  const defaultNativeLanguages = [
     { id: "en", name: "English", flag: us_flag },
     { id: "de", name: "German", flag: germany_flag },
     { id: "fr", name: "French", flag: france_flag },
@@ -247,7 +257,7 @@ const Onboarding = () => {
     { id: "ot", name: "Other", flag: ohter_img },
   ];
 
-  const englishLevels = [
+  const defaultEnglishLevels = [
     { id: "beginner", name: "Beginner", desc: "Just starting out", icon: "🌱" },
     {
       id: "intermediate",
@@ -258,7 +268,7 @@ const Onboarding = () => {
     { id: "advanced", name: "Advanced", desc: "Very proficient", icon: "🌴" },
   ];
 
-  const learningGoals = [
+  const defaultLearningGoals = [
     { id: "study", name: "Prepare for studying abroad", icon: <FaFlag /> },
     { id: "connect", name: "Connect with people", icon: <FaBook /> },
     { id: "career", name: "Advance in my career", icon: <FaTrophy /> },
@@ -271,7 +281,7 @@ const Onboarding = () => {
     { id: "other", name: "Other", icon: <HiDotsHorizontal /> },
   ];
 
-  const yourInterests = [
+  const defaultYourInterests = [
     { id: "travel", name: "Travel" },
     { id: "food", name: "Food" },
     { id: "music", name: "Music" },
@@ -293,12 +303,32 @@ const Onboarding = () => {
     { id: "education", name: "Education" },
   ];
 
-  const dailyCommitments = [
+  const defaultDailyCommitments = [
     { id: "5", name: "5 mins", badge: "Casual" },
     { id: "15", name: "15 mins", badge: "Regular" },
     { id: "30", name: "30 mins", badge: "Serious" },
     { id: "60", name: "1 hr", badge: "Dedicated" },
   ];
+
+  const FLAG_OPTIONS = { English: us_flag, French: france_flag, German: germany_flag, Polish: poland_flag, Other: ohter_img };
+  const languages = remoteOptions?.languages?.length
+    ? remoteOptions.languages.map((item) => ({ id: item.id || item.name, name: item.name, flag: FLAG_OPTIONS[item.name] || us_flag }))
+    : defaultLanguages;
+  const Nativelanguages = remoteOptions?.nativeLanguages?.length
+    ? remoteOptions.nativeLanguages.map((item) => ({ id: item.id || item.name, name: item.name, flag: FLAG_OPTIONS[item.name] || ohter_img }))
+    : defaultNativeLanguages;
+  const englishLevels = remoteOptions?.levels?.length
+    ? remoteOptions.levels.map((item) => ({ id: item.id || item.name, name: item.name || item.label, desc: item.desc || item.description || 'Choose your current level', icon: item.icon || '??' }))
+    : defaultEnglishLevels;
+  const learningGoals = remoteOptions?.goals?.length
+    ? remoteOptions.goals.map((item, index) => ({ id: item.id || item.name, name: item.name, icon: defaultLearningGoals[index % defaultLearningGoals.length].icon }))
+    : defaultLearningGoals;
+  const yourInterests = remoteOptions?.interests?.length
+    ? remoteOptions.interests.map((item) => ({ id: item.id || item.name, name: item.name }))
+    : defaultYourInterests;
+  const dailyCommitments = remoteOptions?.commitments?.length
+    ? remoteOptions.commitments.map((item) => ({ id: item.id || item.name, name: item.name, badge: item.badge || item.label }))
+    : defaultDailyCommitments;
 
   const steps = [
     {

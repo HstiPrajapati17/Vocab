@@ -1,11 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, Col, Row } from 'react-bootstrap';
 import { FaVolumeUp } from 'react-icons/fa';
 import { useApp } from '../App';
+import { getAlphabetByLanguage } from '../api';
 
 export default function Letters() {
-    const { user, refreshUser } = useApp();
+    const { user } = useApp();
     const [selectedLetter, setSelectedLetter] = useState(null);
+    const [remoteAlphabet, setRemoteAlphabet] = useState(null);
+    useEffect(() => {
+        getAlphabetByLanguage(user?.language || 'English')
+            .then((data) => setRemoteAlphabet(Array.isArray(data?.letters) ? data.letters : null))
+            .catch(() => setRemoteAlphabet(null));
+    }, [user?.language]);
 
     // Language alphabets and pronunciation data
     const languageAlphabets = {
@@ -130,7 +137,7 @@ export default function Letters() {
         ],
     };
 
-    const currentAlphabets = languageAlphabets[user?.language] || languageAlphabets.English;
+    const currentAlphabets = remoteAlphabet || languageAlphabets[user?.language] || languageAlphabets.English;
 
     const speakLetter = (letter, pronunciation) => {
         if ('speechSynthesis' in window) {

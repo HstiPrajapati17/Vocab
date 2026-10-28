@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navbar, Nav, Container, Button, Offcanvas, Modal } from 'react-bootstrap';
-import { Flame, Heart, Star, User, Trophy, BookOpen, LogOut, Menu } from 'lucide-react';
+import { Flame, Heart, Star, User, BookOpen, LogOut, Menu } from 'lucide-react';
 
 const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
   const [expanded, setExpanded] = useState(false);
@@ -62,12 +62,6 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
                   <BookOpen className="me-1" size={16} /> Learn
                 </Nav.Link>
                 <Nav.Link
-                  onClick={() => handleNav('leaderboard')}
-                  className={`h_nav_link ${currentPage === 'leaderboard' ? 'h_nav_active' : ''}`}
-                >
-                  <Trophy className="me-1" size={16} /> Leaderboard
-                </Nav.Link>
-                <Nav.Link
                   onClick={() => handleNav('profile')}
                   className={`h_nav_link ${currentPage === 'profile' ? 'h_nav_active' : ''}`}
                 >
@@ -105,10 +99,6 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
                 <div className="h_stat_item">
                   <Heart className="h_icon_heart" size={18} />
                   <span>{user?.hearts ?? 5}</span>
-                </div>
-                <div className="h_stat_item">
-                  <Star className="h_icon_xp" size={18} />
-                  <span>{user?.xp || 0} XP</span>
                 </div>
               </div>
 
@@ -176,12 +166,6 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
                     </Nav.Link>
                   )}
                   <Nav.Link
-                    onClick={() => handleNav('leaderboard')}
-                    className={`h_nav_link ${currentPage === 'leaderboard' ? 'h_nav_active' : ''}`}
-                  >
-                    <Trophy className="me-2" size={16} /> Leaderboard
-                  </Nav.Link>
-                  <Nav.Link
                     onClick={() => handleNav('profile')}
                     className={`h_nav_link ${currentPage === 'profile' ? 'h_nav_active' : ''}`}
                   >
@@ -197,10 +181,6 @@ const AppNavbar = ({ navigate, isLoggedIn, onLogout, user, currentPage }) => {
                   <div className="h_stat_item">
                     <Heart className="h_icon_heart" size={18} />
                     <span>{user?.hearts ?? 5}</span>
-                  </div>
-                  <div className="h_stat_item">
-                    <Star className="h_icon_xp" size={18} />
-                    <span>{user?.xp || 0} XP</span>
                   </div>
                 </div>
 

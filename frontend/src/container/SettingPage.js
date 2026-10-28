@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../App';
 import '../style/SettingsPage.css';
-import { updateUser } from '../api';
+import { updateUser, resetUserProgress, deleteUserAccount, getUserSettings } from '../api';
 import { 
   FaGlobe, 
   FaPalette, 
@@ -20,7 +20,7 @@ import { MdAutoDelete } from 'react-icons/md';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-  const { user, refreshUser } = useApp();
+  const { user, refreshUser, handleLogout } = useApp();
   const [settings, setSettings] = useState({
     language: user?.language || 'English',
     notifications: true,
@@ -32,9 +32,9 @@ const SettingsPage = () => {
   });
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem('vocabSettings');
+    const savedSettings = user?.settings || localStorage.getItem('vocabSettings');
     if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
+      const parsed = typeof savedSettings === 'string' ? JSON.parse(savedSettings) : savedSettings;
       // Merge but prefer the user's actual language from the app context
       setSettings(prev => ({
         ...parsed,
@@ -43,7 +43,21 @@ const SettingsPage = () => {
     } else if (user?.language) {
       setSettings(prev => ({ ...prev, language: user.language }));
     }
-  }, [user?.language]);
+  }, [user?.language, user?.settings]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getUserSettings().then((data) => {
+      setSettings((prev) => ({
+        ...prev,
+        notifications: data?.notifications?.status ?? prev.notifications,
+        dailyReminder: data?.notifications?.dailyPracticeReminder ?? prev.dailyReminder,
+        showProgress: data?.notifications?.weeklyProgressSummary ?? prev.showProgress,
+        soundEffects: data?.preferences?.soundEffects ?? prev.soundEffects,
+        autoPlay: data?.preferences?.listeningExercises ?? prev.autoPlay,
+      }));
+    }).catch((error) => console.error('Could not load settings:', error));
+  }, [user?.id]);
 
   const handleSettingChange = async (key, value) => {
     const newSettings = { ...settings, [key]: value };
@@ -54,14 +68,37 @@ const SettingsPage = () => {
       document.body.classList.toggle('dark-mode', value);
     }
 
-    // Persist language changes to the backend and update the app context
-    if (key === 'language' && user?.id) {
+    if (user?.id) {
       try {
-        const updated = await updateUser(user.id, { language: value });
+        const updated = await updateUser(user.id, {
+          settings: newSettings,
+          ...(key === 'language' ? { language: value } : {}),
+        });
         refreshUser(updated);
       } catch (err) {
         console.error('Failed to update language:', err);
       }
+    }
+  };
+
+  const handleResetProgress = async () => {
+    if (!user?.id || !window.confirm('Reset all lesson progress, streak and insights?')) return;
+    try {
+      const updated = await resetUserProgress(user.id);
+      refreshUser(updated);
+    } catch (error) {
+      window.alert(error.message || 'Could not reset progress.');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user?.id || !window.confirm('Delete your account and learning history permanently?')) return;
+    try {
+      await deleteUserAccount(user.id);
+      handleLogout();
+      navigate('/');
+    } catch (error) {
+      window.alert(error.message || 'Could not delete your account.');
     }
   };
 
@@ -235,7 +272,7 @@ const SettingsPage = () => {
             title="Reset All Progress"
             description="This will delete all your learning progress"
           >
-            <button className="settings-button settings-button-danger">
+            <button className="settings-button settings-button-danger" onClick={handleResetProgress}>
               Reset Progress
             </button>
           </SettingCard>
@@ -245,7 +282,7 @@ const SettingsPage = () => {
             title="Delete Account"
             description="Permanently delete your account and all data"
           >
-            <button className="settings-button settings-button-danger">
+            <button className="settings-button settings-button-danger" onClick={handleDeleteAccount}>
               Delete Account
             </button>
           </SettingCard>

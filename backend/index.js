@@ -1,30 +1,33 @@
-const jsonServer = require('json-server');
-const path = require('path');
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import { connectDB } from "./DB/connectdb.js";
+import { seedFrontendContent } from "./services/contentSeed.service.js";
+import indexRouter from "./routes/index.routes.js";
 
-const server = jsonServer.create();
-const router = jsonServer.router(path.join(__dirname, '../db.json'));
-const middlewares = jsonServer.defaults();
+import dns from "node:dns";
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
-// ── CORS – allow the React dev server (any origin) ──────────────────────────
-server.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
-  next();
+const app = express();
+const port = Number(process.env.PORT) || 5000;
+
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+app.use("/api", indexRouter);
+
+app.use((error, _req, res, _next) => {
+  console.error("API error:", error);
+  res.status(error.status || 500).json({
+    success: false,
+    message: error.message || "Internal server error",
+  });
 });
 
-// ── Body-size limit: 10 MB to handle base64 avatar images ───────────────────
-server.use(require('express').json({ limit: '10mb' }));
-server.use(require('express').urlencoded({ limit: '10mb', extended: true }));
-
-// ── json-server defaults (logger, static, no-cache) ─────────────────────────
-server.use(middlewares);
-
-// ── Routes ───────────────────────────────────────────────────────────────────
-server.use(router);
-
-// ── Start ────────────────────────────────────────────────────────────────────
-server.listen(3001, () => {
-  console.log('JSON Server running on http://localhost:3001');
+await connectDB(process.env.DB_URL);
+await seedFrontendContent();
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Vocab API is running on port ${port}`);
 });

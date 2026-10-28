@@ -33,14 +33,20 @@ const Signup = () => {
       // 1) Actually POST the new user to the server FIRST so we get the real
       //    numeric id. Without this, LanguageSelect sees a temp id (u_XXXX)
       //    and tries to PATCH /users/u_XXXX which always returns 404.
+      const onboardingData = JSON.parse(localStorage.getItem('onboardingData') || '{}');
       const createdUser = await registerUser(
         form.name,
         form.email,
         form.password,
-        null,   // language   → set in next step (/language-select)
-        null,   // level      → set in next step
-        null    // dailyGoal  → set in next step
+        onboardingData.learningLanguage || 'Spanish',
+        onboardingData.englishLevel || 'Beginner',
+        onboardingData.dailyCommitment || '15 minutes',
+        onboardingData.nativeLanguage || 'English',
+        onboardingData.learningGoal || 'Travel',
+        'Morning',
+        onboardingData.yourinterest || [],
       );
+      localStorage.removeItem('onboardingData');
       // 2) Now put the SERVER-returned user (with real numeric id) into context.
       handleSignupComplete(createdUser);
       navigate('/language-select');

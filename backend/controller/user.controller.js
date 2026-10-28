@@ -143,6 +143,24 @@ export const updateProfile = async (req, res) => {
 
     if (name) user.name = name.trim();
     if (phone) user.phone = phone.trim();
+    if (typeof req.body.avatarUrl === "string" && !req.body.avatarUrl.startsWith("data:")) {
+      user.avatarUrl = req.body.avatarUrl;
+    }
+    if (req.body.avatarUrl === null) user.avatarUrl = null;
+
+    // The web client stores course rewards on the same Mongo user document.
+    // Whitelist numeric/game fields so profile edits cannot alter roles or plans.
+    for (const field of ["xp", "gems", "hearts", "maxHearts", "streakDays", "activeLesson"]) {
+      if (req.body[field] !== undefined && Number.isFinite(Number(req.body[field]))) {
+        user[field] = Math.max(0, Number(req.body[field]));
+      }
+    }
+    if (Array.isArray(req.body.completedLessons)) user.completedLessons = req.body.completedLessons;
+    if (Array.isArray(req.body.rewardedLessons)) user.rewardedLessons = req.body.rewardedLessons.map(String);
+    if (req.body.lastPracticedDate !== undefined) user.lastPracticedDate = req.body.lastPracticedDate || null;
+    if (req.body.powerups && typeof req.body.powerups === "object") {
+      user.powerups = { ...user.powerups.toObject?.(), ...req.body.powerups };
+    }
 
     if (req.file) {
       if (user.avatarUrl) {

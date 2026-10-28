@@ -19,10 +19,10 @@ const levels = [
 ];
 
 const goals = [
-  { label: 'Casual', xp: 10, icon: '😌' },
-  { label: 'Regular', xp: 20, icon: '📚' },
-  { label: 'Serious', xp: 30, icon: '🎯' },
-  { label: 'Intense', xp: 50, icon: '🔥' },
+  { label: 'Casual', icon: '😌' },
+  { label: 'Regular', icon: '📚' },
+  { label: 'Serious', icon: '🎯' },
+  { label: 'Intense', icon: '🔥' },
 ];
 
 // A "real server id" means a numeric value (or a pure numeric string like "5").
@@ -31,7 +31,7 @@ const goals = [
 const isRealServerId = (id) => {
   if (id == null) return false;
   if (typeof id === 'number') return Number.isFinite(id);
-  return /^\d+$/.test(String(id));
+  return !String(id).startsWith('u_');
 };
 
 const LanguageSelect = () => {
@@ -223,7 +223,7 @@ const LanguageSelect = () => {
                 >
                   <div className="h_goal_emoji">{goal.icon}</div>
                   <div className="h_goal_name fw-bold">{goal.label}</div>
-                  <div className="h_goal_xp text-muted small">{goal.xp} XP / day</div>
+                  <div className="text-muted small">Daily learning goal</div>
                   {selectedGoal === goal.label && <Check className="text-success mt-1" size={18} />}
                 </div>
               </Col>

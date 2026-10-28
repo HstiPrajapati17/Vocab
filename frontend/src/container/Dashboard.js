@@ -50,21 +50,21 @@ const SectionsPanel = ({
           {units.map((unit, idx) => {
             const unitLessons = allLessons.filter((l) => l.unitId === unit.id);
             const completedCount = unitLessons.filter((l) =>
-              completedLessons.has(Number(l.id)),
+              completedLessons.has(String(l.id)),
             ).length;
             const totalCount = unitLessons.length || unit.unitCount;
             const progressPct =
               totalCount > 0
                 ? Math.round((completedCount / totalCount) * 100)
                 : 0;
-            const isActive = unitLessons.some((l) => Number(l.id) === activeLesson);
+            const isActive = unitLessons.some((l) => String(l.id) === activeLesson);
             const isLocked =
               idx > 0 &&
               units.slice(0, idx).every((u) => {
                 const prev = allLessons.filter((l) => l.unitId === u.id);
                 return (
                   prev.length > 0 &&
-                  prev.every((l) => completedLessons.has(Number(l.id)))
+                  prev.every((l) => completedLessons.has(String(l.id)))
                 );
               }) === false &&
               completedCount === 0 &&
@@ -195,19 +195,19 @@ const Dashboard = () => {
   }, [lessons.length, user?.completedLessons, handleLessonStats]);
 
   const completedLessons = useMemo(() => {
-    const ids = (user?.completedLessons || []).map((id) => Number(id));
+    const ids = (user?.completedLessons || []).map((item) => String(item?.journeyLessonId || item?.lessonId || item));
     return new Set(ids);
   }, [user?.completedLessons]);
 
   const activeLesson = useMemo(() => {
     if (!lessons.length) return 1;
-    const next = lessons.find((l) => !completedLessons.has(Number(l.id)));
+    const next = lessons.find((l) => !completedLessons.has(String(l.id)));
     const id = next ? next.id : lessons[lessons.length - 1].id;
-    return Number(id);
+    return String(id);
   }, [lessons, completedLessons]);
 
   const handleLessonClick = (lesson) => {
-    const lessonId = Number(lesson.id);
+    const lessonId = String(lesson.id);
     const isCompleted = completedLessons.has(lessonId);
     const isActive = lessonId === activeLesson;
     if (!isCompleted && !isActive) return;
@@ -216,12 +216,12 @@ const Dashboard = () => {
 
   const unitGroups = unitMeta.map((unit) => ({
     ...unit,
-    lessons: lessons.filter((l) => Number(l.unitId) === Number(unit.id)),
+    lessons: lessons.filter((l) => String(l.unitId) === String(unit.id)),
   }));
 
   // Which unit is currently active (has the active lesson)
   const activeUnit =
-    unitGroups.find((u) => u.lessons.some((l) => Number(l.id) === activeLesson)) ||
+    unitGroups.find((u) => u.lessons.some((l) => String(l.id) === activeLesson)) ||
     unitGroups[0];
 
   // Scroll to a unit when jumping from the panel
@@ -287,7 +287,7 @@ const Dashboard = () => {
 
             <div className="h_learn_path">
               {unit.lessons.map((lesson, idx) => {
-                const lessonId = Number(lesson.id);
+                const lessonId = String(lesson.id);
                 const isCompleted = completedLessons.has(lessonId);
                 const isActive = lessonId === activeLesson;
                 const isLocked = !isCompleted && !isActive;

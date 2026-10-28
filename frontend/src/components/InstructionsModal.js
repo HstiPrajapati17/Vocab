@@ -1,18 +1,13 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { BookOpen, X, Check, ArrowRight, Target, Star } from 'lucide-react';
+import { BookOpen, Check, ArrowRight, Target } from 'lucide-react';
 
 const InstructionsModal = ({ show, onHide }) => {
   const instructions = [
     {
       icon: <Target size={24} />,
       title: 'Complete Lessons',
-      description: 'Click on lesson nodes to start learning. Complete lessons to unlock new content and earn XP.'
-    },
-    {
-      icon: <Star size={24} />,
-      title: 'Earn XP',
-      description: 'Gain experience points for completing lessons. Track your progress and level up your language skills.'
+      description: 'Click on lesson nodes to start learning. Complete lessons to unlock new content.'
     },
     {
       icon: <Check size={24} />,
@@ -64,7 +59,7 @@ const InstructionsModal = ({ show, onHide }) => {
               <li>Practice daily to maintain your learning streak</li>
               <li>Review previous lessons to reinforce your knowledge</li>
               <li>Use the pronunciation feature to improve your accent</li>
-              <li>Complete all exercises in each lesson for maximum XP</li>
+              <li>Complete all exercises in each lesson to track your progress</li>
             </ul>
           </div>
         </div>

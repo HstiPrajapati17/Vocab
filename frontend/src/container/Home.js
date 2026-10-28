@@ -9,9 +9,7 @@ import {
   ArrowRight,
   BookOpen,
   Users,
-  Zap,
   CheckCircle,
-  TrendingUp,
   Award,
 } from "lucide-react";
 import flag_1 from "../assets/USFlag.webp";
@@ -163,15 +161,15 @@ const Home = () => {
                     <div>
                       <p className="hp_card_header_label">My Courses</p>
                       <p className="hp_card_header_sub">
-                        Daily goal: 68 / 100 XP
+                        Daily goal: 15 / 20 min
                       </p>
                     </div>
                     <span className="hp_badge_active">4 active</span>
                   </div>
 
                   {/* progress bar */}
-                  <div className="hp_xp_track">
-                    <div className="hp_xp_fill" style={{ width: "68%" }} />
+                  <div className="hp_goal_track">
+                    <div className="hp_goal_fill" style={{ width: "68%" }} />
                   </div>
 
                   {/* language rows */}
@@ -191,15 +189,15 @@ const Home = () => {
                             {lang.learners} learners
                           </span>
                         </div>
-                        <Zap size={16} className="hp_lang_zap" />
+                        <ArrowRight size={16} className="hp_lang_zap" />
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* floating XP badge */}
-                <div className="hp_float_badge hp_float_xp">
-                  <TrendingUp size={14} /> +20 XP earned
+                {/* floating progress badge */}
+                <div className="hp_float_badge hp_float_progress">
+                  <CheckCircle size={14} /> Lesson completed
                 </div>
                 {/* floating streak badge */}
                 <div className="hp_float_badge hp_float_streak">
@@ -365,18 +363,18 @@ const Home = () => {
                         style={{ width: "65%" }}
                       />
                     </div>
-                    <span className="hp_mk_xp_label">65 / 100 XP</span>
+                    <span className="hp_mk_goal_label">15 / 20 min</span>
                   </div>
 
                   <div className="hp_mk_card">
                     <span className="hp_mk_card_emoji">🔤</span>
                     <span className="hp_mk_card_label">Vocabulary</span>
-                    <span className="hp_mk_badge">+10 XP</span>
+                    <span className="hp_mk_badge">Done</span>
                   </div>
                   <div className="hp_mk_card">
                     <span className="hp_mk_card_emoji">🎧</span>
                     <span className="hp_mk_card_label">Listening</span>
-                    <span className="hp_mk_badge">+15 XP</span>
+                    <span className="hp_mk_badge">Done</span>
                   </div>
                   <div className="hp_mk_card">
                     <span className="hp_mk_card_emoji">✍️</span>
@@ -480,7 +478,7 @@ const Home = () => {
             <div className="hp_footer_nav_cols">
               <div className="hp_footer_col">
                 <p className="hp_footer_col_title">Product</p>
-                {["Courses", "Leaderboard", "Quests", "Shop"].map((l) => (
+                {["Courses", "Letters", "Insights"].map((l) => (
                   <span className="hp_footer_link" key={l}>
                     {l}
                   </span>

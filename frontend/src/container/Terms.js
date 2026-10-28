@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { FileText } from 'lucide-react';
 import '../style/info_pages.css';
+import { getTermsConditions } from '../api';
 
 const Terms = () => {
+  const [terms, setTerms] = useState(null);
+  useEffect(() => { getTermsConditions().then(setTerms).catch(() => {}); }, []);
+  if (terms?.sections?.length) return (
+    <div className="text-page terms-text-page"><Container className="text-container">
+      <div className="text-header"><h1 className="text-title">Terms of Service</h1><p className="text-subtitle">Last Updated: {terms.lastUpdated}</p></div>
+      <div className="text-content">
+        {terms.introduction && <p className="text-paragraph">{terms.introduction}</p>}
+        {terms.sections.map((section, index) => <section className="text-section" key={section._id || section.title}>
+          <h2 className="section-heading">{section.title || `${index + 1}. General`}</h2>
+          {section.description && <p className="text-paragraph">{section.description}</p>}
+          {section.points?.map((point, pointIndex) => <p className="text-paragraph" key={pointIndex}>{point}</p>)}
+        </section>)}
+      </div>
+    </Container></div>
+  );
   return (
     <div className="text-page terms-text-page">
       <Container className="text-container">

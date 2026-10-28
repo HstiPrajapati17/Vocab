@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { ChevronDown, ChevronRight, Send } from "lucide-react";
 import "../style/info_pages.css";
 import { Link } from "react-router-dom";
+import { getHelpCenter } from "../api";
 
 /* ── FAQ data grouped by category ───────────────────────── */
 const faqGroups = [
@@ -13,18 +14,6 @@ const faqGroups = [
       {
         q: "Why did my course change?",
         a: "We occasionally update course content to improve quality and add new lessons. Your progress is always preserved when changes occur.",
-      },
-      {
-        q: "What is a streak?",
-        a: "A streak counts the number of consecutive days you have completed at least one lesson. Maintaining your streak earns bonus XP and special rewards!",
-      },
-      {
-        q: "What are leaderboards and leagues?",
-        a: "Each week you compete with learners in your league. Earn XP to climb the ranks and get promoted to a higher league at the end of the week.",
-      },
-      {
-        q: "How do I earn XP?",
-        a: "XP is earned by completing lessons, quizzes, daily quests, and streak bonuses. The harder the exercise, the more XP you receive.",
       },
     ],
   },
@@ -38,7 +27,7 @@ const faqGroups = [
       },
       {
         q: "How do I find, follow, and block users?",
-        a: "Visit the Leaderboard or another user's Profile page. Use the menu icon next to their name to follow, unfollow, or block them.",
+        a: "Visit another user's Profile page to view their learning profile.",
       },
       {
         q: "How do I remove or reset a course?",
@@ -60,7 +49,7 @@ const faqGroups = [
     items: [
       {
         q: "What is VocabLearn Plus and how do I subscribe?",
-        a: "VocabLearn Plus removes ads, adds offline mode, and unlocks streak repair. Subscribe from the Shop page or your account settings.",
+        a: "VocabLearn Plus removes ads and adds offline mode. Subscribe from your account settings.",
       },
       {
         q: "Family Plan",
@@ -90,7 +79,7 @@ const faqGroups = [
       },
       {
         q: "Can I learn multiple languages at once?",
-        a: "Yes! You can have as many active courses as you like. XP and streaks are shared across all your languages.",
+        a: "Yes! You can have as many active courses as you like. Your progress is stored for each language.",
       },
       {
         q: "What languages are available?",
@@ -106,7 +95,7 @@ const issueTypes = [
   "Billing / Payment",
   "Course content error",
   "App not working",
-  "Streak / XP issue",
+  "Learning progress issue",
   "Other",
 ];
 
@@ -336,6 +325,16 @@ const FeedbackForm = ({ onBack }) => {
 /* ── Main Help page ──────────────────────────────────────── */
 const Help = () => {
   const [view, setView] = useState("faq"); // 'faq' | 'feedback'
+  const [remoteGroups, setRemoteGroups] = useState(null);
+  useEffect(() => {
+    getHelpCenter().then((sections) => {
+      if (Array.isArray(sections) && sections.length) setRemoteGroups(sections.map((section) => ({
+        id: section._id,
+        label: section.title,
+        items: (section.points?.length ? section.points : [section.description]).filter(Boolean).map((point) => ({ q: point, a: section.description })),
+      })));
+    }).catch(() => {});
+  }, []);
 
   if (view === "feedback") {
     return <FeedbackForm onBack={() => setView("faq")} />;
@@ -356,7 +355,7 @@ const Help = () => {
         <h1 className="hlp2_page_title">Frequently Asked Questions</h1>
 
         <div className="hlp2_faq_container">
-          {faqGroups.map((group) => (
+          {(remoteGroups || faqGroups).map((group) => (
             <FaqGroup key={group.id} group={group} />
           ))}
         </div>

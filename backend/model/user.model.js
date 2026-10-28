@@ -80,6 +80,20 @@ const UserSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    // Game state used by the web client. Keep these on the Mongo user so
+    // rewards, hearts, and course progress survive across sessions.
+    xp: { type: Number, default: 0, min: 0 },
+    gems: { type: Number, default: 0, min: 0 },
+    hearts: { type: Number, default: 5, min: 0 },
+    maxHearts: { type: Number, default: 5, min: 1 },
+    completedLessons: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    rewardedLessons: { type: [String], default: [] },
+    activeLesson: { type: Number, default: 1, min: 1 },
+    powerups: {
+      streakFreeze: { type: Number, default: 0 },
+      xpBoostMinutes: { type: Number, default: 0 },
+      xpBoostActiveUntil: { type: Date, default: null },
+    },
     lastPracticedDate: {
       type: Date,
       default: null,

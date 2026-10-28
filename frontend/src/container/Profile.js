@@ -3,26 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Spinner } from 'react-bootstrap';
 import {
-  FaFire, FaStar, FaMedal, FaEdit, FaCheck,
+  FaFire, FaEdit, FaCheck,
   FaChartBar, FaBook, FaCamera, FaTrash,
-  FaCalendar, FaShieldAlt, FaLanguage,
-  FaBullseye, FaClock, FaCrown, FaGem,
-  FaRocket, FaTrophy, FaAward
+  FaCalendar, FaLanguage,
+  FaBullseye, FaClock, FaAward
 } from 'react-icons/fa';
 import {
   updateUser,
   getAchievements,
-  getUserActivity,
-  getLevelThresholds,
   getLessonProgress,
   getLessons,
 } from '../api';
 import { useApp } from '../App';
 import '../style/profile_style.css';
-
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-const LEVEL_ORDER = ['Beginner', 'Intermediate', 'Advanced', 'Fluent', 'Master'];
 
 const checkAchievement = (criteria, user, progressRecords = []) => {
   if (!criteria || !user) return false;
@@ -30,9 +23,7 @@ const checkAchievement = (criteria, user, progressRecords = []) => {
   if (criteria === 'dailyGoal') return !!user.dailyGoal && user.dailyGoal !== '';
 
   const streak = Number(user.streak) || 0;
-  const xp = Number(user.xp) || 0;
   const completedCount = (user.completedLessons || []).length;
-  const levelIdx = LEVEL_ORDER.indexOf(user.level || 'Beginner');
   const perfectScores = progressRecords.filter(p => Number(p.score) >= 100).length;
 
   if (criteria.startsWith('streak>=')) {
@@ -43,21 +34,9 @@ const checkAchievement = (criteria, user, progressRecords = []) => {
     const n = Number(criteria.split('>=')[1]) || 0;
     return completedCount >= n;
   }
-  if (criteria.startsWith('xp>=')) {
-    const n = Number(criteria.split('>=')[1]) || 0;
-    return xp >= n;
-  }
-  if (criteria.startsWith('level>=')) {
-    const target = criteria.split('>=')[1];
-    const targetIdx = LEVEL_ORDER.indexOf(target);
-    return targetIdx >= 0 && levelIdx >= targetIdx;
-  }
   if (criteria.startsWith('perfectScore>=')) {
     const n = Number(criteria.split('>=')[1]) || 0;
     return perfectScores >= n;
-  }
-  if (criteria.startsWith('leaderboard<=')) {
-    return false;
   }
   if (criteria.startsWith('oneDayLessons>=')) {
     const n = Number(criteria.split('>=')[1]) || 0;
@@ -85,12 +64,8 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(true);
   const [allAchievements, setAllAchievements] = useState([]);
-  const [thresholds, setThresholds] = useState([]);
   const [lessonsMap, setLessonsMap] = useState({});
   const [progressRecords, setProgressRecords] = useState([]);
-  const [weeklyXP, setWeeklyXP] = useState(
-    weekDays.map(day => ({ day, xp: 0 }))
-  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -113,10 +88,8 @@ const Profile = () => {
 
     const loadAll = async () => {
       try {
-        const [achievementsRes, activityRes, thresholdsRes, progressRes, lessonsRes] = await Promise.all([
+        const [achievementsRes, progressRes, lessonsRes] = await Promise.all([
           getAchievements(),
-          getUserActivity(user.id),
-          getLevelThresholds(),
           getLessonProgress(user.id),
           getLessons(user.language || 'English'),
         ]);
@@ -124,29 +97,12 @@ const Profile = () => {
         if (!mounted) return;
 
         setAllAchievements(Array.isArray(achievementsRes) ? achievementsRes : []);
-        setThresholds(Array.isArray(thresholdsRes) ? thresholdsRes : []);
         setProgressRecords(Array.isArray(progressRes) ? progressRes : []);
 
         const lMap = {};
         (Array.isArray(lessonsRes) ? lessonsRes : []).forEach(l => { lMap[l.id] = l; });
         setLessonsMap(lMap);
 
-        if (activityRes && Array.isArray(activityRes.week) && activityRes.week.length > 0) {
-          setWeeklyXP(
-            weekDays.map(d => {
-              const found = activityRes.week.find(w => w.day === d);
-              return { day: d, xp: found ? Number(found.xp) || 0 : 0 };
-            })
-          );
-        } else {
-          const streakDays = Number(user.streak) || 0;
-          setWeeklyXP(
-            weekDays.map((d, i) => ({
-              day: d,
-              xp: i < Math.min(streakDays, 7) ? 20 + Math.floor((user.xp || 0) / 10) % 60 : 0,
-            }))
-          );
-        }
       } catch (e) {
         console.error('Profile data load failed:', e);
       } finally {
@@ -156,27 +112,18 @@ const Profile = () => {
 
     loadAll();
     return () => { mounted = false; };
-  }, [user?.id, user?.language, user?.streak, user?.xp]);
+  }, [user?.id, user?.language]);
 
   const getInitial = n => n?.trim()?.charAt(0)?.toUpperCase() || 'L';
   const completedLessons = user?.completedLessons || [];
-  const currentXP = user?.xp || 0;
-
-  const levelConfig = thresholds.find(t => t.level === (user?.level || 'Beginner'));
-  const maxXP = levelConfig ? Number(levelConfig.maxXP) - Number(levelConfig.minXP) : 500;
-  const xpInLevel = levelConfig
-    ? Math.max(0, currentXP - Number(levelConfig.minXP))
-    : currentXP;
-  const levelProgress = maxXP > 0 ? Math.min(Math.round((xpInLevel / maxXP) * 100), 100) : 0;
-  const xpToNext = Math.max(0, maxXP - xpInLevel);
-
-  const achievements = allAchievements.map(a => ({
+  const achievements = allAchievements.filter((achievement) =>
+    /^(dailyGoal|streak>=|completedLessons>=|perfectScore>=|oneDayLessons>=)/i.test(achievement.criteria || ''),
+  ).map(a => ({
     ...a,
     earned: checkAchievement(a.criteria, user, progressRecords),
   }));
   const earnedCount = achievements.filter(a => a.earned).length;
 
-  const maxBarXP = Math.max(...weeklyXP.map(d => d.xp), 1);
   const joinedDate = user?.joinedDate
     ? new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : 'Recently joined';
@@ -236,16 +183,6 @@ const Profile = () => {
       }
     }
   };
-
-  const getLeagueBadge = () => {
-    const xp = currentXP;
-    if (xp >= 400) return { label: 'Diamond League', icon: <FaGem />, color: '#6b7fd4', bg: 'linear-gradient(135deg, #eef0ff, #dde2ff)' };
-    if (xp >= 250) return { label: 'Gold League', icon: <FaCrown />, color: '#c4973b', bg: 'linear-gradient(135deg, #fdf5dc, #faecd0)' };
-    if (xp >= 100) return { label: 'Silver League', icon: <FaMedal />, color: '#6b7280', bg: 'linear-gradient(135deg, #f0f1f3, #e4e6ea)' };
-    return { label: 'Bronze League', icon: <FaShieldAlt />, color: '#a67c52', bg: 'linear-gradient(135deg, #faeedd, #f4dec6)' };
-  };
-
-  const league = getLeagueBadge();
 
   const formatDate = (iso) => {
     try {
@@ -347,48 +284,12 @@ const Profile = () => {
                   <span className="hprof_badge hprof_badge_lang">
                     <FaLanguage size={10} /> Learning {user?.language || 'Spanish'}
                   </span>
-                  <span
-                    className="hprof_badge hprof_badge_league"
-                    style={{ '--league-color': league.color, '--league-bg': league.bg }}
-                  >
-                    <span className="hprof_league_icon">{league.icon}</span>
-                    {league.label}
-                  </span>
                 </div>
               </>
             )}
           </div>
         </div>
 
-        {/* XP LEVEL PROGRESS */}
-        {!editing && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="hprof_level_section"
-          >
-            <div className="hprof_level_header">
-              <div className="hprof_level_title">
-                <span className="hprof_level_icon"><FaTrophy size={14} /></span>
-                <span className="hprof_level_text">Level: <strong>{user?.level || 'Beginner'}</strong></span>
-              </div>
-              <div className="hprof_level_xp">
-                <strong>{xpInLevel}</strong> / {maxXP} XP
-              </div>
-            </div>
-            <div className="hprof_progress_track">
-              <div className="hprof_progress_fill" style={{ width: `${levelProgress}%` }}>
-                <div className="hprof_progress_shine" />
-              </div>
-            </div>
-            <div className="hprof_level_footer">
-              <span className="hprof_next_level">
-                <FaRocket size={11} /> {xpToNext} XP to next level
-              </span>
-            </div>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* STATS GRID */}
@@ -407,14 +308,6 @@ const Profile = () => {
               color: '#f2a541',
               bg: 'linear-gradient(135deg, #fff7ec 0%, #ffe9cf 100%)',
               border: 'rgba(242, 165, 65, 0.35)'
-            },
-            {
-              icon: <FaStar />,
-              value: currentXP,
-              label: 'Total XP',
-              color: '#2f855a',
-              bg: 'linear-gradient(135deg, #eefaf3 0%, #d7f0e1 100%)',
-              border: 'rgba(47, 133, 90, 0.30)'
             },
             {
               icon: <FaAward />,
@@ -495,7 +388,7 @@ const Profile = () => {
           <div className="hprof_tabs_nav">
             {[
               { key: 'activity', icon: <FaChartBar size={12} />, label: 'Activity' },
-              { key: 'achievements', icon: <FaMedal size={12} />, label: 'Badges' },
+              { key: 'achievements', icon: <FaAward size={12} />, label: 'Badges' },
               { key: 'history', icon: <FaBook size={12} />, label: 'History' },
             ].map(t => (
               <button
@@ -522,28 +415,12 @@ const Profile = () => {
                   className="hprof_tab_panel"
                 >
                   <div className="hprof_section_head">
-                    <h4 className="hprof_section_title">Weekly XP Activity</h4>
-                    <span className="hprof_section_subtitle">Last 7 days progress</span>
-                  </div>
-
-                  <div className="hprof_chart_wrap">
-                    <div className="hprof_chart">
-                      {weeklyXP.map((d, i) => (
-                        <div key={i} className="hprof_chart_col">
-                          {d.xp > 0 && <span className="hprof_chart_val">{d.xp}</span>}
-                          <div
-                            className={`hprof_chart_bar ${d.xp === 0 ? 'hprof_bar_empty' : ''}`}
-                            style={{ height: `${Math.max((d.xp / maxBarXP) * 100, d.xp > 0 ? 6 : 2)}px` }}
-                          />
-                          <span className={`hprof_chart_day ${d.xp === 0 ? 'hprof_day_dim' : ''}`}>{d.day}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <h4 className="hprof_section_title">Learning Activity</h4>
+                    <span className="hprof_section_subtitle">Your learning progress</span>
                   </div>
 
                   <div className="hprof_summary_grid">
                     {[
-                      { icon: '⭐', val: currentXP, lbl: 'Total XP Earned', color: '#2f855a' },
                       { icon: '🔥', val: `${user?.streak || 0}d`, lbl: 'Current Streak', color: '#f2a541' },
                       { icon: '✅', val: completedLessons.length, lbl: 'Lessons Completed', color: '#6b7fd4' },
                     ].map((s, i) => (
@@ -637,15 +514,14 @@ const Profile = () => {
                       <h5>No lessons completed yet</h5>
                       <p>Start your learning journey and track progress here.</p>
                       <button className="hprof_empty_cta" onClick={() => navigate('/dashboard')}>
-                        Start Learning <FaRocket size={12} />
+                        Start Learning
                       </button>
                     </motion.div>
                   ) : (
                     <div className="hprof_history_list">
                       {completedLessons.slice().reverse().map((id, i) => {
                         const lesson = lessonsMap[id];
-                        const record = progressRecords.find(p => Number(p.lessonId) === Number(id));
-                        const xpEarned = record?.xpEarned || lesson?.xp || 10;
+                        const record = progressRecords.find((p) => String(p.journeyLessonId || p.lessonId) === String(id));
                         const completedAt = record?.completedAt;
                         const score = record?.score;
 
@@ -673,7 +549,6 @@ const Profile = () => {
                                 )}
                               </div>
                             </div>
-                            <div className="hprof_history_badge">+{xpEarned} XP</div>
                           </motion.div>
                         );
                       })}

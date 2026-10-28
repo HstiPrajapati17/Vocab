@@ -19,7 +19,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './style/H_style.css';
 
-import { getUser, getUserByEmail } from './api';
+import { getUser, getUserByEmail, logoutUser } from './api';
 
 import Navbar    from './components/Navbar';
 import AppShell  from './components/AppShell';
@@ -29,10 +29,7 @@ import Login         from './container/Login';
 import Signup        from './container/Signup';
 import Dashboard     from './container/Dashboard';
 import Courses       from './container/Courses';
-import Quests        from './container/Quests';
-import Shop          from './container/Shop';
 import LessonPage    from './container/LessonPage';
-import Leaderboard   from './container/Leaderboard';
 import Profile       from './container/Profile';
 import LanguageSelect from './container/LanguageSelect';
 import SettingsPage  from './container/SettingPage';
@@ -52,27 +49,22 @@ const normalizeUser = (raw) => {
   if (!raw) return null;
   const base = typeof raw === 'object' ? raw : {};
   return {
-    id: base.id || `u_${Date.now()}`,
+    id: base.id || base._id || `u_${Date.now()}`,
     name: base.name || 'Learner',
     email: base.email || '',
-    avatar: base.avatar ?? null,
-    language: base.language || 'English',
-    dailyGoal: base.dailyGoal || 'Regular',
-    level: base.level || 'Beginner',
-    xp: Number(base.xp) || 0,
-    streak: Number(base.streak) || 0,
+    avatar: base.avatar ?? base.avatarUrl ?? null,
+    language: base.language || base.onboarding?.languageToLearn || 'English',
+    dailyGoal: base.dailyGoal || base.onboarding?.dailyTimeCommitment || 'Regular',
+    level: base.level || base.onboarding?.learningLevel || 'Beginner',
+    streak: Number(base.streak ?? base.streakDays) || 0,
     hearts: Number.isFinite(base.hearts) ? Number(base.hearts) : 5,
     maxHearts: Number(base.maxHearts) || 5,
-    gems: Number(base.gems) || 0,
     completedLessons: (Array.isArray(base.completedLessons) ? base.completedLessons : [])
-      .map((id) => Number(id))
-      .filter((n) => Number.isFinite(n)),
-    powerups: {
-      streakFreeze: Number(base.powerups?.streakFreeze) || 0,
-      xpBoostMinutes: Number(base.powerups?.xpBoostMinutes) || 0,
-      xpBoostActiveUntil: base.powerups?.xpBoostActiveUntil || null,
-      ...(base.powerups || {}),
-    },
+      .map((item) => {
+        const id = item && typeof item === 'object' ? (item.journeyLessonId || item.lessonId || item._id) : item;
+        return id == null ? null : String(id);
+      })
+      .filter(Boolean),
     joinedDate: base.joinedDate || base.createdAt || null,
     createdAt: base.createdAt || base.joinedDate || new Date().toISOString(),
     lastActive: base.lastActive || new Date().toISOString(),
@@ -86,13 +78,13 @@ const saveToStorage = (normalized) => {
     localStorage.setItem('linguaUser', JSON.stringify({ ...normalized, avatar: null }));
   } catch {
     try {
-      const { id, name, email, language, xp, streak, hearts, maxHearts,
-              gems, level, dailyGoal, completedLessons, joinedDate,
-              createdAt, lastActive, powerups } = normalized;
+      const { id, name, email, language, streak, hearts, maxHearts,
+              level, dailyGoal, completedLessons, joinedDate,
+              createdAt, lastActive } = normalized;
       localStorage.setItem('linguaUser', JSON.stringify({
-        id, name, email, language, xp, streak, hearts, maxHearts,
-        gems, level, dailyGoal, completedLessons, joinedDate,
-        createdAt, lastActive, powerups,
+        id, name, email, language, streak, hearts, maxHearts,
+        level, dailyGoal, completedLessons, joinedDate,
+        createdAt, lastActive,
       }));
     } catch { /* give up */ }
   }
@@ -180,25 +172,6 @@ const AppProvider = ({ children }) => {
     toastTimerRef.current = setTimeout(() => setToast(null), 2600);
   }, []);
 
-  // ── economy helpers (all use functional updaters → no stale closure) ──
-  const addGems = useCallback((amount, reason) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      return { ...prev, gems: Math.max(0, prev.gems + Number(amount || 0)) };
-    });
-    if (amount > 0) showToast(`+${amount} 💎 ${reason ? '· ' + reason : ''}`, 'success');
-  }, [setUser, showToast]);
-
-  const addXP = useCallback((amount) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      let bonus = 1;
-      if (prev.powerups?.xpBoostActiveUntil &&
-          new Date(prev.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
-      return { ...prev, xp: prev.xp + Math.round(Number(amount || 0) * bonus) };
-    });
-  }, [setUser]);
-
   const consumeHeart = useCallback(() => {
     let ok = false;
     setUser((prev) => {
@@ -209,130 +182,12 @@ const AppProvider = ({ children }) => {
     return ok;
   }, [setUser]);
 
-  const refillHearts = useCallback(() => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      return { ...prev, hearts: prev.maxHearts || 5 };
-    });
-    showToast('All hearts restored ❤️', 'success');
-  }, [setUser, showToast]);
-
-  const awardHearts = useCallback((n) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const max = prev.maxHearts || 5;
-      return { ...prev, hearts: Math.min(max, prev.hearts + Number(n || 0)) };
-    });
-  }, [setUser]);
-
-  const activateXpBoost = useCallback((minutes) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const now = new Date();
-      const existingEnd = prev.powerups?.xpBoostActiveUntil
-        ? new Date(prev.powerups.xpBoostActiveUntil) : now;
-      const end = new Date(
-        Math.max(now.getTime(), existingEnd.getTime()) + minutes * 60 * 1000
-      );
-      return {
-        ...prev,
-        powerups: {
-          ...prev.powerups,
-          xpBoostActiveUntil: end.toISOString(),
-          xpBoostMinutes: (prev.powerups?.xpBoostMinutes || 0) + minutes,
-        },
-      };
-    });
-    showToast(`XP Boost activated for ${minutes} min ⚡`, 'success');
-  }, [setUser, showToast]);
-
-  const addStreakFreeze = useCallback((count = 1) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        powerups: { ...prev.powerups, streakFreeze: (prev.powerups?.streakFreeze || 0) + count },
-      };
-    });
-    showToast(`+${count} Streak Freeze ❄️`, 'success');
-  }, [setUser, showToast]);
-
-  const consumeStreakFreeze = useCallback(() => {
-    let used = false;
-    setUser((prev) => {
-      if (!prev || !prev.powerups?.streakFreeze || prev.powerups.streakFreeze <= 0) return prev;
-      used = true;
-      return {
-        ...prev,
-        powerups: { ...prev.powerups, streakFreeze: prev.powerups.streakFreeze - 1 },
-      };
-    });
-    return used;
-  }, [setUser]);
-
-  const buyShopItem = useCallback((item) => {
-    let success = false;
-    let reason = '';
-    setUser((prev) => {
-      if (!prev) return prev;
-      const price    = Number(item?.price) || 0;
-      const currency = item?.currency || 'gem';
-      const avail    = currency === 'gem' ? prev.gems : prev.xp;
-      if (avail < price) { reason = `Not enough ${currency === 'gem' ? 'gems' : 'XP'}`; return prev; }
-      const base = currency === 'gem'
-        ? { ...prev, gems: prev.gems - price }
-        : { ...prev, xp: prev.xp - price };
-      let next = base;
-      switch (item?.id) {
-        case 'streak_freeze':
-          next = { ...next, powerups: { ...next.powerups,
-            streakFreeze: (next.powerups?.streakFreeze || 0) + (item?.quantity || 1) } };
-          break;
-        case 'xp_boost_15':
-        case 'xp_boost_30': {
-          const mins = item?.id === 'xp_boost_30' ? 30 : 15;
-          const now  = new Date();
-          const existingEnd = next.powerups?.xpBoostActiveUntil
-            ? new Date(next.powerups.xpBoostActiveUntil) : now;
-          const end = new Date(Math.max(now.getTime(), existingEnd.getTime()) + mins * 60 * 1000);
-          next = { ...next, powerups: { ...next.powerups,
-            xpBoostActiveUntil: end.toISOString(),
-            xpBoostMinutes: (next.powerups?.xpBoostMinutes || 0) + mins } };
-          break;
-        }
-        case 'refill_hearts':
-          next = { ...next, hearts: next.maxHearts || 5 };
-          break;
-        case 'hearts_pack_10':
-          next = { ...next,
-            maxHearts: (next.maxHearts || 5) + (item?.bonusMax || 0),
-            hearts: (next.hearts || 0) + (item?.quantity || 0) };
-          break;
-        case 'gem_pack_small':
-        case 'gem_pack_medium':
-        case 'gem_pack_large':
-          next = { ...next, gems: next.gems + (item?.quantity || 0) };
-          break;
-        default: break;
-      }
-      success = true;
-      return next;
-    });
-    if (success) showToast(`Purchased: ${item?.title} ✨`, 'success');
-    else if (reason) showToast(reason, 'error');
-    return success;
-  }, [setUser, showToast]);
-
-  const completeLesson = useCallback((lessonId, xpEarned = 10, gemReward = 2) => {
+  const completeLesson = useCallback((lessonId) => {
     setUser((prev) => {
       if (!prev) return prev;
       const already = prev.completedLessons.includes(lessonId);
-      const bonus = (prev.powerups?.xpBoostActiveUntil &&
-        new Date(prev.powerups.xpBoostActiveUntil) > new Date()) ? 2 : 1;
       return {
         ...prev,
-        xp:   prev.xp + (already ? 0 : Math.round(xpEarned * bonus)),
-        gems: prev.gems + (already ? 0 : gemReward),
         completedLessons: already
           ? prev.completedLessons
           : [...prev.completedLessons, lessonId],
@@ -355,9 +210,11 @@ const AppProvider = ({ children }) => {
   }, [setUser]);
 
   const handleLogout = useCallback(() => {
+    logoutUser().catch((error) => console.error('Logout request failed:', error));
     setUserRaw(null);
     setPreviewLanguage(null);
     localStorage.removeItem('linguaUser');
+    localStorage.removeItem('token');
   }, []);
 
   // ── refreshUser ────────────────────────────────────────────────
@@ -389,24 +246,14 @@ const AppProvider = ({ children }) => {
     handleLanguageSelected,
     handleLogout,
     refreshUser,
-    addGems,
-    addXP,
     completeLesson,
     consumeHeart,
-    refillHearts,
-    awardHearts,
-    activateXpBoost,
-    addStreakFreeze,
-    consumeStreakFreeze,
-    buyShopItem,
     toast, showToast,
   }), [
     user, previewLanguage, lessonStats, toast,
     setUser, handleLessonStats, handleLogin, handleSignupComplete,
     handleLanguageSelected, handleLogout, refreshUser,
-    addGems, addXP, completeLesson, consumeHeart, refillHearts,
-    awardHearts, activateXpBoost, addStreakFreeze, consumeStreakFreeze,
-    buyShopItem, showToast,
+    completeLesson, consumeHeart, showToast,
   ]);
 
   return (
@@ -488,15 +335,6 @@ function App() {
             } />
             <Route path="/letters" element={
               <ProtectedRoute><ShellLayout><Letters /></ShellLayout></ProtectedRoute>
-            } />
-            <Route path="/leaderboard" element={
-              <ProtectedRoute><ShellLayout><Leaderboard /></ShellLayout></ProtectedRoute>
-            } />
-            <Route path="/quests" element={
-              <ProtectedRoute><ShellLayout><Quests /></ShellLayout></ProtectedRoute>
-            } />
-            <Route path="/shop" element={
-              <ProtectedRoute><ShellLayout><Shop /></ShellLayout></ProtectedRoute>
             } />
             <Route path="/profile" element={
               <ProtectedRoute><ShellLayout><Profile /></ShellLayout></ProtectedRoute>

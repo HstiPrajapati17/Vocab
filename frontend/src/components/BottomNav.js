@@ -3,12 +3,9 @@ import { createPortal } from "react-dom";
 import {
   Home,
   Globe,
-  Trophy,
-  Zap,
   CircleHelp,
   LogOut,
   BarChart2,
-  ShoppingCart,
 } from "lucide-react";
 import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { CgProfile } from "react-icons/cg";
@@ -19,7 +16,6 @@ import { FcSettings } from "react-icons/fc";
 const items = [
   { id: "dashboard",   icon: Home,      label: "Learn"    },
   { id: "courses",     icon: Globe,     label: "Courses"  },
-  { id: "leaderboard", icon: Trophy,    label: "Rank"     },
   { id: "insights",    icon: BarChart2, label: "Insights" },
 ];
 
@@ -76,25 +72,11 @@ const BottomNav = ({ currentPage, navigate, onRequestLogout }) => {
 
   const menuItems = [
     {
-      id: "quests",
-      label: "Quests",
-      icon: Zap,
-      color: "var(--warning)",
-      onClick: () => { navigate("/quests"); setOpen(false); },
-    },
-    {
       id: "letters",
       label: "Letters",
       icon: RxLetterCaseCapitalize,
       color: "var(--primary)",
       onClick: () => { navigate("/letters"); setOpen(false); },
-    },
-    {
-      id: "shop",
-      label: "Shop",
-      icon: ShoppingCart,
-      color: "var(--success)",
-      onClick: () => { navigate("/shop"); setOpen(false); },
     },
     {
       id: "profile",

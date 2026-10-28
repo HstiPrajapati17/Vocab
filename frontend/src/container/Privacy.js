@@ -1,9 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { Shield } from 'lucide-react';
 import '../style/info_pages.css';
+import { getPrivacyPolicy } from '../api';
 
 const Privacy = () => {
+  const [sections, setSections] = useState([]);
+  useEffect(() => { getPrivacyPolicy().then((data) => { if (Array.isArray(data)) setSections(data); }).catch(() => {}); }, []);
+  if (sections.length) return (
+    <div className="text-page privacy-text-page"><Container className="text-container">
+      <div className="text-header"><h1 className="text-title">Privacy Policy</h1></div>
+      <div className="text-content">
+        {sections.map((section, index) => <section className="text-section" key={section._id || section.title}>
+          <h2 className="section-heading">{section.title || `${index + 1}.`}</h2>
+          {section.description && <p className="text-paragraph">{section.description}</p>}
+          {section.points?.map((point, pointIndex) => <p className="text-paragraph" key={pointIndex}>{point}</p>)}
+        </section>)}
+      </div>
+    </Container></div>
+  );
   return (
     <div className="text-page privacy-text-page">
       <Container className="text-container">

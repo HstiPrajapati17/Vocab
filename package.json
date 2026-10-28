@@ -1,0 +1,15 @@
+{
+  "name": "vocab-app",
+  "version": "1.0.0",
+  "description": "Vocab Learning App - Combined Frontend and Backend",
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "dev:full": "cd frontend && npm run build && cd ../backend && npm run dev"
+  },
+  "keywords": ["vocab", "learning", "language"],
+  "author": "",
+  "license": "ISC"
+}

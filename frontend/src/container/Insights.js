@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useApp } from "../App";
+import { getUserInsights } from "../api";
 import {
   Flame,
   Calendar,
@@ -204,102 +205,66 @@ const LessonRow = ({ emoji, title, difficulty, terms, score, time }) => {
 ══════════════════════════════════════════════ */
 const Insights = () => {
   const { user } = useApp();
+  const [insightData, setInsightData] = useState(null);
+
+  useEffect(() => {
+    if (!user?.id) return undefined;
+    let active = true;
+    getUserInsights(user.id)
+      .then((data) => { if (active) setInsightData(data); })
+      .catch((error) => console.error('Failed to load insights:', error));
+    return () => { active = false; };
+  }, [user?.id]);
 
   const today = new Date();
   const [calMonth, setCalMonth] = useState(today.getMonth());
   const [calYear, setCalYear] = useState(today.getFullYear());
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const practicedDates = useMemo(() => {
-    const base = [];
-    const d = new Date();
-    const streak = user?.streak || 5;
-    for (let i = 0; i < streak; i++) {
-      const dd = new Date(d);
-      dd.setDate(d.getDate() - i);
-      base.push(dd.toISOString().slice(0, 10));
-    }
-    return base;
-  }, [user?.streak]);
-
+  const practicedDates = useMemo(() => insightData?.practicedDates || [], [insightData]);
   const streakWeek = useMemo(() => getStreakWeek(practicedDates), [practicedDates]);
   const calDays = useMemo(() => getCalendarDays(calYear, calMonth), [calYear, calMonth]);
 
-  const streak = user?.streak || 5;
+  const streak = user?.streak || 0;
   const daysToGoal = Math.max(0, 7 - streak);
 
-  const xp = user?.xp || 0;
   const completedCount = user?.completedLessons?.length || 0;
-  const level = Math.floor(xp / 500) + 1;
-  const xpInLevel = xp % 500;
-  const xpToNext = 500 - xpInLevel;
-  const levelProgress = Math.floor((xpInLevel / 500) * 100);
-
-  const speakingScore = Math.min(99, 40 + Math.floor(xp / 10) % 60);
-  const listeningScore = Math.min(99, 35 + Math.floor(xp / 13) % 65);
-  const vocabScore = Math.min(99, 30 + Math.floor(completedCount * 7) % 70);
+  const skillScores = insightData?.skillScores || {};
+  const speakingScore = skillScores.speaking || 0;
+  const listeningScore = skillScores.listening || 0;
+  const vocabScore = skillScores.vocabulary || 0;
 
   const skills = [
-    { label: "Speaking", value: speakingScore, delta: 12, color: "#2f855a" },
-    { label: "Listening", value: listeningScore, delta: -3.4, color: "#f2a541" },
-    { label: "Vocabulary", value: vocabScore, delta: 17, color: "#5b6abf" },
+    { label: "Speaking", value: speakingScore, delta: 0, color: "#2f855a" },
+    { label: "Listening", value: listeningScore, delta: 0, color: "#f2a541" },
+    { label: "Vocabulary", value: vocabScore, delta: 0, color: "#5b6abf" },
   ];
 
-  const unlockedCount = Math.min(4, Math.floor(completedCount / 2));
-  const achievements = [
-    {
-      icon: "🌟",
-      title: "Word Collector",
-      desc: "You've learned 50 new words.",
-      locked: completedCount < 2,
-      progress: Math.min(100, Math.floor((completedCount / 2) * 100)),
-    },
-    {
-      icon: "🎧",
-      title: "Listening Champ",
-      desc: "You completed 10 listening practices.",
-      locked: completedCount < 5,
-      progress: Math.min(100, Math.floor((completedCount / 5) * 100)),
-    },
-    {
-      icon: "📚",
-      title: "Quiz Master",
-      desc: "You aced 5 quizzes in a row.",
-      locked: completedCount < 8,
-      progress: Math.min(100, Math.floor((completedCount / 8) * 100)),
-    },
-    {
-      icon: "🗣️",
-      title: "Fluent Five",
-      desc: "You passed 5 speaking tests.",
-      locked: completedCount < 10,
-      progress: Math.min(100, Math.floor((completedCount / 10) * 100)),
-    },
-  ];
-
-  const lessonEmojis = ["🌍", "🎒", "🏠", "🍎", "🚗", "📖", "✈️", "🎵"];
-  const lessonTitles = [
-    "Travel Essentials",
-    "Everyday Phrases",
-    "At Home Vocab",
-    "Food & Drinks",
-    "Transportation",
-    "Reading Practice",
-    "Airport Terms",
-    "Music & Art",
-  ];
-  const lessonDiffs = ["Easy", "Medium", "Easy", "Hard", "Medium", "Easy", "Hard", "Medium"];
-  const completedLessons = Array.from(
-    { length: Math.min(5, Math.max(4, completedCount || 4)) },
-    (_, i) => ({
-      emoji: lessonEmojis[i % lessonEmojis.length],
-      title: lessonTitles[i % lessonTitles.length],
-      difficulty: lessonDiffs[i % lessonDiffs.length],
-      terms: [12, 18, 8, 22, 15][i] || 12,
-      score: [66, 48, 95, 84, 91][i] || 70,
-      time: ["Today", "Yesterday", "2 days ago", "4 days ago", "1 week ago"][i] || "1 day ago",
-    })
-  );
+  const achievementDefinitions = insightData?.achievementDefinitions || [];
+  const achievements = achievementDefinitions.map((achievement) => {
+    const target = Number(achievement.requiredCompleted) || 1;
+    return {
+      icon: achievement.icon,
+      title: achievement.title,
+      desc: achievement.desc,
+      locked: completedCount < target,
+      progress: Math.min(100, Math.round((completedCount / target) * 100)),
+    };
+  });
+  const unlockedCount = achievements.filter((achievement) => !achievement.locked).length;
+  const completedLessons = (insightData?.completedLessons || []).map((record) => {
+    const completedAt = record.completedAt ? new Date(record.completedAt) : null;
+    const ageDays = completedAt ? Math.floor((Date.now() - completedAt.getTime()) / 86400000) : null;
+    const time = ageDays === null ? "Recently" : ageDays === 0 ? "Today" : ageDays === 1 ? "Yesterday" : `${ageDays} days ago`;
+    return {
+      emoji: record.lesson?.icon || "Lesson",
+      title: record.lesson?.title || "Completed lesson",
+      difficulty: record.lesson?.type || "Lesson",
+      terms: record.lesson?.terms || record.lesson?.wordCount || 0,
+      score: Number(record.score) || 0,
+      time,
+    };
+  });
 
   const prevMonth = () => {
     if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }

@@ -3,14 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ProgressBar, Spinner } from 'react-bootstrap';
 import { Heart, CheckCircle, XCircle, X, RefreshCw } from 'lucide-react';
 
-import { getQuestionsByLesson, updateUser, updateLeaderboard } from '../api';
+import { getQuestionsByLesson, recordLessonCompletion, updateUser } from '../api';
 import { useApp } from '../App';
 // import '../style/lesson_image_styles.css';
 
 const LessonPage = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams();
-  const { user, refreshUser, consumeHeart, completeLesson, addXP, showToast, refillHearts } = useApp();
+  const { user, refreshUser, consumeHeart, completeLesson, showToast } = useApp();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
@@ -22,8 +22,6 @@ const LessonPage = () => {
   const [showResult, setShowResult] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const earnedXPRef = React.useRef(0);
-  const [earnedXP, setEarnedXP] = useState(0);
 
   useEffect(() => {
     if (typeof user?.hearts === 'number' && !showResult) {
@@ -32,7 +30,7 @@ const LessonPage = () => {
   }, [user?.hearts, showResult]);
 
   useEffect(() => {
-    const id = parseInt(lessonId) || 1;
+    const id = lessonId;
     setLoading(true);
     getQuestionsByLesson(id)
       .then(data => {
@@ -63,18 +61,6 @@ const LessonPage = () => {
     if (correct) {
       scoreRef.current += 1;
       setScore(scoreRef.current);
-      const base = 10;
-      let bonus = 1;
-      if (user?.powerups?.xpBoostActiveUntil) {
-        if (new Date(user.powerups.xpBoostActiveUntil) > new Date()) bonus = 2;
-      }
-      const gained = base * bonus;
-      earnedXPRef.current += gained;
-      setEarnedXP(xp => xp + gained);
-      addXP(base);
-      if (bonus === 2) {
-        showToast(`+${gained} XP (2× Boost!) ⚡`, 'success');
-      }
     } else {
       const lost = consumeHeart();
       setHearts(h => Math.max(0, h - (lost ? 1 : 0)));
@@ -84,36 +70,31 @@ const LessonPage = () => {
   const saveProgress = async (finalScore) => {
     if (!user?.id) return;
     const passed = finalScore >= Math.ceil(questions.length * 0.6);
-    if (!passed) return;
-
-    const lessonIdNum = parseInt(lessonId);
-    const completedLessons = (user.completedLessons || []).map(id => parseInt(id));
-    if (completedLessons.includes(lessonIdNum)) return;
-
-    // user.xp already reflects all per-question addXP() calls (local state).
-    // Only add the 10 XP completion bonus that hasn't been counted yet.
-    const completionBonus = 10;
-    const newXP = (user.xp || 0) + completionBonus;
-    const newStreak = (user.streak || 0) + 1;
-    const newCompletedLessons = [...completedLessons, lessonIdNum];
-
-    const updates = {
-      completedLessons: newCompletedLessons,
-      xp: newXP,
-      streak: newStreak,
-      hearts,
-      gems: (user.gems || 0) + 2,
-    };
+    const alreadyCompleted = (user.completedLessons || []).some((id) => String(id) === String(lessonId));
+    if (!passed || alreadyCompleted) {
+      try {
+        const attemptUpdates = { hearts, lastActive: new Date().toISOString() };
+        const updatedUser = await updateUser(user.id, attemptUpdates);
+        refreshUser(updatedUser);
+      } catch (error) {
+        console.error('Could not save lesson attempt:', error);
+      }
+      return;
+    }
 
     try {
-      const updatedUser = await updateUser(user.id, updates);
-      await updateLeaderboard(user.id, updates.xp, updates.streak);
+      const totalScore = questions.length ? Math.round((finalScore / questions.length) * 100) : 0;
+      const updatedUser = await recordLessonCompletion(user.id, {
+        lessonId,
+        score: totalScore,
+        hearts,
+      });
       // refreshUser is now synchronous — applies PATCH response directly to state
       refreshUser(updatedUser);
     } catch (err) {
       console.error('Failed to save progress:', err);
       // Optimistic fallback: update context locally without backend
-      completeLesson(lessonIdNum, completionBonus, 2);
+      completeLesson(lessonId);
     }
   };
 
@@ -140,8 +121,6 @@ const LessonPage = () => {
     setAnswered(false);
     setScore(0);
     scoreRef.current = 0;
-    setEarnedXP(0);
-    earnedXPRef.current = 0;
     setShowResult(false);
     setHearts(5);
     setShowFeedback(false);
@@ -182,16 +161,8 @@ const LessonPage = () => {
             <Heart size={64} style={{ color: 'var(--danger)' }} />
           </div>
           <h3 className="fw-bold mb-2">Out of Hearts!</h3>
-          <p className="text-muted mb-4">Buy refills from the Shop or come back later to keep practicing.</p>
+          <p className="text-muted mb-4">Come back later to continue practicing.</p>
           <Button className="h_btn_get_started me-2 mb-2" onClick={() => navigate('/dashboard')}>Back to Learn</Button>
-          <Button
-            variant="success"
-            className="me-2 mb-2"
-            onClick={() => { refillHearts(); setTimeout(() => setHearts(u => (user?.maxHearts || 5)), 50); }}
-          >
-            Refill for 💎15
-          </Button>
-          <Button variant="outline-secondary" className="h_btn_outline mb-2" onClick={() => navigate('/shop')}>Open Shop</Button>
         </div>
       </div>
     );
@@ -240,10 +211,6 @@ const LessonPage = () => {
 
           {/* stat pills */}
           <div className="lp_result_stats">
-            <div className="lp_stat_pill lp_stat_xp">
-              <span className="lp_stat_pill_label">TOTAL XP</span>
-              <span className="lp_stat_pill_val">⚡ {earnedXP}</span>
-            </div>
             <div className={`lp_stat_pill ${accuracy >= 60 ? 'lp_stat_great' : 'lp_stat_ok'}`}>
               <span className="lp_stat_pill_label">{accuracy >= 80 ? 'GREAT!' : accuracy >= 60 ? 'GOOD' : 'KEEP TRYING'}</span>
               <span className="lp_stat_pill_val">

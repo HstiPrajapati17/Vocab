@@ -1,31 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Globe, Users, Target, Rocket, Heart, Award, ArrowRight, Star, Zap, Lightbulb, Shield, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import '../style/info_pages.css';
+import { getAboutFeatures, getAboutStats, getTeamMembers } from '../api';
+
+const ICONS = { Globe, Users, Target, Rocket, Heart, Award, Star, Zap, Lightbulb, Shield, MessageCircle };
 
 const AboutUs = () => {
   const navigate = useNavigate();
 
-  const stats = [
+  const [remoteStats, setRemoteStats] = useState(null);
+  const [remoteTeam, setRemoteTeam] = useState(null);
+  const [remoteFeatures, setRemoteFeatures] = useState(null);
+  useEffect(() => {
+    Promise.all([getAboutStats(), getTeamMembers(), getAboutFeatures()]).then(([stats, team, features]) => {
+      if (Array.isArray(stats) && stats.length) setRemoteStats(stats);
+      if (Array.isArray(team) && team.length) setRemoteTeam(team);
+      if (Array.isArray(features) && features.length) setRemoteFeatures(features);
+    }).catch(() => {});
+  }, []);
+
+  const defaultStats = [
     { value: '500M+', label: 'Learners', icon: <Globe size={24} /> },
     { value: '30+',   label: 'Languages', icon: <Users size={24} /> },
     { value: '4.9',   label: 'App Rating', icon: <Star size={24} /> },
     { value: '100M',  label: 'Lessons',   icon: <Zap size={24} /> },
   ];
 
-  const team = [
+  const defaultTeam = [
     { name: 'Sarah Johnson',  role: 'CEO & Founder',    image: 'https://randomuser.me/api/portraits/men/97.jpg' },
     { name: 'Michael Chen',   role: 'CTO',               image: 'https://randomuser.me/api/portraits/men/1.jpg' },
     { name: 'Emma Williams',  role: 'Head of Content',   image: 'https://randomuser.me/api/portraits/women/90.jpg' },
     { name: 'David Park',     role: 'Lead Developer',    image: 'https://randomuser.me/api/portraits/men/61.jpg' },
   ];
 
-  const features = [
+  const defaultFeatures = [
     { icon: <Lightbulb size={28} />, title: 'AI-Powered Learning',  desc: 'Personalized lessons that adapt to your progress and learning style.' },
     { icon: <Shield size={28} />,    title: 'Certified Content',    desc: 'Industry-recognized curriculum to validate your language skills.' },
     { icon: <MessageCircle size={28} />, title: 'Community Support', desc: 'Connect with native speakers and fellow learners for practice.' },
   ];
+  const stats = (remoteStats || defaultStats).map((item) => {
+    const Icon = ICONS[item.iconKey] || Star;
+    return { ...item, icon: <Icon size={24} /> };
+  });
+  const team = remoteTeam || defaultTeam;
+  const features = (remoteFeatures || defaultFeatures).map((item) => {
+    const Icon = ICONS[item.iconKey] || Lightbulb;
+    return { ...item, icon: <Icon size={28} /> };
+  });
 
   return (
     <div className="about-page-unique">

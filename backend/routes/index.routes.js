@@ -81,8 +81,43 @@ import {
 } from "../controller/subcriptionPlan.controller.js";
 import { JourneyController } from "../controller/journey.controller.js";
 import { TopicController } from "../controller/topic.controller.js";
+import ContentDataModel from "../model/contentData.model.js";
+import UserModel from "../model/user.model.js";
 
 const indexRouter = express.Router();
+
+const publicContentKeys = new Set([
+  "achievements", "levelThresholds", "homeFeatures", "homeSteps", "homeStats", "quests", "shopItems",
+  "leagues", "blogPosts", "blogFilters", "featuredPost", "alphabets", "teamMembers",
+  "aboutFeatures", "aboutStats", "timeline", "insightSkills", "insightAchievements",
+  "lessonMeta", "blogHeroStats",
+]);
+indexRouter.get("/content/:key", async (req, res) => {
+  if (!publicContentKeys.has(req.params.key)) {
+    return res.status(404).json({ success: false, message: "Content not found" });
+  }
+  try {
+    const content = await ContentDataModel.findOne({ key: req.params.key }).lean();
+    return res.json({ success: true, result: content?.items ?? (req.params.key === "featuredPost" ? null : []) });
+  } catch {
+    return res.status(500).json({ success: false, message: "Could not load content" });
+  }
+});
+indexRouter.get("/user/getLeaderboard", UserAuth, async (_req, res) => {
+  try {
+    const users = await UserModel.find({ isUserDeleted: { $ne: true }, role: "user" })
+      .select("name avatarUrl xp streakDays")
+      .sort({ xp: -1, streakDays: -1 })
+      .limit(100)
+      .lean();
+    return res.json({ success: true, result: users.map((user) => ({
+      userId: String(user._id), name: user.name, avatar: user.avatarUrl,
+      xp: user.xp || 0, streak: user.streakDays || 0,
+    })) });
+  } catch {
+    return res.status(500).json({ success: false, message: "Could not load leaderboard" });
+  }
+});
 
 
 indexRouter.post("/auth/register", AuthController.register);

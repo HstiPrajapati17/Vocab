@@ -209,15 +209,6 @@
   color: var(--primary-dark);
   border-color: var(--primary-border);
 }
-.hprof_badge_league {
-  background: var(--league-bg);
-  color: var(--league-color);
-  border-color: color-mix(in srgb, var(--league-color) 35%, transparent);
-}
-.hprof_league_icon {
-  display: inline-flex;
-  align-items: center;
-}
 
 /* ---- Edit Block ---- */
 .hprof_edit_block {
@@ -299,98 +290,11 @@
   color: var(--text);
 }
 
-/* ---- Level / XP Section ---- */
-.hprof_level_section {
-  margin-top: 22px;
-  padding: 18px 18px 16px;
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(135deg, rgba(47, 133, 90, 0.06) 0%, rgba(242, 165, 65, 0.06) 100%),
-    var(--bg-white);
-  border: 1.5px solid rgba(47, 133, 90, 0.14);
-}
-.hprof_level_header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.hprof_level_title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text);
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-.hprof_level_icon {
-  color: #f2a541;
-  filter: drop-shadow(0 1px 3px rgba(242, 165, 65, 0.4));
-}
-.hprof_level_text strong {
-  font-weight: 800;
-  color: var(--primary-dark);
-  font-size: 0.98rem;
-}
-.hprof_level_xp {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.hprof_level_xp strong {
-  color: var(--primary);
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.hprof_progress_track {
-  width: 100%;
-  height: 12px;
-  background: rgba(47, 133, 90, 0.1);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  position: relative;
-}
-.hprof_progress_fill {
-  height: 100%;
-  background: linear-gradient(90deg, #2f855a 0%, #3ea074 50%, #f2a541 100%);
-  border-radius: var(--radius-full);
-  position: relative;
-  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.hprof_progress_shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.35) 50%,
-    transparent 100%);
-  animation: hprof_shine 2s ease-in-out infinite;
-}
-@keyframes hprof_shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.hprof_level_footer {
-  margin-top: 9px;
-  text-align: right;
-}
-.hprof_next_level {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
 /* ---- Stats Grid ---- */
 .hprof_stats_grid {
   margin-top: 22px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
 .hprof_stat_card {
@@ -565,73 +469,6 @@
 }
 
 /* ---- Activity Chart ---- */
-.hprof_chart_wrap {
-  background:
-    linear-gradient(135deg, rgba(47, 133, 90, 0.04) 0%, rgba(242, 165, 65, 0.04) 100%),
-    var(--bg-white);
-  border: 1.5px solid var(--primary-border);
-  border-radius: var(--radius-xl);
-  padding: 22px 20px 18px;
-  margin-bottom: 18px;
-}
-.hprof_chart {
-  height: 160px;
-  min-height: 160px;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  align-items: end;
-}
-.hprof_chart_col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  gap: 6px;
-}
-.hprof_chart_val {
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: var(--primary-dark);
-  line-height: 1;
-  margin-bottom: 2px;
-}
-.hprof_chart_bar {
-  width: 100%;
-  max-width: 36px;
-  min-height: 6px;
-  background: var(--primary);
-  border-radius: 8px 8px 4px 4px;
-  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  position: relative;
-  box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
-}
-.hprof_chart_bar::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px; right: 3px;
-  height: 4px;
-  background: rgba(255,255,255,0.25);
-  border-radius: 4px;
-}
-.hprof_chart_bar.hprof_bar_empty {
-  background: var(--bg-muted);
-  min-height: 4px;
-}
-.hprof_chart_bar.hprof_bar_empty::after { display: none; }
-.hprof_chart_day {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--primary-dark);
-  margin-top: 2px;
-}
-.hprof_chart_day.hprof_day_dim {
-  color: var(--text-muted);
-  opacity: 0.55;
-}
-
-/* ---- Summary Cards ---- */
 .hprof_summary_grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -897,7 +734,7 @@
 }
 
 @media (max-width: 991.98px) {
-  .hprof_stats_grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .hprof_stats_grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .hprof_stat_value { font-size: 1.35rem; }
 }
 
@@ -911,9 +748,6 @@
   .hprof_summary_grid { grid-template-columns: 1fr; }
   .hprof_ach_grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .hprof_tab_content { padding: 18px 16px 20px; }
-  .hprof_chart_wrap { padding: 18px 14px 14px; }
-  .hprof_chart { height: 140px; min-height: 140px; gap: 6px; }
-  .hprof_chart_bar { max-width: 30px; }
 }
 
 @media (max-width: 575.98px) {
@@ -929,8 +763,6 @@
   .hprof_badges_row { justify-content: center; }
   .hprof_edit_block { text-align: left; }
   .hprof_name_input { max-width: 100%; }
-  .hprof_level_section { margin-top: 18px; padding: 14px 14px 12px; }
-  .hprof_level_header { flex-direction: column; align-items: flex-start; gap: 4px; }
   .hprof_stats_grid { margin-top: 18px; gap: 8px; }
   .hprof_stat_card { padding: 14px 8px 12px; border-radius: 14px; }
   .hprof_stat_icon { font-size: 1.35rem; margin-bottom: 6px; }
@@ -944,11 +776,6 @@
   .hprof_tab_btn { padding: 8px 12px; font-size: 0.76rem; gap: 5px; }
   .hprof_tab_content { padding: 16px 14px 18px; }
   .hprof_section_title { font-size: 1rem; }
-  .hprof_chart_wrap { padding: 14px 12px 12px; border-radius: 14px; }
-  .hprof_chart { height: 120px; min-height: 120px; gap: 4px; }
-  .hprof_chart_bar { max-width: 22px; border-radius: 6px 6px 3px 3px; }
-  .hprof_chart_day { font-size: 0.65rem; }
-  .hprof_chart_val { font-size: 0.6rem; }
   .hprof_summary_grid { gap: 8px; }
   .hprof_summary_card { padding: 10px 12px; border-radius: 14px; gap: 10px; }
   .hprof_sum_icon { width: 38px; height: 38px; font-size: 1.2rem; }
@@ -981,9 +808,7 @@
   .hprof_badge { font-size: 0.7rem; padding: 5px 10px; }
   .hprof_name_input { padding: 10px 14px; font-size: 1rem; }
   .hprof_save_btn, .hprof_cancel_btn { flex: 1; justify-content: center; padding: 9px 14px; }
-  .hprof_level_section { padding: 12px 12px 10px; border-radius: 14px; }
   .hprof_progress_track { height: 10px; }
-  .hprof_level_xp { font-size: 0.8rem; }
   .hprof_stats_grid { gap: 6px; }
   .hprof_stat_card { padding: 12px 6px 10px; border-radius: 12px; }
   .hprof_stat_icon { font-size: 1.2rem; }
@@ -998,10 +823,6 @@
   .hprof_tab_content { padding: 14px 12px 16px; }
   .hprof_section_title { font-size: 0.95rem; }
   .hprof_section_subtitle { font-size: 0.72rem; }
-  .hprof_chart_wrap { padding: 12px 10px 10px; border-radius: 12px; margin-bottom: 14px; }
-  .hprof_chart { height: 104px; min-height: 104px; gap: 3px; }
-  .hprof_chart_bar { max-width: 18px; border-radius: 5px 5px 2px 2px; }
-  .hprof_chart_day { font-size: 0.6rem; }
   .hprof_summary_grid { gap: 6px; }
   .hprof_summary_card { padding: 10px; border-radius: 12px; gap: 8px; }
   .hprof_sum_icon { width: 36px; height: 36px; font-size: 1.1rem; }
@@ -1052,13 +873,10 @@
   .hprof_profile_card { padding: 14px 10px 10px; }
   .hprof_avatar { width: 62px; height: 62px; font-size: 1.5rem; }
   .hprof_name { font-size: 1.05rem; }
-  .hprof_level_header { font-size: 0.82rem; }
   .hprof_stats_grid { gap: 5px; }
   .hprof_stat_card { padding: 10px 5px 8px; }
   .hprof_stat_value { font-size: 1rem; }
   .hprof_stat_label { font-size: 0.56rem; }
   .hprof_ach_grid { grid-template-columns: 1fr 1fr; gap: 6px; }
   .hprof_ach_label { font-size: 0.7rem; }
-  .hprof_chart { height: 90px; min-height: 90px; }
-  .hprof_chart_bar { max-width: 16px; }
 }

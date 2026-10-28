@@ -8,11 +8,15 @@ mongoose.connection.on('close', () => console.log('close'));
 
 
 export async function connectDB(DB_URL) {
+    if (!DB_URL) {
+        throw new Error("DB_URL is missing from backend environment configuration");
+    }
     try {
-        const connect = await mongoose.connect(DB_URL);
+        console.log("Connecting to MongoDB...");
+        const connect = await mongoose.connect(DB_URL, { serverSelectionTimeoutMS: 10000 });
         console.log(`Database connected Successfully AND HOST is ${connect.connection.host}`)
     } catch (error) {
-        console.error("Error While Connecting Database!");
-        process.exit(1)
+        console.error("Error While Connecting Database:", error.message);
+        throw error;
     }
 }

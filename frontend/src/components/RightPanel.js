@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ProgressBar } from 'react-bootstrap';
-import { Flame, Heart, Star, Trophy, Zap, Shield, BookOpen, Gem } from 'lucide-react';
+import { Flame, Heart, BookOpen } from 'lucide-react';
 
 const langFlags = {
   English: 'E🇸', French: '🇫🇷', German: '🇩🇪', Polish: '�',
@@ -20,10 +20,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
   const flag = langFlags[activeLang] || '🌍';
   const meta = langMeta[activeLang] || langMeta.default;
 
-  const dailyGoalXP = { Casual: 10, Regular: 20, Serious: 30, Intense: 50 };
-  const goalMax = dailyGoalXP[user?.dailyGoal] || 20;
-  const todayXP = Math.min(user?.xp % 100 || 0, goalMax);
-  const lessonsNeeded = Math.max(0, 3 - (user?.completedLessons?.length || 0));
   const progress = lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0;
 
   const showCoursePreview = currentPage === 'courses' && previewLanguage;
@@ -171,14 +167,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
         </div>
         <div 
           className="h_rp_stat"
-          onMouseEnter={(e) => handleMouseEnter('xp', e)}
-          onMouseLeave={handleMouseLeave}
-        >
-          <Star className="h_icon_xp" size={20} />
-          <span>{user?.xp || 0}</span>
-        </div>
-        <div 
-          className="h_rp_stat"
           onMouseEnter={(e) => handleMouseEnter('hearts', e)}
           onMouseLeave={handleMouseLeave}
         >
@@ -213,35 +201,10 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
               <p className="small text-muted mb-0">You have a {user?.streak || 0} day streak!</p>
             </div>
           )}
-          {hoveredItem === 'xp' && (
-            <div className="h_rp_tooltip_content">
-              <h6 className="fw-bold mb-1">XP</h6>
-              <p className="small text-muted mb-0">You have {user?.xp || 0} total XP</p>
-            </div>
-          )}
           {hoveredItem === 'hearts' && (
             <div className="h_rp_tooltip_content">
               <h6 className="fw-bold mb-1">Hearts</h6>
               <p className="small text-muted mb-0">You have {user?.hearts ?? 5} hearts</p>
-              <button 
-                className="h_rp_tooltip_link mt-2"
-                onClick={() => { clearCloseTimeout(); setHoveredItem(null); navigate('/shop'); }}
-              >GO TO SHOP</button>
-            </div>
-          )}
-          {hoveredItem === 'leaderboard-locked' && (
-            <div className="h_rp_tooltip_content">
-              <h6 className="fw-bold mb-1">Leaderboard Locked</h6>
-              <p className="small text-muted mb-0">Complete {lessonsNeeded} more lesson{lessonsNeeded > 1 ? 's' : ''} to unlock</p>
-            </div>
-          )}
-          {hoveredItem === 'leaderboard-unlocked' && (
-            <div 
-              className="h_rp_tooltip_content h_rp_tooltip_clickable"
-              onClick={() => { clearCloseTimeout(); setHoveredItem(null); navigate('/leaderboard'); }}
-            >
-              <h6 className="fw-bold mb-1">Leaderboard</h6>
-              <p className="small text-muted mb-0">Tap to see your rank this week</p>
             </div>
           )}
           {hoveredItem === 'course' && (
@@ -263,56 +226,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
           <p className="small mb-0">Switch to this course to update your learning path.</p>
         </div>
       )}
-
-      {/* Leaderboard unlock */}
-      {lessonsNeeded > 0 ? (
-        <div 
-          className="h_rp_card"
-        >
-          <div className="d-flex align-items-start gap-3">
-            <div className="h_rp_card_icon"><Shield size={28} style={{ color: 'var(--primary)' }} /></div>
-            <div>
-              <h6 className="fw-bold mb-1">Unlock Leaderboards!</h6>
-              <p className="text-muted small mb-0">
-                Complete {lessonsNeeded} more lesson{lessonsNeeded > 1 ? 's' : ''} to start competing
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div 
-          className="h_rp_card h_rp_card_clickable" 
-          onClick={() => navigate('/leaderboard')}
-          onMouseEnter={(e) => handleMouseEnter('leaderboard-unlocked', e)}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="d-flex align-items-start gap-3">
-            <div className="h_rp_card_icon"><Trophy size={28} style={{ color: 'var(--warning)' }} /></div>
-            <div>
-              <h6 className="fw-bold mb-1">Leaderboards Unlocked!</h6>
-              <p className="text-muted small mb-0">Tap to see your rank this week</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Daily Quests */}
-      <div 
-        className="h_rp_card"
-      >
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h6 className="fw-bold mb-0">Daily Quests</h6>
-          <button type="button" className="h_rp_link_btn" onClick={() => navigate('/quests')}>VIEW ALL</button>
-        </div>
-        <div className="h_rp_quest">
-          <div className="d-flex align-items-center gap-2 mb-2">
-            <Zap size={18} style={{ color: 'var(--warning)' }} />
-            <span className="small fw-semibold">Earn {goalMax} XP</span>
-            <span className="ms-auto small text-muted">{todayXP}/{goalMax}</span>
-          </div>
-          <ProgressBar now={goalMax > 0 ? (todayXP / goalMax) * 100 : 0} className="h_goal_bar" />
-        </div>
-      </div>
 
       {/* Current course progress */}
       <div 
