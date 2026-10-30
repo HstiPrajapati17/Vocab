@@ -2309,6 +2309,75 @@ body {
   overflow-y: auto;
 }
 
+.h_guidebook_body {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.h_guidebook_section {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--primary-border);
+}
+.h_guidebook_section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.h_guidebook_section_title {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.h_guidebook_progress {
+  height: 5px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--primary-border);
+}
+.h_guidebook_progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  transition: width 0.25s ease;
+}
+.h_guidebook_points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h_guidebook_points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.h_guidebook_points li svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #a9b2ba;
+  fill: #a9b2ba;
+}
+.h_guidebook_points li.h_guidebook_point_done {
+  color: var(--text);
+}
+.h_guidebook_points li.h_guidebook_point_done svg {
+  color: var(--primary);
+  fill: var(--primary);
+  stroke: #fff;
+}
+.h_guidebook_description,
+.h_guidebook_empty {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
 .h_instructions_intro {
   font-size: 1rem;
   color: var(--text);
@@ -3300,7 +3369,6 @@ body {
 .h_section_sub_label {
   font-size: 0.78rem;
   font-weight: 700;
-  opacity: 0.85;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -3859,6 +3927,7 @@ body {
 .h_course_card {
   position: relative;
   width: 100%;
+  height: 100%;
   background: var(--bg-white);
   border: 2px solid var(--primary-border);
   border-radius: var(--radius-xl);
@@ -3867,7 +3936,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
-  transition: all 0.25s cubic-bezier(.2,.8,.2,1);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   text-align: left;
   cursor: pointer;
   min-height: 120px;
@@ -3882,7 +3951,7 @@ body {
 .h_course_card:hover:not(:disabled) {
   border-color: var(--primary);
   transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
 }
 
 .h_course_card:active:not(:disabled) {
@@ -3913,8 +3982,8 @@ body {
 }
 
 .h_course_icon {
-  width: 68px;
-  height: 68px;
+  width: 44px;
+  height: 44px;
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -3964,7 +4033,7 @@ body {
   padding: 5px 12px;
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   letter-spacing: 0.01em;
 }
 
@@ -3980,7 +4049,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(22,163,74,0.3);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
   pointer-events: none;
   z-index: 2;
 }
@@ -4131,6 +4200,176 @@ body {
   max-width: 150px;
   height: auto;
   object-fit: contain;
+}
+
+.h_speaking_listen_btn {
+  min-width: 110px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 2px solid #004b3d;
+  border-radius: 999px;
+  background: #005b49;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.h_speaking_listen_btn:hover {
+  background: #004b3d;
+}
+
+.h_speaking_skip_btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 12px 20px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.h_speaking_skip_btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.h_speaking_task {
+  width: 100%;
+  max-width: 600px;
+  margin-inline: auto;
+}
+.h_speaking_sentence {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  border: 2px solid var(--primary-border);
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+.h_speaking_audio_btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #20b9ec;
+  cursor: pointer;
+}
+.h_speaking_record_btn {
+  width: 100%;
+  min-height: 70px;
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--primary-border);
+  border-radius: 16px;
+  background: transparent;
+  color: #20b9ec;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.h_speaking_record_btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.h_speaking_recording {
+  border-color: #ef5350;
+  color: #ef5350;
+}
+.h_speaking_mic_icon {
+  font-size: 1.25rem;
+}
+.h_speaking_transcript {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+}
+.h_lesson_speaking .h_lesson_content {
+  max-width: 680px;
+}
+.h_lesson_speaking .h_question_image {
+  max-width: 110px;
+}
+.h_lesson_speaking .h_lesson_body {
+  align-items: center;
+}
+.h_lesson_speaking {
+  background: #111f24;
+  color: #e8f0f2;
+}
+.h_lesson_speaking .h_lesson_topbar,
+.h_lesson_speaking .h_lesson_footer {
+  background: #111f24;
+  border-color: #35464e;
+}
+.h_lesson_speaking .h_lesson_close,
+.h_lesson_speaking .h_lesson_type_label {
+  color: #e8f0f2;
+}
+.h_lesson_speaking .h_speaking_sentence,
+.h_lesson_speaking .h_speaking_record_btn {
+  border-color: #35464e;
+}
+.h_lesson_speaking .h_speaking_skip_btn {
+  border: 2px solid #35464e;
+  border-radius: 14px;
+  color: #a8bbc2;
+  text-decoration: none;
+}
+.h_lesson_speaking .h_lesson_check_btn.h_btn_disabled {
+  background: #35464e !important;
+  color: #879ba2 !important;
+}
+.h_microphone_modal_backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.62);
+}
+.h_microphone_modal {
+  position: relative;
+  width: min(400px, 100%);
+  padding: 28px 30px;
+  border-radius: 16px;
+  background: #142328;
+  color: #f4f8fa;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+.h_microphone_modal h2 {
+  margin: 0 28px 10px 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+.h_microphone_modal p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+.h_microphone_modal_close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #35464e;
+  border-radius: 50%;
+  background: #142328;
+  color: #9db0b7;
+  cursor: pointer;
 }
 
 /* ===== LESSON RESULT FULL-SCREEN OVERLAY ===== */
@@ -4336,7 +4575,6 @@ body {
   width: 138px;
 }
 
-
 /* ===== RESPONSIVE ===== */
 @media (min-width: 1920px) {
   .h_navbar_main .container-fluid-xl,
@@ -4456,7 +4694,6 @@ body {
   .gold_img {
     width: 138px;
   }
-
 }
 
 @media (max-width: 359.98px) {
@@ -6890,7 +7127,48 @@ body.modal-open {
 
 .ins_achievement_emoji {
   font-size: 1.6rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.ins_icon_image_wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ins_icon_image_wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.ins_icon_image_wrap img.ins_icon_image_failed {
+  display: none;
+}
+
+.ins_icon_image_fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.ins_icon_image_failed + .ins_icon_image_fallback {
+  display: flex;
+}
+
+.ins_achievement_emoji .ins_icon_image_wrap {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
 }
 
 .ins_achievement_body {
@@ -7000,6 +7278,18 @@ body.modal-open {
 
 .ins_lesson_emoji {
   font-size: 1.6rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.ins_lesson_emoji .ins_icon_image_wrap {
+  padding: 12px;
+  box-sizing: border-box;
 }
 
 .ins_lesson_info {
@@ -7169,6 +7459,9 @@ body.modal-open {
   }
   .ins_calendar_header {
     gap: 0px;
+  }
+  .ins_lesson_emoji .ins_icon_image_wrap {
+    padding: 10px;
   }
 }
 

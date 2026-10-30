@@ -132,7 +132,7 @@ const getJourney = async () => {
 };
 export const getUnits = async () => (await getJourney()).map((topic, index) => ({
   ...topic, id: topic._id || topic.id, title: topic.title || topic.name,
-  sectionLabel: topic.category || `Section ${index + 1}`, color: topic.color || '#56b68b', emoji: topic.emoji || '📚',
+  sectionLabel: topic.category || `Section ${index + 1}`, color: topic.color || '#2f855a', emoji: topic.emoji || '📚',
 }));
 export const getLessons = async () => {
   const topics = await getJourney();
@@ -146,11 +146,31 @@ export const getLessonById = async (lessonId) => (await getLessons()).find((item
 export const getQuestionsByLesson = async (lessonId) => {
   const questions = resultOf(await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`));
   if (!Array.isArray(questions)) return [];
+  // Each dashboard lesson is a single exercise. Use its first backend question
+  // so completing a lesson returns to the dashboard before the next lesson.
   return questions.slice(0, 1).map((question) => {
-    const options = Array.isArray(question.options) ? question.options : [];
-    const correct = Number.isInteger(question.correct)
-      ? question.correct
-      : options.findIndex((option) => String(option).trim().toLowerCase() === String(question.rightAnswer || '').trim().toLowerCase());
+    const options = Array.isArray(question.options) ? [...question.options] : [];
+    const normalizeAnswer = (value) => String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+    const backendIndex = Number.isInteger(question.correctOptionIndex) && question.correctOptionIndex >= 0
+      ? question.correctOptionIndex
+      : Number.isInteger(question.correct) && question.correct >= 0
+        ? question.correct
+        : -1;
+    let correct = backendIndex < options.length
+      ? backendIndex
+      : (question.rightAnswer
+        ? options.findIndex((option) => normalizeAnswer(option) === normalizeAnswer(question.rightAnswer))
+        : -1);
+    if (correct < 0 && question.rightAnswer) {
+      options.push(question.rightAnswer);
+      correct = options.length - 1;
+    }
     return {
       ...question,
       question: question.question || question.text || question.translation || '',
@@ -158,6 +178,15 @@ export const getQuestionsByLesson = async (lessonId) => {
       correct,
     };
   });
+};
+export const verifyUserSpeaking = async (questionId, audioBlob) => {
+  const form = new FormData();
+  const extension = audioBlob.type.includes('webm') ? 'webm' : 'mp4';
+  form.append('audio', audioBlob, `speaking-answer.${extension}`);
+  return resultOf(await request(`/user/verifyUserSpeaking/${encodeURIComponent(questionId)}`, {
+    method: 'POST',
+    body: form,
+  }));
 };
 export const recordLessonCompletion = async (_userId, { lessonId, score, hearts, language }) => {
   const fresh = await getUser();

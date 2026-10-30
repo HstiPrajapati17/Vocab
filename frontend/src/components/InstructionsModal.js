@@ -1,77 +1,66 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { BookOpen, Check, ArrowRight, Target } from 'lucide-react';
+import { BookOpen, Check, Circle } from 'lucide-react';
 
-const InstructionsModal = ({ show, onHide }) => {
-  const instructions = [
-    {
-      icon: <Target size={24} />,
-      title: 'Complete Lessons',
-      description: 'Click on lesson nodes to start learning. Complete lessons to unlock new content.'
-    },
-    {
-      icon: <Check size={24} />,
-      title: 'Track Progress',
-      description: 'Your completed lessons are marked with checkmarks. Continue your journey from where you left off.'
-    },
-    {
-      icon: <ArrowRight size={24} />,
-      title: 'Follow the Path',
-      description: 'Lessons are organized in a learning path. Start from the beginning and work your way through each unit.'
-    }
-  ];
+const InstructionsModal = ({ show, onHide, sections = [] }) => {
+  const populatedSections = sections.filter((section) =>
+    (Array.isArray(section.points) && section.points.length > 0) || section.description
+  );
 
   return (
-    <Modal 
-      show={show} 
-      onHide={onHide} 
+    <Modal
+      show={show}
+      onHide={onHide}
       centered
+      scrollable
       size="lg"
-      className="h_instructions_modal"
+      className="h_instructions_modal h_guidebook_modal"
     >
       <Modal.Header closeButton className="h_modal_header">
         <div className="d-flex align-items-center gap-2">
-          <BookOpen size={25} className="mt-1" style={{color:"var(--primary-dark)"}}/>
-          <Modal.Title className="h_modal_title">Guidebook Instructions</Modal.Title>
+          <BookOpen size={24} className="mt-1" style={{ color: 'var(--primary-dark)' }} />
+          <Modal.Title className="h_modal_title">Journey Guidebook</Modal.Title>
         </div>
       </Modal.Header>
-      <Modal.Body className="h_modal_body">
-        <div className="h_instructions_content">
-          <p className="h_instructions_intro mb-4">
-            Welcome to your language learning journey! Follow these steps to make the most of your experience:
-          </p>
-          <div className="h_instructions_list">
-            {instructions.map((instruction, index) => (
-              <div key={index} className="h_instruction_item">
-                <div className="h_instruction_icon">
-                  {instruction.icon}
-                </div>
-                <div className="h_instruction_content">
-                  <h5 className="h_instruction_title">{instruction.title}</h5>
-                  <p className="h_instruction_desc">{instruction.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="h_instructions_tips mt-4 p-3 bg-light rounded">
-            <h6 className="fw-bold mb-2">💡 Tips for Success:</h6>
-            <ul className="mb-0">
-              <li>Practice daily to maintain your learning streak</li>
-              <li>Review previous lessons to reinforce your knowledge</li>
-              <li>Use the pronunciation feature to improve your accent</li>
-              <li>Complete all exercises in each lesson to track your progress</li>
-            </ul>
-          </div>
-        </div>
+      <Modal.Body className="h_modal_body h_guidebook_body">
+        {populatedSections.length ? populatedSections.map((section) => {
+          const points = Array.isArray(section.points) ? section.points : [];
+          const completed = points.filter((point) => typeof point === 'object' && point?.isCompleted).length;
+          const progress = section.progressPercent ?? (points.length ? Math.round((completed / points.length) * 100) : 0);
+
+          return (
+            <section className="h_guidebook_section" key={section.id || section._id || section.title}>
+              <h3 className="h_guidebook_section_title">{section.title || section.name}</h3>
+              {points.length > 0 ? (
+                <>
+                  <div className="h_guidebook_progress" aria-label={`${progress}% complete`}>
+                    <span style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
+                  </div>
+                  <ul className="h_guidebook_points">
+                    {points.map((point, index) => {
+                      const text = typeof point === 'string' ? point : point?.text;
+                      if (!text) return null;
+                      const isCompleted = typeof point === 'object' && point?.isCompleted;
+                      return (
+                        <li key={`${index}-${text}`} className={isCompleted ? 'h_guidebook_point_done' : ''}>
+                          {isCompleted ? <Check size={17} /> : <Circle size={17} />}
+                          <span>{text}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              ) : (
+                <p className="h_guidebook_description">{section.description}</p>
+              )}
+            </section>
+          );
+        }) : (
+          <p className="h_guidebook_empty">There are no guidebook points for this journey yet.</p>
+        )}
       </Modal.Body>
       <Modal.Footer className="h_modal_footer">
-        <button 
-          type="button" 
-          className="h_modal_close_btn"
-          onClick={onHide}
-        >
-          Got it!
-        </button>
+        <button type="button" className="h_modal_close_btn" onClick={onHide}>Got it!</button>
       </Modal.Footer>
     </Modal>
   );

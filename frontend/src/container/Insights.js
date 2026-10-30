@@ -18,6 +18,22 @@ import {
 
 /* ── helpers ── */
 const DAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+const isImageUrl = (value) =>
+  typeof value === "string" && /^(https?:\/\/|data:image\/|blob:)/i.test(value.trim());
+
+const IconVisual = ({ value, alt, fallback }) => {
+  if (!isImageUrl(value)) return <>{value || fallback}</>;
+  return (
+    <span className="ins_icon_image_wrap">
+      <img
+        src={value.trim()}
+        alt={alt}
+        onError={(event) => event.currentTarget.classList.add("ins_icon_image_failed")}
+      />
+      <span className="ins_icon_image_fallback">{fallback}</span>
+    </span>
+  );
+};
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
@@ -136,7 +152,11 @@ const SkillCard = ({ label, value, delta, color }) => {
 const AchievementCard = ({ icon, title, desc, locked = false, progress }) => (
   <div className={`ins_achievement_card ${locked ? "ins_achievement_locked" : ""}`}>
     <div className={`ins_achievement_icon ${locked ? "" : "ins_ach_unlocked"}`}>
-      {locked ? <Lock size={22} /> : <span className="ins_achievement_emoji">{icon}</span>}
+      {locked ? <Lock size={22} /> : (
+        <span className="ins_achievement_emoji">
+          <IconVisual value={icon} alt={title} fallback="🏆" />
+        </span>
+      )}
     </div>
     <div className="ins_achievement_body">
       <div className="ins_achievement_top">
@@ -164,7 +184,9 @@ const LessonRow = ({ emoji, title, difficulty, terms, score, time }) => {
   return (
     <div className="ins_lesson_row">
       <div className="ins_lesson_emoji_wrap">
-        <span className="ins_lesson_emoji">{emoji}</span>
+        <span className="ins_lesson_emoji">
+          <IconVisual value={emoji} alt={title} fallback={<BookOpen size={22} />} />
+        </span>
       </div>
       <div className="ins_lesson_info">
         <div className="ins_lesson_top">

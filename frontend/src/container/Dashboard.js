@@ -245,7 +245,7 @@ const Dashboard = () => {
           {/* back → opens sections panel */}
 
           <div className="h_section_banner_text">
-            <div className="h_section_sub_label d-flex align-items-center gap-2 mb-2">
+            <div className="h_section_sub_label d-flex align-items-center gap-2">
               <button
                 type="button"
                 className="h_section_back"
@@ -254,9 +254,9 @@ const Dashboard = () => {
               >
                 <ChevronLeft size={18} />
               </button>
+            <div className="h_section_main_label">{activeUnit.title}</div>
               {activeUnit.section}
             </div>
-            <div className="h_section_main_label">{activeUnit.title}</div>
           </div>
 
           <button
@@ -280,11 +280,9 @@ const Dashboard = () => {
       ) : (
         unitGroups.map((unit) => (
           <div key={unit.id} id={`db_unit_${unit.id}`} className="h_learn_unit">
-            {unit.id > 1 && (
-              <div className="h_unit_divider">
-                <span>{unit.title}</span>
-              </div>
-            )}
+            <div className="h_unit_divider">
+              <span>{unit.title || unit.sectionLabel || unit.section}</span>
+            </div>
 
             <div className="h_learn_path">
               {unit.lessons.map((lesson, idx) => {
@@ -369,6 +367,7 @@ const Dashboard = () => {
       <InstructionsModal
         show={showInstructions}
         onHide={() => setShowInstructions(false)}
+        sections={unitGroups}
       />
     </div>
   );

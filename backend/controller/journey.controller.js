@@ -861,11 +861,33 @@ export class JourneyController {
 
   static async mapAndHealQuestion(q, langKey, languageToLearn) {
     let qData = q.toObject ? q.toObject() : q;
+    const normalizeAnswer = (value) => String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\p{L}\p{N}\s]/gu, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+    const sourceOptions = Array.isArray(qData.options) ? qData.options : [];
+    const sourceAnswer = normalizeAnswer(qData.rightAnswer);
+    const sourceCorrectIndex = sourceAnswer
+      ? sourceOptions.findIndex((option) => normalizeAnswer(option) === sourceAnswer)
+      : -1;
 
     if (!langKey) {
+      qData.correctOptionIndex = sourceCorrectIndex;
+      if (sourceCorrectIndex < 0 && qData.rightAnswer) {
+        qData.options = [...sourceOptions, qData.rightAnswer];
+        qData.correctOptionIndex = qData.options.length - 1;
+      }
       return qData;
     }
     if (langKey === "english") {
+      qData.correctOptionIndex = sourceCorrectIndex;
+      if (sourceCorrectIndex < 0 && qData.rightAnswer) {
+        qData.options = [...sourceOptions, qData.rightAnswer];
+        qData.correctOptionIndex = qData.options.length - 1;
+      }
       return qData;
     }
 
@@ -946,6 +968,21 @@ export class JourneyController {
       qData.options = trans.options && trans.options.length > 0 ? trans.options : qData.options;
       qData.audio = trans.audio || qData.audio;
     }
+
+    const localizedOptions = Array.isArray(qData.options) ? [...qData.options] : [];
+    let correctOptionIndex = sourceCorrectIndex;
+    if (correctOptionIndex < 0 || correctOptionIndex >= localizedOptions.length) {
+      const localizedAnswer = normalizeAnswer(qData.rightAnswer);
+      correctOptionIndex = localizedAnswer
+        ? localizedOptions.findIndex((option) => normalizeAnswer(option) === localizedAnswer)
+        : -1;
+      if (correctOptionIndex < 0 && qData.rightAnswer) {
+        localizedOptions.push(qData.rightAnswer);
+        correctOptionIndex = localizedOptions.length - 1;
+      }
+    }
+    qData.options = localizedOptions;
+    qData.correctOptionIndex = correctOptionIndex;
 
     return qData;
   }

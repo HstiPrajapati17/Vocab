@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ProgressBar, Spinner } from 'react-bootstrap';
-import { Heart, CheckCircle, XCircle, X, RefreshCw } from 'lucide-react';
+import { Heart, CheckCircle, XCircle, X, RefreshCw, Volume2, Mic, Square } from 'lucide-react';
 
-import { getLessons, getQuestionsByLesson, recordLessonCompletion, updateUser } from '../api';
+import { getQuestionsByLesson, recordLessonCompletion, updateUser, verifyUserSpeaking } from '../api';
 import { useApp } from '../App';
 // import '../style/lesson_image_styles.css';
 
@@ -12,7 +12,6 @@ const LessonPage = () => {
   const { lessonId } = useParams();
   const { user, refreshUser, consumeHeart, showToast } = useApp();
   const [questions, setQuestions] = useState([]);
-  const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingProgress, setSavingProgress] = useState(false);
   const [progressSaved, setProgressSaved] = useState(false);
@@ -25,6 +24,17 @@ const LessonPage = () => {
   const [showResult, setShowResult] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedAudio, setRecordedAudio] = useState(null);
+  const [verifyingSpeech, setVerifyingSpeech] = useState(false);
+  const [speechResult, setSpeechResult] = useState(null);
+  const [showMicrophoneHelp, setShowMicrophoneHelp] = useState(false);
+  const recorderRef = React.useRef(null);
+  const audioChunksRef = React.useRef([]);
+
+  useEffect(() => () => {
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+  }, []);
 
   useEffect(() => {
     if (typeof user?.hearts === 'number' && !showResult) {
@@ -35,7 +45,6 @@ const LessonPage = () => {
   useEffect(() => {
     let active = true;
     setQuestions([]);
-    setLessons([]);
     setCurrent(0);
     setSelected(null);
     setAnswered(false);
@@ -43,12 +52,13 @@ const LessonPage = () => {
     scoreRef.current = 0;
     setShowResult(false);
     setProgressSaved(false);
+    setRecordedAudio(null);
+    setSpeechResult(null);
     setLoading(true);
-    Promise.all([getQuestionsByLesson(lessonId), getLessons()])
-      .then(([questionData, lessonData]) => {
+    getQuestionsByLesson(lessonId)
+      .then((questionData) => {
         if (!active) return;
         setQuestions(questionData);
-        setLessons(lessonData);
       })
       .catch(err => {
         console.error('Error fetching questions:', err);
@@ -71,6 +81,10 @@ const LessonPage = () => {
 
   const handleCheck = () => {
     if (selected === null) return;
+    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) {
+      showToast('This question is missing a valid correct answer. Please try again later.', 'error');
+      return;
+    }
     const correct = selected === q.correct;
     setIsCorrect(correct);
     setAnswered(true);
@@ -93,12 +107,12 @@ const LessonPage = () => {
     }
   };
 
-  const saveProgress = async (finalScore) => {
+  const saveProgress = async (finalScore, forceComplete = false) => {
     if (!user?.id) {
       showToast('Please sign in again to save lesson progress.', 'error');
       return false;
     }
-    const passed = finalScore >= Math.ceil(questions.length * 0.6);
+    const passed = forceComplete || finalScore >= Math.ceil(questions.length * 0.6);
     if (!passed) {
       try {
         const attemptUpdates = { hearts, lastActive: new Date().toISOString() };
@@ -132,6 +146,8 @@ const LessonPage = () => {
     setShowFeedback(false);
     setSelected(null);
     setAnswered(false);
+    setRecordedAudio(null);
+    setSpeechResult(null);
     if (current + 1 >= questions.length) {
       setShowResult(true);
       setSavingProgress(true);
@@ -145,32 +161,100 @@ const LessonPage = () => {
 
   const continueAfterLesson = async () => {
     const passed = score >= Math.ceil(questions.length * 0.6);
-    let hasSavedProgress = progressSaved;
     if (passed && !progressSaved) {
       setSavingProgress(true);
       const saved = await saveProgress(scoreRef.current);
-      hasSavedProgress = saved;
       setProgressSaved(saved);
       setSavingProgress(false);
       if (!saved) return;
-    }
-
-    if (hasSavedProgress) {
-      const currentIndex = lessons.findIndex((lesson) => String(lesson.id) === String(lessonId));
-      const nextLesson = currentIndex >= 0
-        ? lessons.slice(currentIndex + 1).find((lesson) => !lesson.isCompleted)
-        : null;
-      if (nextLesson) {
-        navigate(`/lesson/${nextLesson.id}`, { replace: true });
-        return;
-      }
     }
     navigate('/dashboard');
   };
 
   const handleSkip = () => {
     if (answered) return;
+    if (q?.type === 'speaking') {
+      scoreRef.current = questions.length;
+      setScore(questions.length);
+      setSavingProgress(true);
+      saveProgress(questions.length, true).then((saved) => {
+        setProgressSaved(saved);
+        setShowResult(true);
+      }).finally(() => setSavingProgress(false));
+      return;
+    }
     handleNext();
+  };
+
+  const playQuestionAudio = () => {
+    if (q?.audio) {
+      const audio = new Audio(q.audio);
+      audio.play().catch(() => showToast('Could not play the audio. Please try again.', 'error'));
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(q?.question || '');
+      utterance.lang = user?.onboarding?.languageToLearn || user?.language || 'en';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording && recorderRef.current) {
+      recorderRef.current.stop();
+      setIsRecording(false);
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+      showToast('Audio recording is not supported by this browser.', 'error');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) audioChunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        setRecordedAudio(new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' }));
+        stream.getTracks().forEach((track) => track.stop());
+        recorderRef.current = null;
+      };
+      recorderRef.current = recorder;
+      recorder.start();
+      setRecordedAudio(null);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Could not access microphone:', error);
+      setShowMicrophoneHelp(true);
+    }
+  };
+
+  const handleCheckSpeaking = async () => {
+    if (!recordedAudio || !q?._id) return;
+    setVerifyingSpeech(true);
+    try {
+      const result = await verifyUserSpeaking(q._id, recordedAudio);
+      setSpeechResult(result);
+      setIsCorrect(Boolean(result?.isCorrect));
+      setAnswered(true);
+      setShowFeedback(true);
+      if (result?.isCorrect) {
+        scoreRef.current += 1;
+        setScore(scoreRef.current);
+      } else {
+        const lost = consumeHeart();
+        const remainingHearts = Math.max(0, hearts - (lost ? 1 : 0));
+        setHearts(remainingHearts);
+        if (lost && user?.id) updateUser(user.id, { hearts: remainingHearts }).then(refreshUser).catch(() => {});
+      }
+    } catch (error) {
+      showToast(error.message || 'Could not check your speech. Please try again.', 'error');
+    } finally {
+      setVerifyingSpeech(false);
+    }
   };
 
   const resetLesson = () => {
@@ -230,11 +314,6 @@ const LessonPage = () => {
   if (showResult) {
     const passed = score >= Math.ceil(questions.length * 0.6);
     const accuracy = Math.round((score / questions.length) * 100);
-    const currentLessonIndex = lessons.findIndex((lesson) => String(lesson.id) === String(lessonId));
-    const nextLesson = currentLessonIndex >= 0
-      ? lessons.slice(currentLessonIndex + 1).find((lesson) => !lesson.isCompleted)
-      : null;
-
     return (
       <div className='container'>
       <div className="lp_result_overlay">
@@ -303,9 +382,7 @@ const LessonPage = () => {
               ? 'Saving…'
               : passed && !progressSaved
                 ? 'Retry Save'
-                : nextLesson
-                  ? `Next: Lesson ${currentLessonIndex + 2 + lessons.slice(currentLessonIndex + 1).findIndex((lesson) => !lesson.isCompleted)}`
-                  : 'Back to Learn'}
+                : 'Back to Lessons'}
           </button>
         </div>
       </div>
@@ -314,7 +391,7 @@ const LessonPage = () => {
   }
 
   return (
-    <div className="h_lesson_fullscreen">
+    <div className={`h_lesson_fullscreen ${q.type === 'speaking' ? 'h_lesson_speaking' : ''}`}>
       {/* Top bar */}
       <div className="h_lesson_topbar">
         <button type="button" className="h_lesson_close" onClick={() => navigate('/dashboard')} aria-label="Close">
@@ -331,22 +408,36 @@ const LessonPage = () => {
       {/* Question area */}
       <div className="h_lesson_body">
         <div className="h_lesson_content">
-          <p className="h_lesson_type_label text-capitalize">{q.type.replace('-', ' ')}</p>
+          <p className="h_lesson_type_label text-capitalize">{q.type === 'speaking' ? 'Speak this sentence' : q.type.replace('-', ' ')}</p>
           <div className='d-flex align-items-center'>
           {/* SVG Image Display */}
           {q.image && (
             <div className="h_question_image_container">
               <img 
-                src={`${process.env.PUBLIC_URL}/assets/${q.image}`} 
+                src={/^(https?:|data:|\/)/i.test(q.image) ? q.image : `${process.env.PUBLIC_URL}/assets/${q.image}`}
                 alt="Question illustration" 
                 className="h_question_image"
               />
             </div>
           )}
           
-          <h2 className="h_question_text">{q.question}</h2>
+          {q.type !== 'speaking' && <h2 className="h_question_text">{q.question}</h2>}
           </div>
-          <div className="h_options_grid mt-4">
+          {q.type === 'speaking' ? (
+            <div className="h_speaking_task mt-4">
+              <div className="h_speaking_sentence">
+                <button type="button" className="h_speaking_audio_btn" onClick={playQuestionAudio} aria-label="Play sentence audio">
+                  <Volume2 size={22} />
+                </button>
+                <span>{q.question}</span>
+              </div>
+              <button type="button" className={`h_speaking_record_btn ${isRecording ? 'h_speaking_recording' : ''}`} onClick={toggleRecording} disabled={answered || verifyingSpeech}>
+                {isRecording ? <Square size={20} /> : <Mic size={20} />}
+                {isRecording ? 'STOP RECORDING' : recordedAudio ? 'RECORD AGAIN' : 'CLICK TO SPEAK'}
+              </button>
+              {speechResult?.transcribedText && <p className="h_speaking_transcript">You said: {speechResult.transcribedText}</p>}
+            </div>
+          ) : <div className="h_options_grid mt-4">
             {q.options.map((opt, i) => (
               <button
                 key={i}
@@ -364,7 +455,7 @@ const LessonPage = () => {
                 {answered && selected === i && i !== q.correct && <XCircle size={20} style={{ color: 'var(--danger)' }} />}
               </button>
             ))}
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -380,7 +471,7 @@ const LessonPage = () => {
                   <XCircle size={22} />
                   <div>
                     <strong>Correct solution:</strong>
-                    <div>{q.options[q.correct]}</div>
+                    <div>{q.type === 'speaking' ? (speechResult?.targetText || q.question) : (q.options[q.correct] || q.rightAnswer || 'Correct answer is not available.')}</div>
                   </div>
                 </>
               )}
@@ -391,17 +482,36 @@ const LessonPage = () => {
           </div>
         ) : (
           <div className="h_lesson_footer_inner">
-            <button type="button" className="h_lesson_skip_btn" onClick={handleSkip}>SKIP</button>
-            <button
-              className={`h_lesson_check_btn ${selected === null ? 'h_btn_disabled' : ''}`}
+            {q.type === 'speaking' ? (
+              <button type="button" className="h_speaking_skip_btn" onClick={handleSkip} disabled={savingProgress || verifyingSpeech}>
+                {savingProgress ? 'Saving…' : "Can't speak now"}
+              </button>
+            ) : <button type="button" className="h_lesson_skip_btn" onClick={handleSkip}>SKIP</button>}
+            {q.type === 'speaking' ? <button
+              className={`h_lesson_check_btn ${!recordedAudio || verifyingSpeech ? 'h_btn_disabled' : ''}`}
+              onClick={handleCheckSpeaking}
+              disabled={!recordedAudio || verifyingSpeech}
+            >{verifyingSpeech ? 'CHECKING…' : 'CHECK'}</button> : <button
+              className={`h_lesson_check_btn ${selected === null || !Number.isInteger(q.correct) || q.correct < 0 ? 'h_btn_disabled' : ''}`}
               onClick={handleCheck}
-              disabled={selected === null}
+              disabled={selected === null || !Number.isInteger(q.correct) || q.correct < 0}
             >
               CHECK
-            </button>
+            </button>}
           </div>
         )}
       </div>
+      {showMicrophoneHelp && (
+        <div className="h_microphone_modal_backdrop" role="presentation" onClick={() => setShowMicrophoneHelp(false)}>
+          <section className="h_microphone_modal" role="dialog" aria-modal="true" aria-labelledby="h_microphone_modal_title" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="h_microphone_modal_close" onClick={() => setShowMicrophoneHelp(false)} aria-label="Close microphone help">
+              <X size={22} />
+            </button>
+            <h2 id="h_microphone_modal_title">Microphone not authorized!</h2>
+            <p>To practice your speaking skills, please allow microphone access for this site. You can change this in your browser’s site settings, then click “Click to speak” again.</p>
+          </section>
+        </div>
+      )}
     </div>
   );
 };
