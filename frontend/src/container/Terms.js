@@ -8,7 +8,7 @@ const Terms = () => {
   useEffect(() => { getTermsConditions().then(setTerms).catch(() => {}); }, []);
   if (terms?.sections?.length) return (
     <div className="text-page terms-text-page"><Container className="text-container">
-      <div className="text-header"><h1 className="text-title">Terms of Service</h1><p className="text-subtitle">Last Updated: {terms.lastUpdated}</p></div>
+      <div className="text-header"><span className="legal-kicker">VocabLearn policies</span><h1 className="text-title">Terms of Service</h1><p className="text-subtitle">Last updated · {terms.lastUpdated}</p></div>
       <div className="text-content">
         {terms.introduction && <p className="text-paragraph">{terms.introduction}</p>}
         {terms.sections.map((section, index) => <section className="text-section" key={section._id || section.title}>
@@ -26,8 +26,9 @@ const Terms = () => {
           {/* <div className="text-icon">
             <FileText size={48} />
           </div> */}
+          <span className="legal-kicker">VocabLearn policies</span>
           <h1 className="text-title">Terms of Service</h1>
-          <p className="text-subtitle">Last Updated: January 2024</p>
+          <p className="text-subtitle">Last updated · January 2024</p>
         </div>
 
         <div className="text-content">

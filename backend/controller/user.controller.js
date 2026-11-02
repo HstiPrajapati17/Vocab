@@ -102,6 +102,20 @@ export const recordUserPractice = async (userOrId) => {
   }
 };
 
+export const recordWebActivity = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    await recordUserPractice(user);
+    return res.status(200).json({
+      success: true,
+      result: { streakDays: user.streakDays || 0, lastPracticedDate: user.lastPracticedDate },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Could not record today's activity", error: error.message });
+  }
+};
+
 export const getProfile = async (req, res) => {
   try {
     const user = await UserModel.findById(req.user._id);

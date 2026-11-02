@@ -105,11 +105,6 @@ const Courses = () => {
           <h1 className="h_courses_title">
             Courses for {user?.language || 'English'} Speakers
           </h1>
-          <p className="text-muted small mb-0">
-            {loading
-              ? 'Loading languages from backend…'
-              : `Backend languages (${allLanguages.length}): ${allLanguages.map((language) => language.name).join(', ') || 'none found'}`}
-          </p>
         </div>
         <div className="h_courses_speak">
           <span>I SPEAK</span>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Row, Col, Button, Navbar, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 import {
   Globe,
   Star,
@@ -194,7 +194,7 @@ const Home = () => {
                 </div>
                 {/* floating streak badge */}
                 <div className="hp_float_badge hp_float_streak">
-                  <Flame size={14} /> 7 day streak 🔥
+                  <Flame size={14} /> Start your streak
                 </div>
               </div>
             </Col>
@@ -345,7 +345,7 @@ const Home = () => {
                   <div className="hp_mk_header">
                     <span className="hp_mk_title">Daily Goal</span>
                     <span className="hp_mk_streak">
-                      <Flame size={14} /> 7 days
+                      <Flame size={14} /> Your streak
                     </span>
                   </div>
 
@@ -378,7 +378,7 @@ const Home = () => {
                   </div>
 
                   <div className="hp_mk_footer">
-                    <span>🔥 Keep your streak!</span>
+                    <span>🔥 Practice today to begin</span>
                   </div>
                 </div>
               </div>
@@ -452,16 +452,12 @@ const Home = () => {
           <div className="hp_footer_top">
             <div className="hp_footer_brand_col">
               <div className="hp_footer_brand">
-                <Navbar.Brand
-                  className="h_navbar_brand d-flex align-items-center"
-                  style={{ cursor: "pointer" }}
-                >
+                <button type="button" className="hp_footer_brand_button" onClick={() => navigate("/")} aria-label="VocabLearn home">
                   <div className="h_brand_logo_img">
-                    <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" />
+                    <img src="https://png.pngtree.com/png-vector/20260128/ourlarge/pngtree-a-small-green-bird-flying-with-spread-wings-on-black-background-png-image_18307190.webp" alt="" />
                   </div>
-                </Navbar.Brand>
-                {/* <span className="hp_footer_logo">V</span> */}
-                <span className="hp_footer_name">VocabLearn</span>
+                  <span className="hp_footer_name">VocabLearn</span>
+                </button>
               </div>
               <p className="hp_footer_tagline">
                 The smarter, faster, free way to learn a new language.
@@ -471,26 +467,26 @@ const Home = () => {
             <div className="hp_footer_nav_cols">
               <div className="hp_footer_col">
                 <p className="hp_footer_col_title">Product</p>
-                {["Courses", "Letters", "Insights"].map((l) => (
-                  <span className="hp_footer_link" key={l}>
-                    {l}
-                  </span>
+                {[{ label: "Courses", path: "/courses" }, { label: "Letters", path: "/letters" }, { label: "Insights", path: "/insights" }].map((link) => (
+                  <button type="button" className="hp_footer_link" key={link.path} onClick={() => navigate(link.path)}>
+                    {link.label}
+                  </button>
                 ))}
               </div>
               <div className="hp_footer_col">
                 <p className="hp_footer_col_title">Company</p>
-                {["About", "Blog", "Help"].map((l) => (
-                  <span className="hp_footer_link" key={l}>
-                    {l}
-                  </span>
+                {[{ label: "About", path: "/about" }, { label: "Blog", path: "/blog" }, { label: "Help", path: "/help" }].map((link) => (
+                  <button type="button" className="hp_footer_link" key={link.path} onClick={() => navigate(link.path)}>
+                    {link.label}
+                  </button>
                 ))}
               </div>
               <div className="hp_footer_col">
                 <p className="hp_footer_col_title">Legal</p>
-                {["Privacy", "Terms"].map((l) => (
-                  <span className="hp_footer_link" key={l}>
-                    {l}
-                  </span>
+                {[{ label: "Privacy", path: "/privacy" }, { label: "Terms", path: "/terms" }].map((link) => (
+                  <button type="button" className="hp_footer_link" key={link.path} onClick={() => navigate(link.path)}>
+                    {link.label}
+                  </button>
                 ))}
               </div>
             </div>

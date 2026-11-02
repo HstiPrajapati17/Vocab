@@ -3,7 +3,8 @@ import { Container } from "react-bootstrap";
 import { ChevronDown, ChevronRight, Send } from "lucide-react";
 import "../style/info_pages.css";
 import { Link } from "react-router-dom";
-import { getHelpCenter } from "../api";
+import { getHelpCenter, submitFeedback } from "../api";
+import { useApp } from "../App";
 
 /* ── FAQ data grouped by category ───────────────────────── */
 const faqGroups = [
@@ -90,7 +91,6 @@ const faqGroups = [
 ];
 
 const issueTypes = [
-  "Please select one…",
   "Login / Account issue",
   "Billing / Payment",
   "Course content error",
@@ -139,29 +139,53 @@ const FaqGroup = ({ group }) => {
 
 /* ── Feedback form ───────────────────────────────────────── */
 const FeedbackForm = ({ onBack }) => {
+  const { user } = useApp();
   const [form, setForm] = useState({
-    email: "",
+    email: user?.email || "",
     subject: "",
     description: "",
     type: "",
     file: null,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [ticketId, setTicketId] = useState('');
   const fileRef = useRef();
 
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  useEffect(() => {
+    if (user?.email) setForm((current) => current.email ? current : { ...current, email: user.email });
+  }, [user?.email]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (
-      !form.email ||
-      !form.subject ||
-      !form.description ||
-      !form.type ||
-      form.type === issueTypes[0]
-    )
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const chooseAttachment = (file) => {
+    if (!file) return set('file', null);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Attach a PNG, JPG, WEBP, or PDF file.');
       return;
-    setSubmitted(true);
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('The attachment must be 10 MB or smaller.');
+      return;
+    }
+    setError('');
+    set('file', file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSubmitting(true);
+    try {
+      const result = await submitFeedback(form);
+      setTicketId(result?.ticketId || '');
+      setSubmitted(true);
+    } catch (submitError) {
+      setError(submitError.message || 'Could not send your feedback. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -179,8 +203,9 @@ const FeedbackForm = ({ onBack }) => {
             <div className="hlp2_submitted_icon">✅</div>
             <h2 className="hlp2_form_title">Message sent!</h2>
             <p className="hlp2_submitted_sub">
-              We'll get back to you within 24 hours.
+              Your message has been saved. Our support team will review it.
             </p>
+            {ticketId && <p className="hlp2_ticket_id">Reference: {ticketId}</p>}
             <button
               className="hlp2_submit_btn"
               style={{ marginTop: 24 }}
@@ -271,6 +296,7 @@ const FeedbackForm = ({ onBack }) => {
                     onChange={(e) => set("type", e.target.value)}
                     required
                   >
+                    <option value="" disabled>Select an issue type</option>
                     {issueTypes.map((t) => (
                       <option key={t} value={t}>
                         {t}
@@ -285,11 +311,20 @@ const FeedbackForm = ({ onBack }) => {
                 <label className="hlp2_label">Attachments</label>
                 <div
                   className="hlp2_drop_zone"
-                  onClick={() => fileRef.current.click()}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Choose an optional attachment"
+                  onClick={() => fileRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      fileRef.current?.click();
+                    }
+                  }}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
-                    set("file", e.dataTransfer.files[0]);
+                    chooseAttachment(e.dataTransfer.files[0]);
                   }}
                 >
                   {form.file ? (
@@ -297,23 +332,26 @@ const FeedbackForm = ({ onBack }) => {
                   ) : (
                     <>
                       <span className="hlp2_drop_link">Add file</span> or drop
-                      files here
+                      files here <span className="hlp2_attachment_hint">(PNG, JPG, WEBP, PDF · max 10 MB)</span>
                     </>
                   )}
                   <input
                     ref={fileRef}
                     type="file"
+                    accept="image/png,image/jpeg,image/webp,application/pdf"
                     style={{ display: "none" }}
-                    onChange={(e) => set("file", e.target.files[0])}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => chooseAttachment(e.target.files?.[0] || null)}
                   />
                 </div>
               </div>
 
               <div className="hlp2_form_footer">
-                <button type="submit" className="hlp2_submit_btn">
-                  <Send size={15} /> SUBMIT
+                <button type="submit" className="hlp2_submit_btn" disabled={submitting}>
+                  <Send size={15} /> {submitting ? 'SENDING…' : 'SUBMIT'}
                 </button>
               </div>
+              {error && <p className="hlp2_form_error" role="alert">{error}</p>}
             </div>
           </form>
         </div>

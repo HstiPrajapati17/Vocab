@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useApp } from "../App";
-import { getLessons, getUnits } from "../api";
+import { getJourneyData } from "../api";
 import InstructionsModal from "../components/InstructionsModal";
 import { FaAnglesLeft } from "react-icons/fa6";
 import { LuBookOpenText } from "react-icons/lu";
@@ -170,24 +170,40 @@ const Dashboard = () => {
   const [lessons, setLessons] = useState([]);
   const [unitMeta, setUnitMeta] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showSections, setShowSections] = useState(false);
   const [jumpToUnit, setJumpToUnit] = useState(null);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
-    setLessons([]);   // clear stale lessons immediately so old language doesn't flash
-    Promise.all([
-      getLessons(user?.language || "English"),
-      getUnits(),
-    ])
-      .then(([lessonsData, unitsData]) => {
-        setLessons(lessonsData);
-        setUnitMeta(Array.isArray(unitsData) ? unitsData : []);
-        setLoading(false);
+    setLoadError("");
+    setLessons([]);
+    setUnitMeta([]);
+    getJourneyData()
+      .then(({ lessons: lessonsData, units: unitsData }) => {
+        if (!active) return;
+        const safeLessons = Array.isArray(lessonsData) ? lessonsData : [];
+        const safeUnits = Array.isArray(unitsData) ? unitsData : [];
+        // Keep lesson nodes visible even if the backend omitted topic metadata.
+        const inferredUnits = [...new Map(safeLessons.map((lesson) => [String(lesson.unitId), {
+          id: lesson.unitId,
+          title: lesson.unit || "Lessons",
+          sectionLabel: "Learning path",
+          color: "#2f855a",
+          emoji: "📚",
+        }])).values()];
+        setLessons(safeLessons);
+        setUnitMeta(safeUnits.length ? safeUnits : inferredUnits);
       })
-      .catch(() => setLoading(false));
-  }, [user?.language]);
+      .catch((error) => {
+        if (active) setLoadError(error?.message || "Could not load lessons. Please try again.");
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [user?.language, reloadKey]);
 
   useEffect(() => {
     const completed = lessons.filter((lesson) => lesson.isCompleted).length;
@@ -255,7 +271,7 @@ const Dashboard = () => {
                 <ChevronLeft size={18} />
               </button>
             <div className="h_section_main_label">{activeUnit.title}</div>
-              {activeUnit.section}
+              {activeUnit.sectionLabel}
             </div>
           </div>
 
@@ -278,7 +294,22 @@ const Dashboard = () => {
           </p>
         </div>
       ) : (
-        unitGroups.map((unit) => (
+        loadError ? (
+          <div className="text-center py-5 px-3" role="alert">
+            <p className="text-muted mb-3">{loadError}</p>
+            <button className="btn btn-outline-success" onClick={() => setReloadKey((key) => key + 1)}>
+              Try again
+            </button>
+          </div>
+        ) : lessons.length === 0 ? (
+          <div className="text-center py-5 px-3">
+            <h2 className="h5">Lessons are not available yet</h2>
+            <p className="text-muted mb-3">We couldn’t find a learning path for {user?.language || "your language"}.</p>
+            <button className="btn btn-outline-success" onClick={() => setReloadKey((key) => key + 1)}>
+              Reload lessons
+            </button>
+          </div>
+        ) : unitGroups.map((unit) => (
           <div key={unit.id} id={`db_unit_${unit.id}`} className="h_learn_unit">
             <div className="h_unit_divider">
               <span>{unit.title || unit.sectionLabel || unit.section}</span>
@@ -304,7 +335,7 @@ const Dashboard = () => {
                   >
                     <div className="h_learn_node_area">
                       {isActive && !isCompleted && (
-                        <span className="h_start_label">START</span>
+                        <span className="h_start_label">Start</span>
                       )}
                       <button
                         type="button"
@@ -314,7 +345,7 @@ const Dashboard = () => {
                           ${isLocked ? "h_learn_node_locked" : ""}`}
                         onClick={() => handleLessonClick(lesson)}
                         disabled={isLocked}
-                        aria-label={lesson.title}
+                        aria-label={isActive && !isCompleted ? `Start ${lesson.title}` : lesson.title}
                       >
                         <IconComp size={isActive ? 28 : 24} strokeWidth={2.5} />
                       </button>

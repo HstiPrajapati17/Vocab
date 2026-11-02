@@ -19,7 +19,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './style/H_style.css';
 
-import { getUser, getUserByEmail, logoutUser, updateUser } from './api';
+import { getUser, getUserByEmail, logoutUser, updateUser, recordWebActivity } from './api';
 
 import Navbar    from './components/Navbar';
 import AppShell  from './components/AppShell';
@@ -165,6 +165,37 @@ const AppProvider = ({ children }) => {
         });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Record one active day per local calendar day for signed-in learners.
+  // The backend treats repeat check-ins as idempotent.
+  useEffect(() => {
+    if (!user?.id || !localStorage.getItem('token')) return undefined;
+    let lastAttemptedDay = '';
+    let cancelled = false;
+    const checkIn = async () => {
+      const now = new Date();
+      const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      if (day === lastAttemptedDay || document.visibilityState === 'hidden') return;
+      try {
+        const result = await recordWebActivity();
+        if (cancelled) return;
+        lastAttemptedDay = day;
+        setUser((current) => current?.id === user.id
+          ? { ...current, streak: Number(result?.streakDays) || 0, lastPracticedDate: result?.lastPracticedDate }
+          : current);
+      } catch (error) {
+        console.error('Could not record web activity:', error);
+      }
+    };
+    checkIn();
+    const interval = setInterval(checkIn, 60_000);
+    document.addEventListener('visibilitychange', checkIn);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', checkIn);
+    };
+  }, [user?.id, setUser]);
 
   // ── toast helper ───────────────────────────────────────────────
   const showToast = useCallback((message, kind = 'success') => {

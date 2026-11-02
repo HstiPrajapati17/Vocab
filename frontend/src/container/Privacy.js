@@ -6,9 +6,16 @@ import { getPrivacyPolicy } from '../api';
 const Privacy = () => {
   const [sections, setSections] = useState([]);
   useEffect(() => { getPrivacyPolicy().then((data) => { if (Array.isArray(data)) setSections(data); }).catch(() => {}); }, []);
+  const lastUpdatedDate = sections.reduce((latest, section) => {
+    const updatedAt = section.updatedAt ? new Date(section.updatedAt) : null;
+    return updatedAt && (!latest || updatedAt > latest) ? updatedAt : latest;
+  }, null);
+  const lastUpdated = lastUpdatedDate
+    ? lastUpdatedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'January 2024';
   if (sections.length) return (
     <div className="text-page privacy-text-page"><Container className="text-container">
-      <div className="text-header"><h1 className="text-title">Privacy Policy</h1></div>
+      <div className="text-header"><span className="legal-kicker">VocabLearn policies</span><h1 className="text-title">Privacy Policy</h1><p className="text-subtitle">Last updated · {lastUpdated}</p></div>
       <div className="text-content">
         {sections.map((section, index) => <section className="text-section" key={section._id || section.title}>
           <h2 className="section-heading">{section.title || `${index + 1}.`}</h2>
@@ -25,8 +32,9 @@ const Privacy = () => {
           {/* <div className='text-icon'>
             <Shield  fontSize={'20px'} color="#667eea" />
           </div>           */}
+          <span className="legal-kicker">VocabLearn policies</span>
           <h1 className="text-title">Privacy Policy</h1>
-          <p className="text-subtitle">Last Updated: January 2024</p>
+          <p className="text-subtitle">Last updated · {lastUpdated}</p>
         </div>
 
         <div className="text-content">

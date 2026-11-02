@@ -17,6 +17,7 @@ import {
   getBlogFilters,
   getFeaturedPost,
   getBlogHeroStats,
+  subscribeToNewsletter,
 } from '../api';
 
 const ICON_MAP = {
@@ -36,6 +37,9 @@ const Blog = () => {
   const [filters, setFilters] = useState([]);
   const [heroStats, setHeroStats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState({ busy: false, message: '', error: false });
+  const [latestFirst, setLatestFirst] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -67,6 +71,21 @@ const Blog = () => {
       : blogPosts.filter(
         (post) => post.category === selectedFilter
       );
+  const visiblePosts = latestFirst
+    ? [...filteredPosts].sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    : filteredPosts;
+
+  const handleNewsletterSubmit = async (event) => {
+    event.preventDefault();
+    setNewsletterStatus({ busy: true, message: '', error: false });
+    try {
+      const result = await subscribeToNewsletter(newsletterEmail);
+      setNewsletterStatus({ busy: false, message: result?.message || 'Thanks for subscribing!', error: false });
+      setNewsletterEmail('');
+    } catch (error) {
+      setNewsletterStatus({ busy: false, message: error.message || 'Could not subscribe. Please try again.', error: true });
+    }
+  };
 
   if (loading) {
     return (
@@ -116,11 +135,11 @@ const Blog = () => {
 
                 <div className="hero-buttons">
 
-                  <button className="hero-btn-primary">
+                  <button type="button" className="hero-btn-primary" onClick={() => document.getElementById('blog-articles')?.scrollIntoView({ behavior: 'smooth' })}>
                     Explore Articles
                   </button>
 
-                  <button className="hero-btn-outline">
+                  <button type="button" className="hero-btn-outline" onClick={() => { setSelectedFilter('All'); setLatestFirst(true); document.getElementById('blog-articles')?.scrollIntoView({ behavior: 'smooth' }); }}>
                     Latest Posts
                   </button>
 
@@ -143,15 +162,15 @@ const Blog = () => {
             <Col lg={6}>
               <div className="blog-hero-visual">
                 <div className="featured-card-large">
-                  <img
+                  {featuredPost && <img
                     src={featuredPost.image}
                     alt={featuredPost.title}
                     className="featured-image"
-                  />
+                  />}
                   {/* <div className="floating-tag">
                             ⭐ Featured Article
                         </div> */}
-                  <div className="featured-content">
+                  {featuredPost && <div className="featured-content">
                     <span className="featured-tag">
                       {featuredPost.category}
                     </span>
@@ -171,7 +190,7 @@ const Blog = () => {
                         {featuredPost.readTime}
                       </span>
                     </div>
-                  </div>
+                  </div>}
                 </div>
               </div>
             </Col>
@@ -204,11 +223,11 @@ const Blog = () => {
       </section>
 
       {/* Blog Cards */}
-      <section className="blog-grid-unique">
+      <section className="blog-grid-unique" id="blog-articles">
         <Container>
           <Row className="g-4">
-            {filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
+            {visiblePosts.length > 0 ? (
+              visiblePosts.map((post) => (
                 <Col sm={6} lg={3} key={post.id}>
                   <div className="blog-card-unique">
                     <div className="blog-card-image">
@@ -290,17 +309,22 @@ const Blog = () => {
               Subscribe and get the latest language learning tips delivered to your inbox.
             </p>
 
-            <div className="newsletter-form">
+            <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
               <input
                 type="email"
+                required
                 placeholder="Enter your email"
                 className="newsletter-input"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                aria-label="Email address for newsletter"
               />
 
-              <Button className="btn-subscribe">
-                Subscribe <ArrowRight size={16} />
+              <Button type="submit" className="btn-subscribe" disabled={newsletterStatus.busy}>
+                {newsletterStatus.busy ? 'Subscribing…' : <>Subscribe <ArrowRight size={16} /></>}
               </Button>
-            </div>
+            </form>
+            {newsletterStatus.message && <p className={`newsletter-feedback ${newsletterStatus.error ? 'is-error' : 'is-success'}`} role="status">{newsletterStatus.message}</p>}
           </div>
         </Container>
       </section>
@@ -308,7 +332,7 @@ const Blog = () => {
         show={showModal}
         onHide={() => setShowModal(false)}
         centered
-        size="xl"
+        size="lg"
         className="blog-detail-modal"
       >
 
@@ -345,30 +369,11 @@ const Blog = () => {
 
               </div>
 
-              <p className="modal-blog-content">
-
-                {selectedPost.excerpt}
-
-                <br /><br />
-
-                Learning a language is one of the most rewarding journeys.
-                Consistent practice, reading articles, speaking with native
-                speakers and expanding your vocabulary daily will help you
-                become fluent faster.
-
-                <br /><br />
-
-                Make learning a habit instead of a task. Spend at least
-                15-20 minutes every day practicing listening, reading,
-                writing and speaking.
-
-                <br /><br />
-
-                Remember that mistakes are part of the learning process.
-                Every mistake helps you improve and brings you one step
-                closer to fluency.
-
-              </p>
+              <div className="modal-blog-content">
+                {(selectedPost.content || selectedPost.excerpt || '').split(/\n\s*\n/).map((paragraph, index) => (
+                  <p key={`${selectedPost.id || selectedPost.title}-${index}`}>{paragraph}</p>
+                ))}
+              </div>
 
             </Modal.Body>
 

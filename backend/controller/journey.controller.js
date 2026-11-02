@@ -989,6 +989,8 @@ export class JourneyController {
 
   static async mapAndHealTopic(topic, langKey, languageToLearn) {
     let topicData = topic.toObject ? topic.toObject() : topic;
+    const baseTitle = topicData.title;
+    topicData.baseTitle = baseTitle;
     if (!langKey) {
       return topicData;
     }

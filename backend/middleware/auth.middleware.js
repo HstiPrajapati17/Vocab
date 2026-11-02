@@ -195,7 +195,7 @@ export const requireSubscription = async (req, res, next) => {
         isSubscriptionRequired: true,
         trialExpired: true,
         message:
-          "Your 7-day free trial has expired. Please subscribe to one of our plans to continue using AI tutor, lessons, and topics.",
+          "Your 7-day free trial has ended. To continue learning, please subscribe to one of our available plans and enjoy access to all lessons and topics.",
         result: {
           accessStatus: "expired",
           trialEndDate: accessInfo.trialEndDate,

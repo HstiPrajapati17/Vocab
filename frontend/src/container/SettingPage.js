@@ -4,46 +4,34 @@ import { useApp } from '../App';
 import '../style/SettingsPage.css';
 import { updateUser, resetUserProgress, deleteUserAccount, getUserSettings } from '../api';
 import { 
-  FaGlobe, 
-  FaPalette, 
   FaBell, 
   FaClock, 
-  FaVolumeUp, 
-  FaPlay, 
-  FaChartBar, 
   FaUser, 
-  FaEnvelope, 
-  FaSignOutAlt 
 } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { MdAutoDelete } from 'react-icons/md';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
-  const { user, refreshUser, handleLogout } = useApp();
+  const { user, refreshUser, handleLogout, showToast } = useApp();
+  const [savingKey, setSavingKey] = useState('');
   const [settings, setSettings] = useState({
-    language: user?.language || 'English',
     notifications: true,
-    darkMode: false,
-    soundEffects: true,
-    dailyReminder: true,
-    autoPlay: false,
-    showProgress: true
+    dailyReminder: true
   });
 
   useEffect(() => {
-    const savedSettings = user?.settings || localStorage.getItem('vocabSettings');
-    if (savedSettings) {
-      const parsed = typeof savedSettings === 'string' ? JSON.parse(savedSettings) : savedSettings;
-      // Merge but prefer the user's actual language from the app context
-      setSettings(prev => ({
-        ...parsed,
-        language: user?.language || parsed.language || 'English',
-      }));
-    } else if (user?.language) {
-      setSettings(prev => ({ ...prev, language: user.language }));
-    }
-  }, [user?.language, user?.settings]);
+    try {
+      const saved = localStorage.getItem('vocabSettings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setSettings((prev) => Object.fromEntries(Object.keys(prev).map((key) => [
+          key,
+          typeof parsed[key] === 'boolean' ? parsed[key] : prev[key],
+        ])));
+      }
+    } catch { localStorage.removeItem('vocabSettings'); }
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -52,31 +40,27 @@ const SettingsPage = () => {
         ...prev,
         notifications: data?.notifications?.status ?? prev.notifications,
         dailyReminder: data?.notifications?.dailyPracticeReminder ?? prev.dailyReminder,
-        showProgress: data?.notifications?.weeklyProgressSummary ?? prev.showProgress,
-        soundEffects: data?.preferences?.soundEffects ?? prev.soundEffects,
-        autoPlay: data?.preferences?.listeningExercises ?? prev.autoPlay,
       }));
     }).catch((error) => console.error('Could not load settings:', error));
   }, [user?.id]);
 
   const handleSettingChange = async (key, value) => {
-    const newSettings = { ...settings, [key]: value };
+    const previousSettings = settings;
+    const newSettings = { ...previousSettings, [key]: value };
     setSettings(newSettings);
     localStorage.setItem('vocabSettings', JSON.stringify(newSettings));
-    
-    if (key === 'darkMode') {
-      document.body.classList.toggle('dark-mode', value);
-    }
-
+    setSavingKey(key);
     if (user?.id) {
       try {
-        const updated = await updateUser(user.id, {
-          settings: newSettings,
-          ...(key === 'language' ? { language: value } : {}),
-        });
+        const updated = await updateUser(user.id, { settings: newSettings });
         refreshUser(updated);
+        showToast('Settings saved.', 'success');
       } catch (err) {
-        console.error('Failed to update language:', err);
+        setSettings(previousSettings);
+        localStorage.setItem('vocabSettings', JSON.stringify(previousSettings));
+        showToast(err.message || 'Could not save this setting.', 'error');
+      } finally {
+        setSavingKey('');
       }
     }
   };
@@ -102,13 +86,6 @@ const SettingsPage = () => {
     }
   };
 
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'fr', name: 'French', flag: '🇫🇷' },
-    { code: 'de', name: 'German', flag: '🇩🇪' },
-    { code: 'pl', name: 'Polish', flag: '🇵🇱' },
-  ];
-
   const SettingCard = ({ icon: Icon, title, description, children }) => (
     <div className="settings-card">
       <div className="settings-card-header">
@@ -124,16 +101,20 @@ const SettingsPage = () => {
     </div>
   );
 
-  const ToggleSwitch = ({ checked, onChange, label }) => (
+  const ToggleSwitch = ({ checked, onChange, label, disabled }) => (
     <div className="toggle-wrapper">
-      <label className="toggle-label">{label}</label>
       <button 
+        type="button"
         className={`toggle-switch ${checked ? 'toggle-on' : 'toggle-off'}`}
         onClick={() => onChange(!checked)}
+        disabled={disabled || Boolean(savingKey)}
         aria-label={label}
+        aria-checked={checked}
+        role="switch"
       >
-        <div className="toggle-knob"></div>
+        <span className="toggle-knob" />
       </button>
+      <span className={`toggle-state ${checked ? 'is-on' : ''}`}>{checked ? 'On' : 'Off'}</span>
     </div>
   );
 
@@ -142,31 +123,7 @@ const SettingsPage = () => {
       <div className="settings-container">
         <div className="settings-header">
           <h1 className="settings-page-title">Settings</h1>
-          <p className="settings-page-subtitle">Customize your learning experience</p>
-        </div>
-
-        <div className="settings-section" style={{ animationDelay: '0.1s' }}>
-          <h2 className="section-title">Language & Region</h2>
-          
-          <SettingCard 
-            icon={FaGlobe}
-            title="Learning Language"
-            description="Choose the language you want to learn"
-          >
-            <div className="language-selector">
-              <select
-                className="settings-select"
-                value={settings.language}
-                onChange={(e) => handleSettingChange('language', e.target.value)}
-              >
-                {languages.map(lang => (
-                  <option key={lang.code} value={lang.name}>
-                    {lang.flag} {lang.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </SettingCard>
+          <p className="settings-page-subtitle">{savingKey ? 'Saving your changes…' : 'Your preferences save automatically'}</p>
         </div>
 
         <div className="settings-section" style={{ animationDelay: '0.3s' }}>
@@ -180,7 +137,7 @@ const SettingsPage = () => {
             <ToggleSwitch 
               checked={settings.notifications}
               onChange={(value) => handleSettingChange('notifications', value)}
-              label={settings.notifications ? 'Enabled' : 'Disabled'}
+              label="Push notifications"
             />
           </SettingCard>
 
@@ -192,47 +149,7 @@ const SettingsPage = () => {
             <ToggleSwitch 
               checked={settings.dailyReminder}
               onChange={(value) => handleSettingChange('dailyReminder', value)}
-              label={settings.dailyReminder ? 'Enabled' : 'Disabled'}
-            />
-          </SettingCard>
-        </div>
-
-        <div className="settings-section" style={{ animationDelay: '0.4s' }}>
-          <h2 className="section-title">Learning Experience</h2>
-          
-          <SettingCard 
-            icon={FaVolumeUp}
-            title="Sound Effects"
-            description="Play sounds during lessons and quizzes"
-          >
-            <ToggleSwitch 
-              checked={settings.soundEffects}
-              onChange={(value) => handleSettingChange('soundEffects', value)}
-              label={settings.soundEffects ? 'Enabled' : 'Disabled'}
-            />
-          </SettingCard>
-
-          <SettingCard 
-            icon={FaPlay}
-            title="Auto-Play Audio"
-            description="Automatically play audio pronunciations"
-          >
-            <ToggleSwitch 
-              checked={settings.autoPlay}
-              onChange={(value) => handleSettingChange('autoPlay', value)}
-              label={settings.autoPlay ? 'Enabled' : 'Disabled'}
-            />
-          </SettingCard>
-
-          <SettingCard 
-            icon={FaChartBar}
-            title="Show Progress"
-            description="Display progress indicators and statistics"
-          >
-            <ToggleSwitch 
-              checked={settings.showProgress}
-              onChange={(value) => handleSettingChange('showProgress', value)}
-              label={settings.showProgress ? 'Enabled' : 'Disabled'}
+              label="Daily practice reminder"
             />
           </SettingCard>
         </div>
@@ -243,23 +160,13 @@ const SettingsPage = () => {
           <SettingCard 
             icon={FaUser}
             title="Profile Information"
-            description={`Logged in as ${user?.username || 'User'}`}
+            description={`Logged in as ${user?.username || user?.name || user?.email || 'User'}`}
           >
             <button 
               className="settings-button settings-button-secondary"
               onClick={() => navigate('/profile')}
             >
               Edit Profile
-            </button>
-          </SettingCard>
-
-          <SettingCard 
-            icon={FaEnvelope}
-            title="Email Preferences"
-            description="Manage your email subscription"
-          >
-            <button className="settings-button settings-button-secondary">
-              Manage Emails
             </button>
           </SettingCard>
         </div>

@@ -130,18 +130,24 @@ const getJourney = async () => {
   const data = resultOf(await request('/user/getUserJourney'));
   return Array.isArray(data) ? data : data?.journey || data?.topics || [];
 };
-export const getUnits = async () => (await getJourney()).map((topic, index) => ({
-  ...topic, id: topic._id || topic.id, title: topic.title || topic.name,
-  sectionLabel: topic.category || `Section ${index + 1}`, color: topic.color || '#2f855a', emoji: topic.emoji || '📚',
+const unitsFromJourney = (topics) => topics.map((topic, index) => ({
+  ...topic, id: topic._id || topic.id, title: topic.baseTitle || topic.title || topic.name,
+  sectionLabel: `Section ${index + 1}`, color: topic.color || '#2f855a', emoji: topic.emoji || '📚',
 }));
-export const getLessons = async () => {
-  const topics = await getJourney();
-  return topics.flatMap((topic) => (topic.lessons || []).map((lesson) => ({
+const lessonsFromJourney = (topics) => {
+  if (!Array.isArray(topics)) return [];
+  return topics.flatMap((topic) => (Array.isArray(topic.lessons) ? topic.lessons : []).map((lesson) => ({
     ...lesson, id: lesson._id || lesson.id,
-    unitId: lesson.journeyTopicId || topic._id || topic.id,
+    unitId: lesson.journeyTopicId?._id || lesson.journeyTopicId || topic._id || topic.id,
     topicId: topic._id || topic.id, unit: topic.title || topic.name,
   })));
 };
+export const getJourneyData = async () => {
+  const topics = await getJourney();
+  return { units: unitsFromJourney(topics), lessons: lessonsFromJourney(topics) };
+};
+export const getUnits = async () => unitsFromJourney(await getJourney());
+export const getLessons = async () => lessonsFromJourney(await getJourney());
 export const getLessonById = async (lessonId) => (await getLessons()).find((item) => String(item.id) === String(lessonId)) || null;
 export const getQuestionsByLesson = async (lessonId) => {
   const questions = resultOf(await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`));
@@ -205,8 +211,9 @@ export const recordLessonCompletion = async (_userId, { lessonId, score, hearts,
   });
 };
 
-export const getUserInsights = async () => {
-  const data = resultOf(await request('/user/getInsights')) || {};
+export const getUserInsights = async (_userId, year, month) => {
+  const params = year && month ? `?${query({ year, month })}` : '';
+  const data = resultOf(await request(`/user/getInsights${params}`)) || {};
   const dayDates = [
     ...(data.monthlyCalendar?.days || []).filter((day) => day.isPracticed).map((day) => day.date),
     ...(data.streakCard?.weekDays || []).filter((day) => day.isPracticed).map((day) => day.date),
@@ -218,11 +225,17 @@ export const getUserInsights = async () => {
   }));
   const completedLessons = (data.completedLessons?.list || []).map((lesson) => ({
     ...lesson,
-    lesson: { title: lesson.title, icon: lesson.image, type: lesson.difficulty, terms: lesson.termsCount },
+    lesson: {
+      title: lesson.title || lesson.lesson?.title,
+      icon: lesson.image || lesson.lesson?.icon,
+      type: lesson.difficulty || lesson.lesson?.type,
+      terms: lesson.termsCount || lesson.lesson?.terms,
+    },
   }));
   return {
     ...data,
     practicedDates: [...new Set(dayDates)],
+    skillTrends: data.skillTrends || {},
     skillScores: Object.fromEntries(['speaking', 'listening', 'vocabulary'].map((key) => [key, data.skillTrends?.[key]?.score || 0])),
     achievementDefinitions,
     completedLessons,
@@ -240,6 +253,10 @@ export const getBlogPosts = () => getContent('blogPosts');
 export const getBlogFilters = () => getContent('blogFilters');
 export const getFeaturedPost = () => getContent('featuredPost');
 export const getBlogHeroStats = () => getContent('blogHeroStats');
+export const subscribeToNewsletter = async (email) => resultOf(await request('/newsletter/subscribe', {
+  method: 'POST',
+  body: JSON.stringify({ email }),
+}));
 export const getAlphabets = () => getContent('alphabets');
 export const getAlphabetByLanguage = async (language) => {
   const rows = await getContent('alphabets');
@@ -255,7 +272,17 @@ export const getLessonMeta = () => getContent('lessonMeta');
 export const getTermsConditions = async () => resultOf(await request('/getTermsConditions'));
 export const getPrivacyPolicy = async () => resultOf(await request('/getAllPrivacyPolicy'));
 export const getHelpCenter = async () => resultOf(await request('/getAllHelpCenter'));
+export const submitFeedback = async ({ email, subject, description, type, file }) => {
+  const body = new FormData();
+  body.append('email', email);
+  body.append('subject', subject);
+  body.append('description', description);
+  body.append('type', type);
+  if (file) body.append('attachment', file);
+  return resultOf(await request('/feedback', { method: 'POST', body }));
+};
 export const getAppInfo = async () => resultOf(await request('/getAllAppInfo'));
 export const getSubscriptionPlans = async () => resultOf(await request('/getAllSubscriptionPlans'));
 export const getSubscriptionStatus = async () => resultOf(await request('/getMySubscriptionStatus'));
 export const getUserSettings = async () => resultOf(await request('/user/getSettings'));
+export const recordWebActivity = async () => resultOf(await request('/user/recordWebActivity', { method: 'POST' }));

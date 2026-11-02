@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { AuthController } from "../controller/auth.controller.js";
 import {
   getProfile,
@@ -8,6 +9,7 @@ import {
   getAnalytics,
   getInsights,
   recordCompletedLesson,
+  recordWebActivity,
   deleteAccount,
 } from "../controller/user.controller.js";
 import {
@@ -83,8 +85,19 @@ import { JourneyController } from "../controller/journey.controller.js";
 import { TopicController } from "../controller/topic.controller.js";
 import ContentDataModel from "../model/contentData.model.js";
 import UserModel from "../model/user.model.js";
+import NewsletterSubscriptionModel from "../model/newsletterSubscription.model.js";
+import { createFeedback } from "../controller/feedback.controller.js";
 
 const indexRouter = express.Router();
+const feedbackUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const parseFeedbackUpload = (req, res, next) => feedbackUpload.single("attachment")(req, res, (error) => {
+  if (!error) return next();
+  const tooLarge = error.code === "LIMIT_FILE_SIZE";
+  return res.status(tooLarge ? 413 : 400).json({
+    success: false,
+    message: tooLarge ? "Attachment must be 10 MB or smaller." : "Could not read the attachment.",
+  });
+});
 
 const publicContentKeys = new Set([
   "achievements", "levelThresholds", "homeFeatures", "homeSteps", "homeStats", "quests", "shopItems",
@@ -103,6 +116,23 @@ indexRouter.get("/content/:key", async (req, res) => {
     return res.status(500).json({ success: false, message: "Could not load content" });
   }
 });
+indexRouter.post("/newsletter/subscribe", async (req, res) => {
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ success: false, message: "Enter a valid email address" });
+  }
+  try {
+    await NewsletterSubscriptionModel.updateOne(
+      { email },
+      { $setOnInsert: { email } },
+      { upsert: true },
+    );
+    return res.status(200).json({ success: true, message: "You are subscribed to the newsletter" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Could not save your subscription" });
+  }
+});
+indexRouter.post("/feedback", parseFeedbackUpload, createFeedback);
 indexRouter.get("/user/getLeaderboard", UserAuth, async (_req, res) => {
   try {
     const users = await UserModel.find({ isUserDeleted: { $ne: true }, role: "user" })
@@ -141,6 +171,7 @@ indexRouter.get("/user/getProfile", UserAuth, getProfile);
 
 indexRouter.patch("/user/updateSettings", UserAuth, updateSettings);
 indexRouter.get("/user/getSettings", UserAuth, getSettings);
+indexRouter.post("/user/recordWebActivity", UserAuth, recordWebActivity);
 
 indexRouter.patch("/user/updateAnalytics", UserAuth, requireSubscription, recordCompletedLesson);
 indexRouter.get("/user/getAnalytics", UserAuth, getAnalytics);

@@ -22,6 +22,7 @@ import { BsArrowRightCircleFill } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaSpinner } from "react-icons/fa";
 import { getOnboardingOptions } from "../api";
+import { Target } from "lucide-react";
 
 /* ───────────────────────────────────────── Subscription Step ───────────────────────────────────────── */
 const plans = [
@@ -384,7 +385,7 @@ const Onboarding = () => {
             </div>
             <div className="h_onboarding_stats">
               {[
-                { label: "Languages", value: "4" },
+                { label: "Languages", value: "9+" },
                 { label: "Lessons", value: "10K+" },
                 { label: "Learners", value: "50M+" },
               ].map((stat, idx) => (
@@ -540,7 +541,7 @@ const Onboarding = () => {
                 setFormData({ ...formData, learningGoal: goal.id })
               }
             >
-              <span className="h_onboarding_option_icon">{goal.icon}</span>
+              <span className="h_onboarding_option_icon"><Target /></span>
               <span className="h_onboarding_goal_name">{goal.name}</span>
               <span className="h_onboarding_goal_desc">{goal.desc}</span>
               {formData.learningGoal === goal.id && (

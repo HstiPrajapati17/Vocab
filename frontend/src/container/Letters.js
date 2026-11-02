@@ -4,6 +4,15 @@ import { FaVolumeUp } from 'react-icons/fa';
 import { useApp } from '../App';
 import { getAlphabetByLanguage } from '../api';
 
+const canonicalizeLanguage = (language = 'English') => {
+    const normalized = language.trim().toLowerCase().replace(/[_-]/g, ' ');
+    if ([
+        'american english', 'us english', 'english us', 'english united states',
+        'british english', 'uk english', 'english uk', 'english united kingdom',
+    ].includes(normalized)) return 'English';
+    return language.trim();
+};
+
 export default function Letters() {
     const { user } = useApp();
     const [selectedLetter, setSelectedLetter] = useState(null);
@@ -14,7 +23,7 @@ export default function Letters() {
         setSelectedLetter(null);
         setRemoteAlphabet(null);
         setAlphabetLoading(true);
-        getAlphabetByLanguage(user?.language || 'English')
+        getAlphabetByLanguage(canonicalizeLanguage(user?.language || 'English'))
             .then((data) => {
                 if (active) setRemoteAlphabet(Array.isArray(data?.letters) ? data.letters : null);
             })
@@ -239,9 +248,50 @@ export default function Letters() {
         ],
     };
 
+    // These languages are not seeded in the backend alphabet content yet.
+    // Keep local data available so the Letters page still works for them.
+    languageAlphabets.Vietnamese = [
+        ['A', 'a', 'áo (shirt)'], ['Ă', 'ă', 'ăn (eat)'], ['Â', 'â', 'ấm (warm)'],
+        ['B', 'bê', 'bạn (friend)'], ['C', 'xê', 'cá (fish)'], ['D', 'dê', 'dê (goat)'],
+        ['Đ', 'đê', 'đi (go)'], ['E', 'e', 'em (younger sibling)'], ['Ê', 'ê', 'ếch (frog)'],
+        ['G', 'giê', 'gà (chicken)'], ['H', 'hát', 'hoa (flower)'], ['I', 'i', 'im (quiet)'],
+        ['K', 'ca', 'kem (ice cream)'], ['L', 'e-lờ', 'lá (leaf)'], ['M', 'em-mờ', 'mẹ (mother)'],
+        ['N', 'en-nờ', 'năm (year)'], ['O', 'o', 'ong (bee)'], ['Ô', 'ô', 'ông (grandfather)'],
+        ['Ơ', 'ơ', 'ớt (chili)'], ['P', 'pê', 'pin (battery)'], ['Q', 'quy', 'quả (fruit)'],
+        ['R', 'e-rờ', 'rau (vegetables)'], ['S', 'ét-sì', 'sách (book)'], ['T', 'tê', 'táo (apple)'],
+        ['U', 'u', 'ưa (like)'], ['Ư', 'ư', 'ưa (like)'], ['V', 'vê', 'voi (elephant)'],
+        ['X', 'ích-xì', 'xe (vehicle)'], ['Y', 'i dài', 'y tá (nurse)'],
+    ].map(([letter, pronunciation, example]) => ({ letter, pronunciation, example }));
+    languageAlphabets.Japanese = [
+        ['あ', 'a'], ['い', 'i'], ['う', 'u'], ['え', 'e'], ['お', 'o'],
+        ['か', 'ka'], ['き', 'ki'], ['く', 'ku'], ['け', 'ke'], ['こ', 'ko'],
+        ['さ', 'sa'], ['し', 'shi'], ['す', 'su'], ['せ', 'se'], ['そ', 'so'],
+        ['た', 'ta'], ['ち', 'chi'], ['つ', 'tsu'], ['て', 'te'], ['と', 'to'],
+        ['な', 'na'], ['に', 'ni'], ['ぬ', 'nu'], ['ね', 'ne'], ['の', 'no'],
+        ['は', 'ha'], ['ひ', 'hi'], ['ふ', 'fu'], ['へ', 'he'], ['ほ', 'ho'],
+        ['ま', 'ma'], ['み', 'mi'], ['む', 'mu'], ['め', 'me'], ['も', 'mo'],
+        ['や', 'ya'], ['ゆ', 'yu'], ['よ', 'yo'],
+        ['ら', 'ra'], ['り', 'ri'], ['る', 'ru'], ['れ', 're'], ['ろ', 'ro'],
+        ['わ', 'wa'], ['を', 'wo'], ['ん', 'n'],
+    ].map(([letter, pronunciation]) => ({ letter, pronunciation, example: 'Hiragana' }));
+    // Chinese is written with Han characters, with Pinyin used as a reading aid.
+    languageAlphabets.Chinese = [
+        ['你', 'nǐ', 'you'], ['好', 'hǎo', 'good'], ['你好', 'nǐ hǎo', 'hello'],
+        ['我', 'wǒ', 'I; me'], ['是', 'shì', 'to be'], ['他', 'tā', 'he'], ['她', 'tā', 'she'],
+        ['们', 'men', 'plural marker'], ['人', 'rén', 'person'], ['中', 'zhōng', 'middle'],
+        ['国', 'guó', 'country'], ['中国', 'Zhōngguó', 'China'], ['大', 'dà', 'big'],
+        ['小', 'xiǎo', 'small'], ['不', 'bù', 'no; not'], ['有', 'yǒu', 'to have'],
+        ['在', 'zài', 'at; in'], ['爱', 'ài', 'love'], ['学', 'xué', 'to study'],
+        ['生', 'shēng', 'life; birth'], ['学生', 'xuésheng', 'student'], ['家', 'jiā', 'home'],
+        ['水', 'shuǐ', 'water'], ['吃', 'chī', 'to eat'], ['书', 'shū', 'book'],
+        ['天', 'tiān', 'sky; day'],
+    ].map(([letter, pronunciation, example]) => ({ letter, pronunciation, example }));
+
     const activeLanguage = user?.language || 'English';
+    const alphabetLanguage = canonicalizeLanguage(activeLanguage);
+    const isChinese = alphabetLanguage.toLowerCase() === 'chinese';
     const localAlphabet = Object.entries(languageAlphabets)
-        .find(([language]) => language.toLowerCase() === activeLanguage.trim().toLowerCase())?.[1];
+        .find(([language]) => language.toLowerCase() === alphabetLanguage.toLowerCase())?.[1];
     const currentAlphabets = remoteAlphabet?.length ? remoteAlphabet : localAlphabet || [];
     const currentLetter = currentAlphabets[selectedLetter];
     const speechLocales = {
@@ -258,22 +308,22 @@ export default function Letters() {
         Korean: 'ko-KR',
     };
 
-    const speakLetter = (letter, pronunciation) => {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(`${letter} - ${pronunciation}`);
-            const language = Object.keys(speechLocales)
-                .find((name) => name.toLowerCase() === activeLanguage.trim().toLowerCase());
-            if (language) utterance.lang = speechLocales[language];
-            utterance.rate = 0.8;
-            window.speechSynthesis.speak(utterance);
-        }
+    const speakLetter = (letter) => {
+        if (typeof window === 'undefined' || !('speechSynthesis' in window) || !letter) return;
+        const utterance = new SpeechSynthesisUtterance(letter);
+        const language = Object.keys(speechLocales)
+            .find((name) => name.toLowerCase() === alphabetLanguage.toLowerCase());
+        if (language) utterance.lang = speechLocales[language];
+        utterance.rate = 0.8;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
     };
     return (
         <div className="h_profile_inner min-h-auto">
             <div className="h_courses_header">
                 <div>
-                    <h1 className="h_courses_title">{user?.language || 'English'} Alphabet</h1>
-                    <p className="text-muted small mb-0">Learn pronunciation and examples for each letter</p>
+                    <h1 className="h_courses_title">{isChinese ? 'Chinese Characters' : `${user?.language || 'English'} Alphabet`}</h1>
+                    <p className="text-muted small mb-0">{isChinese ? 'Learn Chinese characters with Pinyin pronunciation and meanings' : 'Learn pronunciation and examples for each letter'}</p>
                 </div>
             </div>
             {currentAlphabets.length === 0 && alphabetLoading ? (
@@ -295,28 +345,31 @@ export default function Letters() {
                     <Card className="h_profile_card border-0 shadow-sm mb-4">
                         <Card.Body className="p-4">
                             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                                <FaVolumeUp /> Alphabet Letters
+                                <FaVolumeUp /> {isChinese ? 'Chinese Characters' : 'Alphabet Letters'}
                             </h6>
                             <div className="h_alphabet_grid">
                                 {currentAlphabets.map((item, index) => (
                                     <button
+                                        type="button"
                                         key={index}
                                         className={`h_alphabet_btn ${selectedLetter === index ? 'h_alphabet_selected' : ''}`}
+                                        aria-pressed={selectedLetter === index}
+                                        aria-label={`${item.letter}, pronounced ${item.pronunciation || 'pronunciation unavailable'}. Play pronunciation`}
                                         onClick={() => {
                                             setSelectedLetter(index);
-                                            speakLetter(item.letter, item.pronunciation);
+                                            speakLetter(item.letter);
                                         }}
                                     >
-                                        <span className="h_alphabet_letter">{item.letter}</span>
-                                        <span className="h_alphabet_pronunciation">{item.pronunciation}</span>
+                                        <span className="h_alphabet_letter" style={isChinese ? { fontFamily: '"Microsoft YaHei", "Noto Sans CJK SC", sans-serif' } : undefined}>{item.letter}</span>
+                                        <span className="h_alphabet_pronunciation">{item.pronunciation ? `${item.pronunciation}` : 'Tap to listen'}</span>
                                     </button>
                                 ))}
                             </div> 
                             {currentLetter && (
                                 <div className="h_alphabet_detail mt-3 p-3 bg-light rounded">
                                     <div className="h_alphabet_detail_letter">{currentLetter.letter}</div>
-                                    <div className="h_alphabet_detail_pronunciation">{currentLetter.pronunciation}</div>
-                                    <div className="h_alphabet_detail_example">{currentLetter.example}</div>
+                                    <div className="h_alphabet_detail_pronunciation">Pronunciation: {currentLetter.pronunciation || currentLetter.letter}</div>
+                                    {currentLetter.example && <div className="h_alphabet_detail_example">{currentLetter.example}</div>}
                                 </div>
                             )}
                         </Card.Body>

@@ -2,10 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ProgressBar } from 'react-bootstrap';
 import { Flame, Heart, BookOpen } from 'lucide-react';
-
-const langFlags = {
-  English: 'E🇸', French: '🇫🇷', German: '🇩🇪', Polish: '�',
-};
+import { getLanguageFlag } from '../utils/languageFlags';
 
 const langMeta = {
   English: { learners: '1.5B', level: 'Global language' },
@@ -17,7 +14,7 @@ const langMeta = {
 
 const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount = 0, completedCount = 0 }) => {
   const activeLang = previewLanguage || user?.language || 'English';
-  const flag = langFlags[activeLang] || '🌍';
+  const flag = getLanguageFlag(activeLang);
   const meta = langMeta[activeLang] || langMeta.default;
 
   const progress = lessonCount > 0 ? Math.round((completedCount / lessonCount) * 100) : 0;
@@ -155,7 +152,7 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
           onMouseEnter={(e) => handleMouseEnter('language', e)}
           onMouseLeave={handleMouseLeave}
         >
-          <span className="h_rp_flag">{flag}</span>
+          <img className="h_rp_flag" src={flag} alt={`${activeLang} flag`} />
         </button>
         <div 
           className="h_rp_stat"
@@ -220,7 +217,7 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
       {/* Language preview when selecting courses */}
       {showCoursePreview && (
         <div className="h_rp_card h_rp_lang_preview">
-          <div className="h_rp_lang_preview_flag">{flag}</div>
+          <img className="h_rp_lang_preview_flag" src={flag} alt={`${activeLang} flag`} />
           <h6 className="fw-bold mb-1">{activeLang}</h6>
           <p className="text-muted small mb-2">{meta.learners} learners · {meta.level}</p>
           <p className="small mb-0">Switch to this course to update your learning path.</p>
