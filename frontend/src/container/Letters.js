@@ -342,8 +342,8 @@ export default function Letters() {
             ) : <Row className="g-4">
                 {/* Alphabet Panel */}
                 <Col xl={12}>
-                    <Card className="h_profile_card border-0 shadow-sm mb-4">
-                        <Card.Body className="p-4">
+                    <Card className="h_profile_card border-0 shadow-sm">
+                        <Card.Body className="">
                             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
                                 <FaVolumeUp /> {isChinese ? 'Chinese Characters' : 'Alphabet Letters'}
                             </h6>

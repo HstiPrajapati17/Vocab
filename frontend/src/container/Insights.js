@@ -94,10 +94,11 @@ const CircleProgress = ({ value, color, size = 80, stroke = 8 }) => {
 
 /* ── Streak bar node ── */
 const StreakNode = ({ isPracticed, isToday, isPast, day }) => {
-  const stateClass = isPracticed
-    ? "ins_snode_done"
-    : isToday
+  // Today has its own status color even when the user has already practiced.
+  const stateClass = isToday
     ? "ins_snode_today"
+    : isPracticed
+    ? "ins_snode_done"
     : isPast
     ? "ins_snode_missed"
     : "ins_snode_future";

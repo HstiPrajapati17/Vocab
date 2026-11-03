@@ -1,118 +1,207 @@
-const configuredApiUrl = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
-const BASE_URL = /\/api$/i.test(configuredApiUrl) ? configuredApiUrl : `${configuredApiUrl}/api`;
+const configuredApiUrl = (
+  process.env.REACT_APP_API_URL || "http://localhost:5000/api"
+).replace(/\/+$/, "");
+const BASE_URL = /\/api$/i.test(configuredApiUrl)
+  ? configuredApiUrl
+  : `${configuredApiUrl}/api`;
 
 const request = async (path, options = {}) => {
-  const headers = { ...(options.body && !(options.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...options.headers };
-  const token = localStorage.getItem('token');
+  const headers = {
+    ...(options.body && !(options.body instanceof FormData)
+      ? { "Content-Type": "application/json" }
+      : {}),
+    ...options.headers,
+  };
+  const token = localStorage.getItem("token");
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(`${BASE_URL}${path}`, { ...options, headers });
   const data = await response.json().catch(() => null);
   if (!response.ok || data?.success === false) {
-    const error = new Error(data?.message || data?.error || `Request failed (${response.status})`);
+    const error = new Error(
+      data?.message || data?.error || `Request failed (${response.status})`,
+    );
     error.status = response.status;
     throw error;
   }
   return data;
 };
 const resultOf = (data) => data?.result ?? data;
-const getContent = async (key) => resultOf(await request(`/content/${encodeURIComponent(key)}`));
+const getContent = async (key) =>
+  resultOf(await request(`/content/${encodeURIComponent(key)}`));
 const userOf = (data) => {
   const result = resultOf(data);
   return result?.user ?? result;
 };
 const authResult = (data) => {
   const result = resultOf(data) || {};
-  if (result.token) localStorage.setItem('token', result.token);
+  if (result.token) localStorage.setItem("token", result.token);
   return userOf(data);
 };
 const query = (params) => new URLSearchParams(params).toString();
 
 export const loginUser = async (email, password) => {
-  authResult(await request('/auth/login', { method: 'POST', body: JSON.stringify({ email: email.trim(), password }) }));
+  authResult(
+    await request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: email.trim(), password }),
+    }),
+  );
   return getUser();
 };
-export const registerUser = async (name, email, password, language, level, dailyGoal, nativeLanguage, goal, commitment, interests) => authResult(await request('/auth/register', {
-  method: 'POST', body: JSON.stringify({ name, email, password, onboarding: {
-    languageToLearn: language || 'Spanish', learningLevel: level || 'Beginner',
-    dailyTimeCommitment: dailyGoal || '15 minutes', nativeLanguage: nativeLanguage || 'English',
-    learningGoals: Array.isArray(goal) ? goal : goal ? [goal] : [], bestTimeToStudy: commitment || 'Morning', interests: interests || [],
-  } }),
-}));
+export const registerUser = async (
+  name,
+  email,
+  password,
+  language,
+  level,
+  dailyGoal,
+  nativeLanguage,
+  goal,
+  commitment,
+  interests,
+) =>
+  authResult(
+    await request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        onboarding: {
+          languageToLearn: language || "Spanish",
+          learningLevel: level || "Beginner",
+          dailyTimeCommitment: dailyGoal || "15 minutes",
+          nativeLanguage: nativeLanguage || "English",
+          learningGoals: Array.isArray(goal) ? goal : goal ? [goal] : [],
+          bestTimeToStudy: commitment || "Morning",
+          interests: interests || [],
+        },
+      }),
+    }),
+  );
 export const getUser = async () => {
-  const user = userOf(await request('/auth/me'));
+  const user = userOf(await request("/auth/me"));
   try {
-    const analytics = resultOf(await request('/user/getAnalytics'));
+    const analytics = resultOf(await request("/user/getAnalytics"));
     if (Array.isArray(analytics?.completedLessons)) {
       const fromAnalytics = analytics.completedLessons
-        .filter((lesson) => lesson.status === 'completed')
+        .filter((lesson) => lesson.status === "completed")
         .map((lesson) => String(lesson.journeyLessonId || lesson.lessonId));
-      const fromUser = (user.completedLessons || []).map((lesson) => String(lesson?.journeyLessonId || lesson?.lessonId || lesson));
+      const fromUser = (user.completedLessons || []).map((lesson) =>
+        String(lesson?.journeyLessonId || lesson?.lessonId || lesson),
+      );
       user.completedLessons = [...new Set([...fromUser, ...fromAnalytics])];
     }
-  } catch { /* Profile remains available if analytics has not been initialized. */ }
+  } catch {
+    /* Profile remains available if analytics has not been initialized. */
+  }
   return user;
 };
-export const logoutUser = async () => { try { await request('/auth/logout', { method: 'POST' }); } finally { localStorage.removeItem('token'); } };
+export const logoutUser = async () => {
+  try {
+    await request("/auth/logout", { method: "POST" });
+  } finally {
+    localStorage.removeItem("token");
+  }
+};
 // The API intentionally does not expose user lookup by email. The authenticated
 // profile endpoint is the source of truth for session restoration.
 export const getUserByEmail = async (email) => {
-  if (!email || !localStorage.getItem('token')) return null;
+  if (!email || !localStorage.getItem("token")) return null;
   const user = await getUser();
-  return user?.email?.toLowerCase() === email.trim().toLowerCase() ? user : null;
+  return user?.email?.toLowerCase() === email.trim().toLowerCase()
+    ? user
+    : null;
 };
 export const updateUser = async (_userId, updates = {}) => {
   const body = { ...updates };
-  if (Object.hasOwn(body, 'avatar')) { body.avatarUrl = body.avatar; delete body.avatar; }
+  if (Object.hasOwn(body, "avatar")) {
+    body.avatarUrl = body.avatar;
+    delete body.avatar;
+  }
   const settings = body.settings;
   delete body.settings;
-  if (settings) await request('/user/updateSettings', { method: 'PATCH', body: JSON.stringify({
-    notifications: {
-      status: settings.notifications,
-      dailyPracticeReminder: settings.dailyReminder,
-      dailyReminderTime: settings.dailyReminderTime,
-      weeklyProgressSummary: settings.showProgress,
-    },
-    preferences: { soundEffects: settings.soundEffects, listeningExercises: settings.autoPlay },
-  }) });
+  if (settings)
+    await request("/user/updateSettings", {
+      method: "PATCH",
+      body: JSON.stringify({
+        notifications: {
+          status: settings.notifications,
+          dailyPracticeReminder: settings.dailyReminder,
+          dailyReminderTime: settings.dailyReminderTime,
+          weeklyProgressSummary: settings.showProgress,
+        },
+        preferences: {
+          soundEffects: settings.soundEffects,
+          listeningExercises: settings.autoPlay,
+        },
+      }),
+    });
   const onboarding = { ...(body.onboarding || {}) };
   if (body.language !== undefined) onboarding.languageToLearn = body.language;
   if (body.level !== undefined) onboarding.learningLevel = body.level;
-  if (body.dailyGoal !== undefined) onboarding.dailyTimeCommitment = body.dailyGoal;
-  delete body.language; delete body.level; delete body.dailyGoal;
+  if (body.dailyGoal !== undefined)
+    onboarding.dailyTimeCommitment = body.dailyGoal;
+  delete body.language;
+  delete body.level;
+  delete body.dailyGoal;
   if (Object.keys(onboarding).length) body.onboarding = onboarding;
   if (Object.keys(body).length) {
-    const avatarIsDataUrl = typeof body.avatarUrl === 'string' && body.avatarUrl.startsWith('data:');
-    const avatarIsBlob = typeof Blob !== 'undefined' && body.avatarUrl instanceof Blob;
+    const avatarIsDataUrl =
+      typeof body.avatarUrl === "string" && body.avatarUrl.startsWith("data:");
+    const avatarIsBlob =
+      typeof Blob !== "undefined" && body.avatarUrl instanceof Blob;
     if (avatarIsDataUrl || avatarIsBlob) {
-      const blob = avatarIsDataUrl ? await (await fetch(body.avatarUrl)).blob() : body.avatarUrl;
+      const blob = avatarIsDataUrl
+        ? await (await fetch(body.avatarUrl)).blob()
+        : body.avatarUrl;
       const form = new FormData();
       for (const [key, value] of Object.entries(body)) {
-        if (key !== 'avatarUrl') form.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+        if (key !== "avatarUrl")
+          form.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : value,
+          );
       }
-      form.append('avatar', blob, 'profile-image.jpg');
-      await request('/user/updateProfile', { method: 'PATCH', body: form });
+      form.append("avatar", blob, "profile-image.jpg");
+      await request("/user/updateProfile", { method: "PATCH", body: form });
     } else {
-      await request('/user/updateProfile', { method: 'PATCH', body: JSON.stringify(body) });
+      await request("/user/updateProfile", {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      });
     }
   }
   return getUser();
 };
-export const deleteUserAccount = async () => { const data = await request('/user/deleteAccount', { method: 'DELETE' }); localStorage.removeItem('token'); return resultOf(data); };
+export const deleteUserAccount = async () => {
+  const data = await request("/user/deleteAccount", { method: "DELETE" });
+  localStorage.removeItem("token");
+  return resultOf(data);
+};
 export const resetUserProgress = async (userId) => {
-  const journey = resultOf(await request(`/user/getUserJourney?${query({ userId })}`)) || [];
-  const topics = Array.isArray(journey) ? journey : journey.journey || journey.topics || [];
-  const lessons = topics.flatMap((topic) => topic.lessons || []);
-  await Promise.all(lessons.map((lesson) => request(`/user/resetLessonCompletion/${encodeURIComponent(lesson._id || lesson.id)}`, { method: 'POST' })));
-  return updateUser(userId, { streakDays: 0, completedLessons: [], lastPracticedDate: null });
+  await request("/user/resetProgress", { method: "POST" });
+  return getUser();
 };
 
-const optionList = (items = []) => items.map((item) => {
-  const name = item.name || item.title || item.label || String(item);
-  return { ...item, name, title: name, id: item.id || item._id || name, native: item.native || name, flagImg: item.flagImg || item.image };
-});
+const optionList = (items = []) =>
+  items.map((item) => {
+    const name = item.name || item.title || item.label || String(item);
+    return {
+      ...item,
+      name,
+      title: name,
+      id: item.id || item._id || name,
+      native: item.native || name,
+      flagImg: item.flagImg || item.image,
+    };
+  });
 export const getOnboardingOptions = async () => {
-  const data = resultOf(await request('/onboarding/options')) || {};
-  const toOptions = (items = []) => optionList(items.map((item) => typeof item === 'string' ? { name: item } : item));
+  const data = resultOf(await request("/onboarding/options")) || {};
+  const toOptions = (items = []) =>
+    optionList(
+      items.map((item) => (typeof item === "string" ? { name: item } : item)),
+    );
   return {
     languages: toOptions(data.languagesToLearn || data.languages),
     nativeLanguages: toOptions(data.nativeLanguages),
@@ -122,64 +211,98 @@ export const getOnboardingOptions = async () => {
     commitments: toOptions(data.dailyTimeCommitments || data.commitments),
   };
 };
-export const getLanguages = async () => optionList(resultOf(await request('/onboarding/getLanguages')) || []);
-export const getLevels = async () => optionList(resultOf(await request('/onboarding/getLevels')) || []);
-export const getDailyGoals = async () => optionList(resultOf(await request('/onboarding/getCommitments')) || []);
+export const getLanguages = async () =>
+  optionList(resultOf(await request("/onboarding/getLanguages")) || []);
+export const getLevels = async () =>
+  optionList(resultOf(await request("/onboarding/getLevels")) || []);
+export const getDailyGoals = async () =>
+  optionList(resultOf(await request("/onboarding/getCommitments")) || []);
 
 const getJourney = async () => {
-  const data = resultOf(await request('/user/getUserJourney'));
+  const data = resultOf(await request("/user/getUserJourney"));
   return Array.isArray(data) ? data : data?.journey || data?.topics || [];
 };
-const unitsFromJourney = (topics) => topics.map((topic, index) => ({
-  ...topic, id: topic._id || topic.id, title: topic.baseTitle || topic.title || topic.name,
-  sectionLabel: `Section ${index + 1}`, color: topic.color || '#2f855a', emoji: topic.emoji || '📚',
-}));
+const unitsFromJourney = (topics) =>
+  topics.map((topic, index) => ({
+    ...topic,
+    id: topic._id || topic.id,
+    title: topic.baseTitle || topic.title || topic.name,
+    sectionLabel: `Section ${index + 1}`,
+    color: topic.color || "#2f855a",
+    emoji: topic.emoji || "📚",
+  }));
 const lessonsFromJourney = (topics) => {
   if (!Array.isArray(topics)) return [];
-  return topics.flatMap((topic) => (Array.isArray(topic.lessons) ? topic.lessons : []).map((lesson) => ({
-    ...lesson, id: lesson._id || lesson.id,
-    unitId: lesson.journeyTopicId?._id || lesson.journeyTopicId || topic._id || topic.id,
-    topicId: topic._id || topic.id, unit: topic.title || topic.name,
-  })));
+  return topics.flatMap((topic) =>
+    (Array.isArray(topic.lessons) ? topic.lessons : []).map((lesson) => ({
+      ...lesson,
+      id: lesson._id || lesson.id,
+      unitId:
+        lesson.journeyTopicId?._id ||
+        lesson.journeyTopicId ||
+        topic._id ||
+        topic.id,
+      topicId: topic._id || topic.id,
+      unit: topic.title || topic.name,
+    })),
+  );
 };
 export const getJourneyData = async () => {
   const topics = await getJourney();
-  return { units: unitsFromJourney(topics), lessons: lessonsFromJourney(topics) };
+  return {
+    units: unitsFromJourney(topics),
+    lessons: lessonsFromJourney(topics),
+  };
 };
 export const getUnits = async () => unitsFromJourney(await getJourney());
 export const getLessons = async () => lessonsFromJourney(await getJourney());
-export const getLessonById = async (lessonId) => (await getLessons()).find((item) => String(item.id) === String(lessonId)) || null;
+export const getLessonById = async (lessonId) =>
+  (await getLessons()).find((item) => String(item.id) === String(lessonId)) ||
+  null;
 export const getQuestionsByLesson = async (lessonId) => {
-  const questions = resultOf(await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`));
+  const questions = resultOf(
+    await request(`/user/questionsByLesson/${encodeURIComponent(lessonId)}`),
+  );
   if (!Array.isArray(questions)) return [];
   // Each dashboard lesson is a single exercise. Use its first backend question
   // so completing a lesson returns to the dashboard before the next lesson.
   return questions.slice(0, 1).map((question) => {
-    const options = Array.isArray(question.options) ? [...question.options] : [];
-    const normalizeAnswer = (value) => String(value || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\p{L}\p{N}\s]/gu, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
-    const backendIndex = Number.isInteger(question.correctOptionIndex) && question.correctOptionIndex >= 0
-      ? question.correctOptionIndex
-      : Number.isInteger(question.correct) && question.correct >= 0
-        ? question.correct
-        : -1;
-    let correct = backendIndex < options.length
-      ? backendIndex
-      : (question.rightAnswer
-        ? options.findIndex((option) => normalizeAnswer(option) === normalizeAnswer(question.rightAnswer))
-        : -1);
+    const options = Array.isArray(question.options)
+      ? [...question.options]
+      : [];
+    const normalizeAnswer = (value) =>
+      String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\p{L}\p{N}\s]/gu, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+    const backendIndex =
+      Number.isInteger(question.correctOptionIndex) &&
+      question.correctOptionIndex >= 0
+        ? question.correctOptionIndex
+        : Number.isInteger(question.correct) && question.correct >= 0
+          ? question.correct
+          : -1;
+    let correct =
+      backendIndex < options.length
+        ? backendIndex
+        : question.rightAnswer
+          ? options.findIndex(
+              (option) =>
+                normalizeAnswer(option) ===
+                normalizeAnswer(question.rightAnswer),
+            )
+          : -1;
     if (correct < 0 && question.rightAnswer) {
       options.push(question.rightAnswer);
       correct = options.length - 1;
     }
     return {
       ...question,
-      question: question.question || question.text || question.translation || '',
+      question:
+        question.question || question.text || question.translation || "",
       options,
       correct,
     };
@@ -187,22 +310,31 @@ export const getQuestionsByLesson = async (lessonId) => {
 };
 export const verifyUserSpeaking = async (questionId, audioBlob) => {
   const form = new FormData();
-  const extension = audioBlob.type.includes('webm') ? 'webm' : 'mp4';
-  form.append('audio', audioBlob, `speaking-answer.${extension}`);
-  return resultOf(await request(`/user/verifyUserSpeaking/${encodeURIComponent(questionId)}`, {
-    method: 'POST',
-    body: form,
-  }));
+  const extension = audioBlob.type.includes("webm") ? "webm" : "mp4";
+  form.append("audio", audioBlob, `speaking-answer.${extension}`);
+  return resultOf(
+    await request(
+      `/user/verifyUserSpeaking/${encodeURIComponent(questionId)}`,
+      {
+        method: "POST",
+        body: form,
+      },
+    ),
+  );
 };
-export const recordLessonCompletion = async (_userId, { lessonId, score, hearts, language }) => {
+export const recordLessonCompletion = async (
+  _userId,
+  { lessonId, score, hearts, language },
+) => {
   const fresh = await getUser();
-  const activeLanguage = language || fresh.onboarding?.languageToLearn || fresh.language;
-  await request('/user/updateAnalytics', {
-    method: 'PATCH',
+  const activeLanguage =
+    language || fresh.onboarding?.languageToLearn || fresh.language;
+  await request("/user/updateAnalytics", {
+    method: "PATCH",
     body: JSON.stringify({
       journeyLessonId: lessonId,
       languageToLearn: activeLanguage,
-      status: 'completed',
+      status: "completed",
       score,
     }),
   });
@@ -212,77 +344,111 @@ export const recordLessonCompletion = async (_userId, { lessonId, score, hearts,
 };
 
 export const getUserInsights = async (_userId, year, month) => {
-  const params = year && month ? `?${query({ year, month })}` : '';
+  const params = year && month ? `?${query({ year, month })}` : "";
   const data = resultOf(await request(`/user/getInsights${params}`)) || {};
   const dayDates = [
-    ...(data.monthlyCalendar?.days || []).filter((day) => day.isPracticed).map((day) => day.date),
-    ...(data.streakCard?.weekDays || []).filter((day) => day.isPracticed).map((day) => day.date),
+    ...(data.monthlyCalendar?.days || [])
+      .filter((day) => day.isPracticed)
+      .map((day) => day.date),
+    ...(data.streakCard?.weekDays || [])
+      .filter((day) => day.isPracticed)
+      .map((day) => day.date),
   ];
-  const achievementDefinitions = (data.achievements?.list || []).map((achievement) => ({
-    ...achievement,
-    desc: achievement.description || achievement.desc,
-    requiredCompleted: achievement.target || achievement.requiredCompleted || 1,
-  }));
-  const completedLessons = (data.completedLessons?.list || []).map((lesson) => ({
-    ...lesson,
-    lesson: {
-      title: lesson.title || lesson.lesson?.title,
-      icon: lesson.image || lesson.lesson?.icon,
-      type: lesson.difficulty || lesson.lesson?.type,
-      terms: lesson.termsCount || lesson.lesson?.terms,
-    },
-  }));
+  const achievementDefinitions = (data.achievements?.list || []).map(
+    (achievement) => ({
+      ...achievement,
+      desc: achievement.description || achievement.desc,
+      requiredCompleted:
+        achievement.target || achievement.requiredCompleted || 1,
+    }),
+  );
+  const completedLessons = (data.completedLessons?.list || []).map(
+    (lesson) => ({
+      ...lesson,
+      lesson: {
+        title: lesson.title || lesson.lesson?.title,
+        icon: lesson.image || lesson.lesson?.icon,
+        type: lesson.difficulty || lesson.lesson?.type,
+        terms: lesson.termsCount || lesson.lesson?.terms,
+      },
+    }),
+  );
   return {
     ...data,
     practicedDates: [...new Set(dayDates)],
     skillTrends: data.skillTrends || {},
-    skillScores: Object.fromEntries(['speaking', 'listening', 'vocabulary'].map((key) => [key, data.skillTrends?.[key]?.score || 0])),
+    skillScores: Object.fromEntries(
+      ["speaking", "listening", "vocabulary"].map((key) => [
+        key,
+        data.skillTrends?.[key]?.score || 0,
+      ]),
+    ),
     achievementDefinitions,
     completedLessons,
   };
 };
 export const getLessonProgress = async () => {
-  const data = resultOf(await request('/user/getAnalytics'));
+  const data = resultOf(await request("/user/getAnalytics"));
   return data?.completedLessons || [];
 };
-export const getAchievements = () => getContent('achievements');
-export const getHomeFeatures = () => getContent('homeFeatures');
-export const getHomeSteps = () => getContent('homeSteps');
-export const getHomeStats = () => getContent('homeStats');
-export const getBlogPosts = () => getContent('blogPosts');
-export const getBlogFilters = () => getContent('blogFilters');
-export const getFeaturedPost = () => getContent('featuredPost');
-export const getBlogHeroStats = () => getContent('blogHeroStats');
-export const subscribeToNewsletter = async (email) => resultOf(await request('/newsletter/subscribe', {
-  method: 'POST',
-  body: JSON.stringify({ email }),
-}));
-export const getAlphabets = () => getContent('alphabets');
+export const getAchievements = () => getContent("achievements");
+export const getHomeFeatures = () => getContent("homeFeatures");
+export const getHomeSteps = () => getContent("homeSteps");
+export const getHomeStats = () => getContent("homeStats");
+export const getBlogPosts = () => getContent("blogPosts");
+export const getBlogFilters = () => getContent("blogFilters");
+export const getFeaturedPost = () => getContent("featuredPost");
+export const getBlogHeroStats = () => getContent("blogHeroStats");
+export const subscribeToNewsletter = async (email) =>
+  resultOf(
+    await request("/newsletter/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  );
+export const getAlphabets = () => getContent("alphabets");
 export const getAlphabetByLanguage = async (language) => {
-  const rows = await getContent('alphabets');
-  return (rows || []).find((row) => row.language?.toLowerCase() === language?.toLowerCase()) || null;
+  const rows = await getContent("alphabets");
+  return (
+    (rows || []).find(
+      (row) => row.language?.toLowerCase() === language?.toLowerCase(),
+    ) || null
+  );
 };
-export const getTeamMembers = () => getContent('teamMembers');
-export const getAboutFeatures = () => getContent('aboutFeatures');
-export const getAboutStats = () => getContent('aboutStats');
-export const getTimeline = () => getContent('timeline');
-export const getInsightSkills = () => getContent('insightSkills');
-export const getInsightAchievements = () => getContent('insightAchievements');
-export const getLessonMeta = () => getContent('lessonMeta');
-export const getTermsConditions = async () => resultOf(await request('/getTermsConditions'));
-export const getPrivacyPolicy = async () => resultOf(await request('/getAllPrivacyPolicy'));
-export const getHelpCenter = async () => resultOf(await request('/getAllHelpCenter'));
-export const submitFeedback = async ({ email, subject, description, type, file }) => {
+export const getTeamMembers = () => getContent("teamMembers");
+export const getAboutFeatures = () => getContent("aboutFeatures");
+export const getAboutStats = () => getContent("aboutStats");
+export const getTimeline = () => getContent("timeline");
+export const getInsightSkills = () => getContent("insightSkills");
+export const getInsightAchievements = () => getContent("insightAchievements");
+export const getLessonMeta = () => getContent("lessonMeta");
+export const getTermsConditions = async () =>
+  resultOf(await request("/getTermsConditions"));
+export const getPrivacyPolicy = async () =>
+  resultOf(await request("/getAllPrivacyPolicy"));
+export const getHelpCenter = async () =>
+  resultOf(await request("/getAllHelpCenter"));
+export const submitFeedback = async ({
+  email,
+  subject,
+  description,
+  type,
+  file,
+}) => {
   const body = new FormData();
-  body.append('email', email);
-  body.append('subject', subject);
-  body.append('description', description);
-  body.append('type', type);
-  if (file) body.append('attachment', file);
-  return resultOf(await request('/feedback', { method: 'POST', body }));
+  body.append("email", email);
+  body.append("subject", subject);
+  body.append("description", description);
+  body.append("type", type);
+  if (file) body.append("attachment", file);
+  return resultOf(await request("/feedback", { method: "POST", body }));
 };
-export const getAppInfo = async () => resultOf(await request('/getAllAppInfo'));
-export const getSubscriptionPlans = async () => resultOf(await request('/getAllSubscriptionPlans'));
-export const getSubscriptionStatus = async () => resultOf(await request('/getMySubscriptionStatus'));
-export const getUserSettings = async () => resultOf(await request('/user/getSettings'));
-export const recordWebActivity = async () => resultOf(await request('/user/recordWebActivity', { method: 'POST' }));
+export const getAppInfo = async () => resultOf(await request("/getAllAppInfo"));
+export const getSubscriptionPlans = async () =>
+  resultOf(await request("/getAllSubscriptionPlans"));
+export const getSubscriptionStatus = async () =>
+  resultOf(await request("/getMySubscriptionStatus"));
+export const getUserSettings = async () =>
+  resultOf(await request("/user/getSettings"));
+export const recordWebActivity = async () =>
+  resultOf(await request("/user/recordWebActivity", { method: "POST" }));

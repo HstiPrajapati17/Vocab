@@ -658,6 +658,46 @@ export const getInsights = async (req, res) => {
   }
 };
 
+export const resetUserProgress = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const [user] = await Promise.all([
+      UserModel.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            streakDays: 0,
+            lastPracticedDate: null,
+            practiceHistory: [],
+            completedLessons: [],
+          },
+        },
+        { new: true },
+      ),
+      AnalyticsModel.findOneAndUpdate(
+        { userId },
+        {
+          $set: {
+            speakingTrendScore: 0,
+            listeningTrendScore: 0,
+            vocabularyTrendScore: 0,
+            completedQuestions: [],
+            completedLessons: [],
+            completedTopics: [],
+          },
+        },
+      ),
+      ChatSessionModel.deleteMany({ userId }),
+    ]);
+
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    return res.status(200).json({ success: true, message: "Learning progress reset successfully" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Could not reset learning progress", error: error.message });
+  }
+};
+
 export const recordCompletedLesson = async (req, res) => {
   try {
     const userId = req.user._id;

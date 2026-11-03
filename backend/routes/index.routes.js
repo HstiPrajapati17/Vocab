@@ -8,6 +8,7 @@ import {
   updateSettings,
   getAnalytics,
   getInsights,
+  resetUserProgress,
   recordCompletedLesson,
   recordWebActivity,
   deleteAccount,
@@ -176,6 +177,7 @@ indexRouter.post("/user/recordWebActivity", UserAuth, recordWebActivity);
 indexRouter.patch("/user/updateAnalytics", UserAuth, requireSubscription, recordCompletedLesson);
 indexRouter.get("/user/getAnalytics", UserAuth, getAnalytics);
 indexRouter.get("/user/getInsights", UserAuth, getInsights);
+indexRouter.post("/user/resetProgress", UserAuth, resetUserProgress);
 
 indexRouter.delete("/user/deleteAccount", UserAuth, deleteAccount);
 

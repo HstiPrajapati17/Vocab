@@ -55,7 +55,7 @@ const checkAchievement = (criteria, user, progressRecords = []) => {
 const Profile = () => {
   const navigate = useNavigate();
   const { user, refreshUser, showToast } = useApp();
-  const [ activeTab, setActiveTab ] = useState('activity');
+  const [ activeTab, setActiveTab ] = useState('achievements');
   const [ editing, setEditing ] = useState(false);
   const [ displayName, setDisplayName ] = useState(user?.name || 'Learner');
   const [ saving, setSaving ] = useState(false);
@@ -418,7 +418,6 @@ const Profile = () => {
         >
           <div className="hprof_tabs_nav">
             {[
-              { key: 'activity', icon: <FaChartBar size={12} />, label: 'Activity' },
               { key: 'achievements', icon: <FaAward size={12} />, label: 'Badges' },
               { key: 'history', icon: <FaBook size={12} />, label: 'History' },
             ].map(t => (
@@ -436,37 +435,6 @@ const Profile = () => {
 
           <div className="hprof_tab_content">
             <AnimatePresence mode="wait">
-              {activeTab === 'activity' && (
-                <motion.div
-                  key="activity"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.28 }}
-                  className="hprof_tab_panel"
-                >
-                  <div className="hprof_section_head">
-                    <h4 className="hprof_section_title">Learning Activity</h4>
-                    <span className="hprof_section_subtitle">Your learning progress</span>
-                  </div>
-
-                  <div className="hprof_summary_grid">
-                    {[
-                      { icon: '🔥', val: `${user?.streak || 0}d`, lbl: 'Current Streak', color: '#f2a541' },
-                      { icon: '✅', val: completedLessons.length, lbl: 'Lessons Completed', color: '#6b7fd4' },
-                    ].map((s, i) => (
-                      <div key={i} className="hprof_summary_card" style={{ '--sum-accent': s.color }}>
-                        <span className="hprof_sum_icon">{s.icon}</span>
-                        <div className="hprof_sum_meta">
-                          <div className="hprof_sum_val">{s.val}</div>
-                          <div className="hprof_sum_lbl">{s.lbl}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
               {activeTab === 'achievements' && (
                 <motion.div
                   key="achievements"

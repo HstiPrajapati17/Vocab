@@ -148,7 +148,6 @@ const RightPanel = ({ user, previewLanguage, currentPage, navigate, lessonCount 
           type="button" 
           className="h_rp_stat h_rp_lang_btn" 
           onClick={() => navigate('/courses')} 
-          title="Change language"
           onMouseEnter={(e) => handleMouseEnter('language', e)}
           onMouseLeave={handleMouseLeave}
         >

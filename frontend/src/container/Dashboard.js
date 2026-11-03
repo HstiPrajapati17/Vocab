@@ -57,7 +57,9 @@ const SectionsPanel = ({
               totalCount > 0
                 ? Math.round((completedCount / totalCount) * 100)
                 : 0;
-            const isActive = unitLessons.some((l) => String(l.id) === activeLesson);
+            const isActive = unitLessons.some(
+              (l) => String(l.id) === activeLesson,
+            );
             const isLocked =
               idx > 0 &&
               units.slice(0, idx).every((u) => {
@@ -188,21 +190,35 @@ const Dashboard = () => {
         const safeLessons = Array.isArray(lessonsData) ? lessonsData : [];
         const safeUnits = Array.isArray(unitsData) ? unitsData : [];
         // Keep lesson nodes visible even if the backend omitted topic metadata.
-        const inferredUnits = [...new Map(safeLessons.map((lesson) => [String(lesson.unitId), {
-          id: lesson.unitId,
-          title: lesson.unit || "Lessons",
-          sectionLabel: "Learning path",
-          color: "#2f855a",
-          emoji: "📚",
-        }])).values()];
+        const inferredUnits = [
+          ...new Map(
+            safeLessons.map((lesson) => [
+              String(lesson.unitId),
+              {
+                id: lesson.unitId,
+                title: lesson.unit || "Lessons",
+                sectionLabel: "Learning path",
+                color: "#2f855a",
+                emoji: "📚",
+              },
+            ]),
+          ).values(),
+        ];
         setLessons(safeLessons);
         setUnitMeta(safeUnits.length ? safeUnits : inferredUnits);
       })
       .catch((error) => {
-        if (active) setLoadError(error?.message || "Could not load lessons. Please try again.");
+        if (active)
+          setLoadError(
+            error?.message || "Could not load lessons. Please try again.",
+          );
       })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [user?.language, reloadKey]);
 
   useEffect(() => {
@@ -211,7 +227,9 @@ const Dashboard = () => {
   }, [lessons, handleLessonStats]);
 
   const completedLessons = useMemo(() => {
-    const ids = lessons.filter((lesson) => lesson.isCompleted).map((lesson) => String(lesson.id));
+    const ids = lessons
+      .filter((lesson) => lesson.isCompleted)
+      .map((lesson) => String(lesson.id));
     return new Set(ids);
   }, [lessons]);
 
@@ -234,12 +252,15 @@ const Dashboard = () => {
     ...unit,
     lessons: lessons.filter((l) => String(l.unitId) === String(unit.id)),
   }));
-  const lessonNumbers = new Map(lessons.map((lesson, index) => [String(lesson.id), index + 1]));
+  const lessonNumbers = new Map(
+    lessons.map((lesson, index) => [String(lesson.id), index + 1]),
+  );
 
   // Which unit is currently active (has the active lesson)
   const activeUnit =
-    unitGroups.find((u) => u.lessons.some((l) => String(l.id) === activeLesson)) ||
-    unitGroups[0];
+    unitGroups.find((u) =>
+      u.lessons.some((l) => String(l.id) === activeLesson),
+    ) || unitGroups[0];
 
   // Scroll to a unit when jumping from the panel
   useEffect(() => {
@@ -270,8 +291,10 @@ const Dashboard = () => {
               >
                 <ChevronLeft size={18} />
               </button>
-            <div className="h_section_main_label">{activeUnit.title}</div>
-             ( {activeUnit.sectionLabel} )
+              <div className="h_section_title_wrap d-flex align-items-center gap-1 flex-wrap">
+                <div className="h_section_main_label">{activeUnit.title}</div>({" "}
+                {activeUnit.sectionLabel} )
+              </div>
             </div>
           </div>
 
@@ -293,23 +316,32 @@ const Dashboard = () => {
             Loading {user?.language || "English"} lessons…
           </p>
         </div>
+      ) : loadError ? (
+        <div className="text-center py-5 px-3" role="alert">
+          <p className="text-muted mb-3">{loadError}</p>
+          <button
+            className="btn btn-outline-success"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      ) : lessons.length === 0 ? (
+        <div className="text-center py-5 px-3">
+          <h2 className="h5">Lessons are not available yet</h2>
+          <p className="text-muted mb-3">
+            We couldn’t find a learning path for{" "}
+            {user?.language || "your language"}.
+          </p>
+          <button
+            className="btn btn-outline-success"
+            onClick={() => setReloadKey((key) => key + 1)}
+          >
+            Reload lessons
+          </button>
+        </div>
       ) : (
-        loadError ? (
-          <div className="text-center py-5 px-3" role="alert">
-            <p className="text-muted mb-3">{loadError}</p>
-            <button className="btn btn-outline-success" onClick={() => setReloadKey((key) => key + 1)}>
-              Try again
-            </button>
-          </div>
-        ) : lessons.length === 0 ? (
-          <div className="text-center py-5 px-3">
-            <h2 className="h5">Lessons are not available yet</h2>
-            <p className="text-muted mb-3">We couldn’t find a learning path for {user?.language || "your language"}.</p>
-            <button className="btn btn-outline-success" onClick={() => setReloadKey((key) => key + 1)}>
-              Reload lessons
-            </button>
-          </div>
-        ) : unitGroups.map((unit) => (
+        unitGroups.map((unit) => (
           <div key={unit.id} id={`db_unit_${unit.id}`} className="h_learn_unit">
             <div className="h_unit_divider">
               <span>{unit.title || unit.sectionLabel || unit.section}</span>
@@ -345,7 +377,11 @@ const Dashboard = () => {
                           ${isLocked ? "h_learn_node_locked" : ""}`}
                         onClick={() => handleLessonClick(lesson)}
                         disabled={isLocked}
-                        aria-label={isActive && !isCompleted ? `Start ${lesson.title}` : lesson.title}
+                        aria-label={
+                          isActive && !isCompleted
+                            ? `Start ${lesson.title}`
+                            : lesson.title
+                        }
                       >
                         <IconComp size={isActive ? 28 : 24} strokeWidth={2.5} />
                       </button>
