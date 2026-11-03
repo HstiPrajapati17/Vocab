@@ -327,7 +327,7 @@ const LessonPage = () => {
           <div className="lp_result_mascot">
             {passed ? (
               <video
-                src={`${process.env.PUBLIC_URL}/assets/w2.mp4`}
+                src={`${process.env.PUBLIC_URL}/assets/winnerBird.mp4`}
                 autoPlay
                 loop
                 muted

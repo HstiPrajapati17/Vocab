@@ -135,12 +135,12 @@ const Login = () => {
                   </Button>
                 </Form>
 
-                <div className="h_demo_hint mt-3 p-3 rounded text-center">
+                {/* <div className="h_demo_hint mt-3 p-3 rounded text-center">
                   <small className="text-muted">
                     Demo account: <strong>demo@demo.com</strong> /{" "}
                     <strong>demo123</strong>
                   </small>
-                </div>
+                </div> */}
 
                 <hr className="my-4" />
 

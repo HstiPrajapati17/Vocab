@@ -271,7 +271,7 @@ const Dashboard = () => {
                 <ChevronLeft size={18} />
               </button>
             <div className="h_section_main_label">{activeUnit.title}</div>
-              {activeUnit.sectionLabel}
+             ( {activeUnit.sectionLabel} )
             </div>
           </div>
 

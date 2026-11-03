@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useMemo, useEffect } from "react";
 import { useApp } from "../App";
 import { getUserInsights } from "../api";
 import {
@@ -207,7 +207,9 @@ const Insights = () => {
   const daysToGoal = Number(insightData?.streakCard?.daysToWeeklyGoal ?? Math.max(0, 7 - streak)) || 0;
   const daysPracticedThisWeek = Number(insightData?.streakCard?.daysPracticedThisWeek) || 0;
   const weeklyGoal = Number(insightData?.streakCard?.weeklyGoal) || 7;
-  const completedRecords = insightData?.completedLessons || [];
+  const completedRecords = insightData?.completedLessons?.length
+    ? insightData.completedLessons
+    : user?.completedLessons || [];
   const completedCount = insightData ? completedRecords.length : user?.completedLessons?.length || 0;
   const skillTrends = insightData?.skillTrends || {};
   const skillScores = insightData?.skillScores || {};
@@ -220,6 +222,7 @@ const Insights = () => {
     { label: "Listening", value: listeningScore, delta: Number(skillTrends.listening?.trendPercent) || 0, direction: skillTrends.listening?.trendDirection, color: "#f2a541", hasData: Boolean(insightData) && !skillTrends.isEmpty && (listeningScore > 0 || completedCount > 0) },
     { label: "Vocabulary", value: vocabScore, delta: Number(skillTrends.vocabulary?.trendPercent) || 0, direction: skillTrends.vocabulary?.trendDirection, color: "#5b6abf", hasData: Boolean(insightData) && !skillTrends.isEmpty && (vocabScore > 0 || completedCount > 0) },
   ];
+  const hasSkillData = skills.some((skill) => skill.hasData);
 
   const achievementDefinitions = insightData?.achievementDefinitions || [];
   const achievements = achievementDefinitions.map((achievement) => {
@@ -400,11 +403,15 @@ const Insights = () => {
               <p className="ins_section_sub">Track how your language skills are evolving</p>
             </div>
           </div>
-          <div className="ins_skills_row">
+          {hasSkillData ? <div className="ins_skills_row">
             {skills.map((s) => (
               <SkillCard key={s.label} {...s} />
             ))}
-          </div>
+          </div> : <div className="ins_empty_feature">
+            <TrendingUp size={42} aria-hidden="true" />
+            <h3>Skill Trends</h3>
+            <p>Your speaking, listening, and grammar progress will appear here after you complete a few lessons.</p>
+          </div>}
 
           {/* ── ACHIEVEMENTS ── */}
           <div className="ins_section_header">
@@ -418,7 +425,33 @@ const Insights = () => {
           </div>
           {achievements.length ? <div className="ins_achievements_grid">
             {achievements.map((a) => <AchievementCard key={a.title} {...a} />)}
-          </div> : <p className="ins_section_empty">Achievement milestones will appear here when they’re available.</p>}
+          </div> : <div className="ins_empty_feature">
+            <Trophy size={42} aria-hidden="true" />
+            <h3>Achievements</h3>
+            <p>Complete lessons and practice daily to earn badges and reach milestones.</p>
+          </div>}
+
+          <div className="ins_section_header">
+            <div>
+              <h2 className="ins_section_title">Completed Lessons</h2>
+              <p className="ins_section_sub">{completedCount ? `${completedCount} lesson${completedCount === 1 ? "" : "s"} completed` : "Your finished lessons will appear here"}</p>
+            </div>
+            <BookOpen size={22} className="ins_section_icon" />
+          </div>
+          {completedRecords.length ? <div className="ins_completed_lessons">
+            {completedRecords.map((record, index) => {
+              const lesson = record.lesson || record;
+              return <div className="ins_completed_lesson" key={record._id || record.id || `${lesson.title || "lesson"}-${index}`}>
+                <span className="ins_completed_lesson_icon"><IconVisual value={lesson.icon} alt={lesson.title || "Lesson"} fallback="📘" /></span>
+                <span className="ins_completed_lesson_copy"><strong>{lesson.title || record.title || "Completed lesson"}</strong><small>{lesson.type || "Lesson"}{lesson.terms ? ` · ${lesson.terms} terms` : ""}</small></span>
+                <span className="ins_completed_check" aria-label="Completed">✓</span>
+              </div>;
+            })}
+          </div> : <div className="ins_empty_feature">
+            <BookOpen size={42} aria-hidden="true" />
+            <h3>Completed Lessons</h3>
+            <p>Pick a topic to start your first lesson and track your progress.</p>
+          </div>}
 
       </>
     </div>
