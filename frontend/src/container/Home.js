@@ -97,7 +97,7 @@ const Home = () => {
         >
           <Row className="align-items-center g-5">
             {/* Text */}
-            <Col lg={6} className="order-lg-1 order-2">
+            <Col lg={6} className="order-lg-1 order-1">
               <div className="hp_hero_pill">
                 <BookOpen size={14} />
                 <span>Free language learning</span>
@@ -142,7 +142,7 @@ const Home = () => {
             {/* Visual card */}
             <Col
               lg={6}
-              className="order-lg-2 order-1 d-flex justify-content-center"
+              className="order-lg-2 order-2 d-flex justify-content-center"
             >
               <div className="hp_card_wrap">
                 {/* ghost card behind */}
@@ -235,11 +235,11 @@ const Home = () => {
               <div
                 className="hp_lang_card"
                 key={i}
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/onboarding")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    navigate("/signup");
+                    navigate("/onboarding");
                   }
                 }}
                 role="listitem"
@@ -273,7 +273,7 @@ const Home = () => {
           <div className="text-center mt-5">
             <Button
               className="hp_btn_outline"
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/onboarding")}
             >
               View All Languages <ArrowRight size={15} className="ms-1" />
             </Button>
@@ -331,7 +331,7 @@ const Home = () => {
               </div>
               <Button
                 className="hp_btn_primary mt-4"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/onboarding")}
               >
                 Start Learning Now <ArrowRight size={16} />
               </Button>

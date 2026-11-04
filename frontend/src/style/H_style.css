@@ -1668,6 +1668,9 @@ body {
   }
 }
 @media (max-width: 575.98px) {
+  .hp_hero {
+    padding: clamp(40px, 9vw, 120px) 0 clamp(48px, 7vw, 96px);
+  }
   .hp_hero_title {
     font-size: 1.9rem;
   }
@@ -1703,6 +1706,7 @@ body {
   .hp_footer_nav_cols {
     gap: 24px;
   }
+  
   /* newsletter form stacks on mobile */
   .hp_nl_form {
     flex-direction: column;
