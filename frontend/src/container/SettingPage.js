@@ -10,11 +10,15 @@ import {
 } from 'react-icons/fa';
 import { GrPowerReset } from 'react-icons/gr';
 import { MdAutoDelete } from 'react-icons/md';
+import { Modal } from 'react-bootstrap';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { user, refreshUser, handleLogout, showToast } = useApp();
   const [savingKey, setSavingKey] = useState('');
+  const [dangerAction, setDangerAction] = useState('');
+  const [dangerBusy, setDangerBusy] = useState(false);
+  const [dangerError, setDangerError] = useState('');
   const [settings, setSettings] = useState({
     notifications: true,
     dailyReminder: true
@@ -65,24 +69,31 @@ const SettingsPage = () => {
     }
   };
 
-  const handleResetProgress = async () => {
-    if (!user?.id || !window.confirm('Reset all lesson progress, streak and insights?')) return;
-    try {
-      const updated = await resetUserProgress(user.id);
-      refreshUser(updated);
-    } catch (error) {
-      window.alert(error.message || 'Could not reset progress.');
+  const closeDangerModal = () => {
+    if (!dangerBusy) {
+      setDangerAction('');
+      setDangerError('');
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!user?.id || !window.confirm('Delete your account and learning history permanently?')) return;
+  const handleDangerConfirm = async () => {
+    if (!user?.id || dangerBusy) return;
+    setDangerBusy(true);
+    setDangerError('');
     try {
-      await deleteUserAccount(user.id);
-      handleLogout();
-      navigate('/');
+      if (dangerAction === 'reset') {
+        const updated = await resetUserProgress(user.id);
+        refreshUser(updated);
+        setDangerAction('');
+      } else if (dangerAction === 'delete') {
+        await deleteUserAccount(user.id);
+        handleLogout();
+        navigate('/');
+      }
     } catch (error) {
-      window.alert(error.message || 'Could not delete your account.');
+      setDangerError(error.message || (dangerAction === 'reset' ? 'Could not reset progress.' : 'Could not delete your account.'));
+    } finally {
+      setDangerBusy(false);
     }
   };
 
@@ -179,7 +190,7 @@ const SettingsPage = () => {
             title="Reset All Progress"
             description="This will delete all your learning progress"
           >
-            <button className="settings-button settings-button-danger" onClick={handleResetProgress}>
+            <button className="settings-button settings-button-danger" onClick={() => setDangerAction('reset')}>
               Reset Progress
             </button>
           </SettingCard>
@@ -189,12 +200,31 @@ const SettingsPage = () => {
             title="Delete Account"
             description="Permanently delete your account and all data"
           >
-            <button className="settings-button settings-button-danger" onClick={handleDeleteAccount}>
+            <button className="settings-button settings-button-danger" onClick={() => setDangerAction('delete')}>
               Delete Account
             </button>
           </SettingCard>
         </div>
       </div>
+      <Modal show={Boolean(dangerAction)} onHide={closeDangerModal} centered>
+        <Modal.Header closeButton={!dangerBusy}>
+          <Modal.Title>{dangerAction === 'reset' ? 'Reset all progress?' : 'Delete your account?'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-0">
+            {dangerAction === 'reset'
+              ? 'This will reset all lesson progress, your streak, and insights. This action cannot be undone.'
+              : 'This will permanently delete your account and learning history. This action cannot be undone.'}
+          </p>
+          {dangerError && <p className="text-danger mt-3 mb-0" role="alert">{dangerError}</p>}
+        </Modal.Body>
+        <Modal.Footer>
+          <button type="button" className="settings-button settings-button-secondary" onClick={closeDangerModal} disabled={dangerBusy}>Cancel</button>
+          <button type="button" className="settings-button settings-button-danger" onClick={handleDangerConfirm} disabled={dangerBusy}>
+            {dangerBusy ? 'Please wait…' : dangerAction === 'reset' ? 'Reset Progress' : 'Delete Account'}
+          </button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

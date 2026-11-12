@@ -7687,7 +7687,8 @@ body.modal-open {
     border-radius: 10px;
   }
   .ins_cal_cell {
-    min-height: 36px;
+    height: 50px;
+    max-height: 36px;
     font-size: 0.78rem;
   }
   .ins_lesson_row {
@@ -7706,7 +7707,7 @@ body.modal-open {
     padding: 6px 10px;
   }
   .ins_calendar_header {
-    gap: 0px;
+    gap: 8px;
   }
   .ins_lesson_emoji .ins_icon_image_wrap {
     padding: 10px;

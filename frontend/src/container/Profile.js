@@ -303,7 +303,7 @@ const Profile = () => {
                 <div className="hprof_name_row">
                   <h1 className="hprof_name">
                     {displayName}
-                    <span className="hprof_name_sparkle" role="img" aria-label="sparkle">✨</span>
+                    {/* <span className="hprof_name_sparkle" role="img" aria-label="sparkle">✨</span> */}
                   </h1>
                   <button className="hprof_edit_btn" onClick={() => setEditing(true)} title="Edit profile">
                     <FaEdit size={13} /> Edit

@@ -149,13 +149,13 @@ const AppShell = ({ children }) => {
           background: var(--bg-white);
         }
         .h_logout_modal_header {
-          background: var(--danger-soft);
-          border-bottom: 2px solid rgba(196, 92, 92, 0.2) !important;
-          padding: 1rem 1.25rem;
+          background: var(--primary-soft);
+            border-bottom: 2px solid #2f855a !important;
+            padding: 1rem 1.25rem;
         }
         .h_logout_modal_title {
           font-weight: 800;
-          color: var(--danger);
+          color: #2f855a;
           font-size: 1.2rem;
           line-height: 1.2;
         }
@@ -197,8 +197,8 @@ const AppShell = ({ children }) => {
           color: var(--text-muted) !important;
         }
         .h_logout_modal_btn_danger {
-          background: var(--danger) !important;
-          box-shadow: 0 3px 0 rgba(196, 92, 92, 0.5);
+          background: #2f855a !important;
+            box-shadow: 0 3px 0 #1e4733;
         }
         .h_logout_modal .btn-close {
           filter: none !important;

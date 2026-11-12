@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 /* ── helpers ── */
-const DAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const isImageUrl = (value) =>
   typeof value === "string" && /^(https?:\/\/|data:image\/|blob:)/i.test(value.trim());
 
